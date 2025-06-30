@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.pwss</groupId>
+    <artifactId>File-Integrity-Scanner</artifactId>
+    <version>0.5</version>
+    <packaging>jar</packaging>
+    <description>A File Integrity Scanner</description>
+    <licenses>
+        <license>
+            <name>Proprietary License</name>
+            <url>https://github.com/pwssOrg/File-Integrity-Scanner/blob/main/LICENSE.md</url>
+            <distribution>repo</distribution>
+            <comments>
+                This software and its source code are proprietary to Peter Westin (pwgit-create) and Stefan Smudja
+                (lilstiffy). All rights
+                reserved. This project may not be copied or used for commercial purposes without the explicit permission
+                of the
+                copyright holders.
+            </comments>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Peter Westin</name>
+            <id>Peter</id>
+            <email>snow_900@outlook.com</email>
+            <roles>
+                <role>Coa supporter</role>
+            </roles>
+            <timezone>Central European Time</timezone>
+        </developer>
+
+        <developer>
+            <name>Stefan Smudja</name>
+            <id>Stefan</id>
+            <email>stefan-201@hotmail.com</email>
+            <roles>
+                <role>Developer King</role>
+            </roles>
+            <timezone>Central European Time</timezone>
+        </developer>
+    </developers>
+
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>3.5.3</version>
+            <scope>test</scope>
+        </dependency>
+
+
+
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>3.5.3</version>
+        </dependency>     -->
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+       <!-- <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.5</version>
+        </dependency> -->
+
+
+
+
+        <!-- https://github.com/pwssOrg/ShredChat/packages/2386148 -->
+        <dependency>
+            <groupId>lib.pwss.cryptographic_algorithm</groupId>
+            <artifactId>cryptographic_algorithm</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.4.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
