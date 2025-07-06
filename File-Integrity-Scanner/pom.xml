@@ -11,7 +11,7 @@
     <licenses>
         <license>
             <name>Proprietary License</name>
-            <url>https://github.com/pwssOrg/File-Integrity-Scanner/blob/main/LICENSE.md</url>
+            <url>https://github.com/pwssOrg/File-Integrity-Scanner/blob/master/LICENSE.md</url>
             <distribution>repo</distribution>
             <comments>
                 This software and its source code are proprietary to Peter Westin (pwgit-create) and Stefan Smudja
