@@ -1,4 +1,4 @@
-package org.pwss.project_name;
+package org.pwss.file_integrity_scanner;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
