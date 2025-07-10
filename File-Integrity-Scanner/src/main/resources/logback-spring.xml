@@ -7,5 +7,5 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>
-    <logger name="org.pwss.project_name" level="DEBUG"/>
+    <logger name="org.pwss.file_integrity_scanner" level="DEBUG"/>
 </configuration>
