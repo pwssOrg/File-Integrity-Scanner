@@ -21,6 +21,11 @@ test:
 clean:
 	cd $(POM_DIR) && mvn clean
 
+# Start target
+.PHONY: start
+start:
+	cd $(POM_DIR) && mvn spring-boot:run
+
 # Help target
 .PHONY: help
 help:
@@ -28,4 +33,5 @@ help:
 	@echo "  make build	- Build the project using Maven"
 	@echo "  make test	- Test the project using Maven"
 	@echo "  make clean	- Clean the project using Maven"
+	@echo "  make start	- Start the project using Maven"
 	@echo "  make help	- Display this help message"
