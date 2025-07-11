@@ -2,9 +2,9 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -22,6 +22,11 @@ jobs:
 
     - name: checkout repo
       uses: actions/checkout@main
+
+    - name: Set up environment variables
+      env:
+        GITHUB_TOKEN: ${{ secrets.READ_PACKAGE_TOKEN_FOR_WORKFLOWS }}
+      run: echo "GITHUB_TOKEN is set to access private packages"
 
     - name: Install dependencies
       run: make build
