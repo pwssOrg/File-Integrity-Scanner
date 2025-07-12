@@ -22,8 +22,8 @@ try {
     $filePath = Join-Path "tables" $tableFile
     if (Test-Path $filePath) {
       $DBCmd.CommandText = Get-Content $filePath -Raw
-      $reader = $DBCmd.ExecuteReader()
-      $reader.Close()
+      $rowsAffected = $DBCmd.ExecuteNonQuery()
+      Write-Output "Executed $tableFile - $rowsAffected rows affected."
     }
     else {
       Write-Warning "Table definition file not found: $filePath"

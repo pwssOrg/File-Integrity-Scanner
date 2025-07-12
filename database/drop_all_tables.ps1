@@ -24,9 +24,9 @@ DROP TABLE IF EXISTS scan_details CASCADE;
 DROP TABLE IF EXISTS scans CASCADE;
 DROP TABLE IF EXISTS monitored_directories CASCADE;
 "@
-    $DBCmd.ExecuteReader();
+    $rowsAffected = $DBCmd.ExecuteNonQuery();
+    Write-Output "$rowsAffected rows affected by DROP statements."
     $DBConn.Close();
-
 
     Write-Output "Success! The file integrity scan database is now free of all tables and sequences." | Green
 }
