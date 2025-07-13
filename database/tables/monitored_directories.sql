@@ -4,5 +4,6 @@ CREATE TABLE monitored_directories (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     last_scanned TIMESTAMPTZ,
-    notes TEXT
+    notes TEXT,
+    baseline_established BOOLEAN NOT NULL DEFAULT FALSE
 );
