@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Set up environment variables for accessing the private GitHub package repository
         env:
-          GITHUB_TOKEN: ${{ secrets.READ_PACKAGE_TOKEN_FOR_WORKFLOWS_R }}
+          GITHUB_TOKEN: ${{ secrets.READ_PACKAGE_TOKEN_FOR_WORKFLOWS }}
         run: echo "GITHUB_TOKEN is set to access private packages"
 
       - name: Setup Maven Settings
