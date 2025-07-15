@@ -30,7 +30,7 @@ or desired, ensuring full control over data integrity for the end-user.
 
 - **No Spyware or Tracking:** The default version contains no spyware or tracking software.
 
-![File Integrity Scanner Image Placeholder](640x486.png "Placeholder for 640x486 image")
+![File Integrity Scanner Image Placeholder](https://github.com/pwssOrg/File-Integrity-Scanner/blob/54-create-initial-readme/.github/assets/images/640x486.jpg?raw=true)
 
 ---
 
@@ -52,18 +52,15 @@ restricted to board members or team members of the PWSS organization.
 
 ## Workflow Badges
 
-*Placeholders for SCA Scan and Build Scan badges:*
-
-[![SCA Scan](https://img.shields.io/badge/SCA-Scan-Pass)](placeholder-link)
-[![Build Scan](https://img.shields.io/badge/Build-Scan-Pass)](placeholder-link)
+[![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
+[![SCA Scan - File Integrity Scanner](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml)
 
 ## Contact Information
 
 For any questions or support, please reach out to:
 
-- @pwgit-create
-- @lilstiffy
-
+	@pwgit-create	Peter pwgit-create
+	@lilstiffy	Stefan lilstiffy
 ### Discussion Forum
 
 Please visit our discussion forum for project-related documentation and discussions: [Project Discussion
