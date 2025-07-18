@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner;
 
 import lib.pwss.cryptographic_algorithm.hash.FileHashHandler;
+import lib.pwss.cryptographic_algorithm.hash.compare.util.HashCompareUtil;
 import lib.pwss.cryptographic_algorithm.hash.model.HashForFilesOutput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,4 +62,54 @@ public class PWSSLibraryTest {
         final String actual = wrapperInstance.blake2();
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    public void testCompareHashesXOR_Positive() {
+        final String hash1 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final String hash2 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final boolean result = HashCompareUtil.compareHashesXor(hash1, hash2);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void testCompareHashesXOR_Negative() {
+        final String hash1 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final String hash2 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ef3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final boolean result = HashCompareUtil.compareHashesXor(hash1, hash2);
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    public void testCompareHashesJavaEquals_Positive() {
+        final String hash1 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final String hash2 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        boolean result = HashCompareUtil.compareHashesJavaEquals(hash1, hash2);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void testCompareHashesJavaEquals_Negative() {
+        final String hash1 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final String hash2 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ef3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final boolean result = HashCompareUtil.compareHashesJavaEquals(hash1, hash2);
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    public void testCompareHashesCombinedMethod_Positive() {
+        final String hash1 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final String hash2 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final boolean result = HashCompareUtil.compareUsingXorAndJavaEquals(hash1, hash2);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void testCompareHashesCombinedMethod_Negative() {
+        final String hash1 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ea3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final String hash2 = "BLAKE2b: 868f1b00d1e1045b03a539792f9d0dcf9d39dc9e54ccf378ecc7d65a35ef3bb256f1a2b055d1778ff519ded0d59ca341792fdaca96a87634d14d68093b5f0833";
+        final boolean result = HashCompareUtil.compareUsingXorAndJavaEquals(hash1, hash2);
+        Assertions.assertFalse(result);
+    }
+
+
 }
