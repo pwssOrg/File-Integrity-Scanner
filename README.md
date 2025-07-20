@@ -30,7 +30,7 @@ or desired, ensuring full control over data integrity for the end-user.
 
 - **No Spyware or Tracking:** The default version contains no spyware or tracking software.
 
-![File Integrity Scanner Image](https://github.com/pwssOrg/File-Integrity-Scanner/blob/54-create-initial-readme/.github/assets/images/640x486.jpg?raw=true)
+![File Integrity Scanner Image](https://github.com/pwssOrg/File-Integrity-Scanner/blob/master/.github/assets/images/640x486.jpg?raw=true)
 
 ---
 
