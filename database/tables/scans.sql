@@ -1,5 +1,5 @@
 CREATE TABLE scans (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     scan_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     status TEXT NOT NULL,
     notes TEXT,
