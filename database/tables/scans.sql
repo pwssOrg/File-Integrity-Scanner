@@ -3,5 +3,5 @@ CREATE TABLE scans (
     scan_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     status TEXT NOT NULL,
     notes TEXT,
-    monitored_directory_id INTEGER NOT NULL REFERENCES monitored_directories(id)
+    monitored_directory_id bigint NOT NULL REFERENCES monitored_directories(id)
 );
