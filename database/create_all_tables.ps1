@@ -1,3 +1,7 @@
+param(
+  [bool]$InsertTestData = $false
+)
+
 ## Import PWSS Powershell utility Module
 Import-Module ".\functions_ps\pwss_powershell_utility.psm1"
 
@@ -27,6 +31,19 @@ try {
     }
     else {
       Write-Warning "Table definition file not found: $filePath"
+    }
+  }
+
+  ## Insert test data if requested
+  if ($InsertTestData) {
+    $mockDataPath = ".\mock_data\insert_mock_data.sql"
+    if (Test-Path $mockDataPath) {
+      $DBCmd.CommandText = Get-Content $mockDataPath -Raw
+      $rowsAffected = $DBCmd.ExecuteNonQuery()
+      Write-Output "Inserted mock data - $rowsAffected rows affected."
+    }
+    else {
+      Write-Warning "Mock data file not found: $mockDataPath"
     }
   }
 
