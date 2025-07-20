@@ -1,8 +1,0 @@
-CREATE TABLE files (
-    id BIGSERIAL PRIMARY KEY,
-    path TEXT NOT NULL UNIQUE,
-    basename TEXT NOT NULL,
-    directory TEXT NOT NULL,
-    size INTEGER NOT NULL,
-    mtime TIMESTAMPTZ NOT NULL
-);
