@@ -64,4 +64,4 @@ For any questions or support, please reach out to:
 ### Discussion Forum
 
 Please visit our discussion forum for project-related documentation and discussions: [Project Discussion
-Forum](https://github.com/orgs/pwssOrg/discussions/categories/project-documentation)
+Forum](https://github.com/orgs/pwssOrg/discussions/categories/file-integrity-scanner)
