@@ -60,6 +60,7 @@
             <version>3.5.3</version>
         </dependency>
 
+
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -67,8 +68,6 @@
             <version>3.5.3</version>
             <scope>test</scope>
         </dependency>
-
-
 
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
@@ -92,6 +91,7 @@
             <artifactId>algorithm-hash-extraction</artifactId>
             <version>1.0</version>
         </dependency>
+
 
     </dependencies>
 
