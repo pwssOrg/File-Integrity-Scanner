@@ -1,6 +1,8 @@
-package org.pwss.msr.domain.model.entities;
+package org.pwss.msr.domain.model.entities.monitored_directory;
 
 import jakarta.persistence.*;
+import org.pwss.msr.domain.model.entities.BaseEntity;
+
 import java.time.OffsetDateTime;
 
 @Entity

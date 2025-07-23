@@ -1,6 +1,10 @@
-package org.pwss.msr.domain.model.entities;
+package org.pwss.msr.domain.model.entities.scan_details;
 
 import jakarta.persistence.*;
+import org.pwss.msr.domain.model.entities.BaseEntity;
+import org.pwss.msr.domain.model.entities.checksum.Checksum;
+import org.pwss.msr.domain.model.entities.file.File;
+import org.pwss.msr.domain.model.entities.scan.Scan;
 
 @Entity
 @Table(name = "scan_details")

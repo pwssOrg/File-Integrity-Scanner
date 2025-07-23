@@ -1,6 +1,8 @@
-package org.pwss.msr.domain.model.entities;
+package org.pwss.msr.domain.model.entities.checksum;
 
 import jakarta.persistence.*;
+import org.pwss.msr.domain.model.entities.BaseEntity;
+import org.pwss.msr.domain.model.entities.file.File;
 
 @Entity
 @Table(name = "checksums")
