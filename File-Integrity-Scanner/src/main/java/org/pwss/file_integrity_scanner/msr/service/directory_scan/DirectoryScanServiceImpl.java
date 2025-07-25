@@ -47,7 +47,7 @@ public class DirectoryScanServiceImpl implements DirectoryScanService {
     public void scanAllDirectories() {
         if (!isScanning) {
             scanThread = new Thread(() -> {
-                List<MonitoredDirectory> directories = monitoredDirectoryRepository.findAll();
+                List<MonitoredDirectory> directories = monitoredDirectoryRepository.findByIsActive(true);
                 if (directories.isEmpty()) {
                     System.out.println("No directories to scan.");
                     return;
