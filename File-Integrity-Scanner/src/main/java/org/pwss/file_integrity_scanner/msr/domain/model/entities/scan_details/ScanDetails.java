@@ -1,6 +1,5 @@
 package org.pwss.file_integrity_scanner.msr.domain.model.entities.scan_details;
 
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.BaseEntity;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
@@ -9,7 +8,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "scan_details")
-public class ScanDetails extends BaseEntity {
+public class ScanDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
