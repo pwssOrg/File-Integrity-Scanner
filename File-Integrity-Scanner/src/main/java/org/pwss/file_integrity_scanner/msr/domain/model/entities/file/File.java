@@ -24,7 +24,7 @@ public class File extends BaseEntity {
     private String directory;
 
     @Column(nullable = false)
-    private Integer size;
+    private Long size;
 
     @Column(nullable = false)
     private OffsetDateTime mtime;
@@ -63,11 +63,11 @@ public class File extends BaseEntity {
         this.directory = directory;
     }
 
-    public Integer getSize() {
+    public Long getSize() {
         return size;
     }
 
-    public void setSize(Integer size) {
+    public void setSize(Long size) {
         this.size = size;
     }
 
