@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirectoryRepository> implements MonitoredDirectoryService {
 
-    public MonitoredDirectoryServiceImpl(MonitoredDirectoryRepository repository){
-    super(repository);
-}
-    
+    public MonitoredDirectoryServiceImpl(MonitoredDirectoryRepository repository) {
+        super(repository);
+    }
+
 }

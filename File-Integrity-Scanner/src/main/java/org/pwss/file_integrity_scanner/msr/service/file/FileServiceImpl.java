@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileServiceImpl extends BaseService<FileRepository> implements FileService {
 
-    public FileServiceImpl(FileRepository repository){
-    super(repository);
-}
-    
+    public FileServiceImpl(FileRepository repository) {
+        super(repository);
+    }
+
 }
