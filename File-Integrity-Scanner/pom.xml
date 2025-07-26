@@ -92,6 +92,12 @@
             <version>1.0</version>
         </dependency>
 
+<dependency>
+  <groupId>lib.pwss</groupId>
+  <artifactId>directory_nav</artifactId>
+  <version>0.5</version>
+</dependency>
+
 
     </dependencies>
 
