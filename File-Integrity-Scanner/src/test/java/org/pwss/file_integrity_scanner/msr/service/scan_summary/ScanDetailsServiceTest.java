@@ -1,6 +1,4 @@
-package org.pwss.file_integrity_scanner.msr.service.scan_details;
-
-import org.pwss.file_integrity_scanner.msr.service.scan_details.ScanDetailsService;
+package org.pwss.file_integrity_scanner.msr.service.scan_summary;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
@@ -11,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class ScanDetailsServiceTest {
 
     @Autowired
-    ScanDetailsService ScanDetailsService;
+    ScanSummaryService ScanDetailsService;
 
     @Test
     public void testUserServiceInitialization() {

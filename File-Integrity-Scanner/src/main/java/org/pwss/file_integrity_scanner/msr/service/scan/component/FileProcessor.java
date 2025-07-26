@@ -3,15 +3,14 @@ package org.pwss.file_integrity_scanner.msr.service.scan.component;
 import lib.pwss.hash.model.HashForFilesOutput;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan_details.ScanDetails;
+import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.msr.repository.ChecksumRepository;
 import org.pwss.file_integrity_scanner.msr.repository.FileRepository;
-import org.pwss.file_integrity_scanner.msr.repository.ScanDetailsRepository;
+import org.pwss.file_integrity_scanner.msr.repository.ScanSummaryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -27,7 +26,7 @@ public class FileProcessor {
     private ChecksumRepository checksumRepository;
 
     @Autowired
-    private ScanDetailsRepository scanDetailsRepository;
+    private ScanSummaryRepository scanDetailsRepository;
 
     @Autowired
     private FileHashComputer fileHashComputer;
@@ -79,7 +78,7 @@ public class FileProcessor {
         checksums.setFile(fileEntity);
         checksumRepository.save(checksums);
 
-        ScanDetails scanDetails = new ScanDetails();
+        ScanSummary scanDetails = new ScanSummary();
         scanDetails.setFile(fileEntity);
         scanDetails.setScan(scanInstance);
         scanDetails.setChecksum(checksums);
