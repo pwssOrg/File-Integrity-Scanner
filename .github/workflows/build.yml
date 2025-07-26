@@ -2,7 +2,7 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "95-fix-broken-workflow-scripts" ]
   pull_request:
     branches: [ "master" ]
 
@@ -10,6 +10,22 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17.5
+        ports:
+          - 26556:5432
+        env:
+          POSTGRES_DB: integrity_hash
+          POSTGRES_USER: coa
+          POSTGRES_PASSWORD: the_dodo
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
 
     steps:
     - uses: actions/checkout@v4
@@ -65,6 +81,12 @@ jobs:
           </servers>
         </settings>
         EOF
+
+    - name: Set DB environment variables
+      run: |
+        echo "INTEGRITY_HASH_DB_USER=coa" >> $GITHUB_ENV
+        echo "INTEGRITY_HASH_DB_PASSWORD=the_dodo" >> $GITHUB_ENV
+
 
     - name: Install dependencies
       run: make build
