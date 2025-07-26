@@ -8,7 +8,7 @@ import org.pwss.file_integrity_scanner.msr.domain.model.entities.BaseEntity;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 
 @Entity
-@Table(name = "scans")
+@Table(name = "scan")
 public class Scan extends BaseEntity {
 
     @Id

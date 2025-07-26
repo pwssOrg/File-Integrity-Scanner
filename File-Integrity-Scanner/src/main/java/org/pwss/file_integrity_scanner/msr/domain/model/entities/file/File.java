@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.BaseEntity;
 
 @Entity
-@Table(name = "files")
+@Table(name = "file")
 public class File extends BaseEntity {
 
     @Id
