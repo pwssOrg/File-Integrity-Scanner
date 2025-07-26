@@ -2,8 +2,6 @@
 spring:
   main:
     show-banner: false
-  thymeleaf:
-     cache: false
   jpa:
     open-in-view: false
     database: postgresql
