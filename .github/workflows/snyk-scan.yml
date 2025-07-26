@@ -15,3 +15,5 @@ jobs:
        name-of-snyk-step: Check for vulnerabilities in File Integrity Scanner
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      USER_FOR_SNYK: ${{ secrets.READ_PACKAGE_USER_FOR_WORKFLOWS }}  # Add this line if needed
+      READ_PACKAGE_TOKEN_FOR_WORKFLOWS_R: ${{ secrets.READ_PACKAGE_TOKEN_FOR_WORKFLOWS }}  # Add this line if
