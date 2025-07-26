@@ -2,9 +2,9 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ "95-fix-broken-workflow-scripts" ]
-  pull_request:
     branches: [ "master" ]
+  pull_request:
+    branches: [ "master, develop" ]
 
 jobs:
   build:
