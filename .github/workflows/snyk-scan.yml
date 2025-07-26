@@ -2,7 +2,7 @@ name: SCA Scan - File Integrity Scanner
 
 on:
   push:
-    branches: [ "95-fix-broken-workflow-scripts" ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "develop" ]
   workflow_dispatch:
