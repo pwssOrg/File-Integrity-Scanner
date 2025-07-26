@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "95-fix-broken-workflow-scripts" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "develop" ]
   workflow_dispatch:
  
 jobs:
