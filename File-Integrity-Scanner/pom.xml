@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>3.5.4</version>
+            <version>4.0.0-M1</version>
         </dependency>
 
 
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>3.5.4</version>
+            <version>4.0.0-M1</version>
             <scope>test</scope>
         </dependency>
 
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>3.5.4</version>
+            <version>4.0.0-M1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
@@ -95,7 +95,7 @@
 <dependency>
   <groupId>lib.pwss</groupId>
   <artifactId>directory_nav</artifactId>
-  <version>0.5</version>
+  <version>1.0</version>
 </dependency>
 
 
@@ -108,7 +108,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>4.0.0-M1</version>
             </plugin>
         </plugins>
     </build>
