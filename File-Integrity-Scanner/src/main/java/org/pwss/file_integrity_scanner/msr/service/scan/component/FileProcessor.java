@@ -19,6 +19,8 @@ import java.time.ZoneOffset;
 @Component
 public class FileProcessor {
 
+
+    // If you use JPA related classes and want material from the database , use serivce classes (See monitoredDirectoryService)
     @Autowired
     private FileRepository fileRepository;
 
@@ -26,10 +28,19 @@ public class FileProcessor {
     private ChecksumRepository checksumRepository;
 
     @Autowired
-    private ScanSummaryRepository scanDetailsRepository;
+    private ScanSummaryRepository scanDetailsRepository;     // General design advice on Component classes. Never use JPA classes and Autowired annonation in thesee. 
 
-    @Autowired
-    private FileHashComputer fileHashComputer;
+   
+    // This is no longer autowired
+    private final FileHashComputer fileHashComputer;
+
+    
+
+    public FileProcessor(FileHashComputer fileHashComputer) {
+        this.fileHashComputer = fileHashComputer;
+    }
+
+
 
     /**
      * Processes a file by checking its existence in the database, updating or creating
@@ -85,3 +96,5 @@ public class FileProcessor {
         scanDetailsRepository.save(scanDetails);
     }
 }
+
+// All this can be done in a Service class and it is important that we follow Spring developer guidelines , otherwise Spring will not work as intended. Talk more tommorow :)

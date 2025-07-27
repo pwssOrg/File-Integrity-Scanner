@@ -10,7 +10,11 @@ import java.io.File;
  * Component responsible for computing hashes for files.
  */
 @Component
-public class FileHashComputer {
+public final class FileHashComputer {
+
+    
+    public FileHashComputer() {
+    }
 
     private final FileHashHandler fileHashHandler = new FileHashHandler();
 
@@ -20,7 +24,7 @@ public class FileHashComputer {
      * @param file the file for which hashes need to be computed
      * @return an object containing the computed hashes for the file
      */
-    public HashForFilesOutput computeHashes(File file) {
+    public final HashForFilesOutput computeHashes(File file) {
         return fileHashHandler.GetAllHashes(file);
     }
 }
