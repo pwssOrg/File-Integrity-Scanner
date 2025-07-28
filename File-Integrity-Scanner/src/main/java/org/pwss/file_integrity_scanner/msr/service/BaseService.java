@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public abstract class BaseService<Repository extends JpaRepository> {
     protected final Repository repository;
 
-    public BaseService(@Autowired Repository repository) {
+    @Autowired
+    public BaseService(Repository repository) {
         this.repository = repository;
     }
 }

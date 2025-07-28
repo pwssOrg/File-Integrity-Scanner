@@ -24,7 +24,7 @@ public class DirectoryTraverser {
      * @throws InterruptedException if the thread is interrupted while waiting for the scan to complete
      * @throws ExecutionException if the computation threw an exception
      */
-    public List<Path> scanDirectory(String directoryPath) throws java.io.IOException, InterruptedException, ExecutionException {
+    public final List<Path> scanDirectory(String directoryPath) throws java.io.IOException, InterruptedException, ExecutionException {
         FileNavigatorImpl navigator = new FileNavigatorImpl(directoryPath);
         List<Future<List<Path>>> futures = navigator.traverseFiles();
 
