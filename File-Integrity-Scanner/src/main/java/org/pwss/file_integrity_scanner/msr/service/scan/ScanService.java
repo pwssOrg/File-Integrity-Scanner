@@ -4,6 +4,8 @@ package org.pwss.file_integrity_scanner.msr.service.scan;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
 
+import java.nio.file.Path;
+
 /**
  * Service interface for managing directory scans.
  * This interface defines methods to scan directories, stop ongoing scans,
@@ -24,6 +26,15 @@ public interface ScanService {
      * @param scanInstance       the scan instance used for scanning the directory
      */
     void scanDirectory(MonitoredDirectory monitoredDirectory, Scan scanInstance);
+
+    /**
+     * Processes a file by checking its existence in the database, updating or creating
+     * the corresponding file entity, and saving associated checksum and scan details.
+     *
+     * @param path         the path of the file to process
+     * @param scanInstance the scan instance associated with the file
+     */
+    void processFile(Path path, Scan scanInstance);
 
     /**
      * Stops any ongoing scans.

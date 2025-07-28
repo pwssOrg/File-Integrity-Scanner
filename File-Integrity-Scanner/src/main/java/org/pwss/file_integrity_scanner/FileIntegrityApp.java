@@ -16,7 +16,7 @@ public class FileIntegrityApp {
     /**
      * For testing purposes, you can use the following SQL to insert a sample monitored directory
      * <p>
-     * INSERT INTO monitored_directories (
+     * INSERT INTO monitored_directory (
      * path,
      * is_active,
      * added_at,

@@ -20,8 +20,6 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
 
     @Override
     public List<MonitoredDirectory> findByIsActive(boolean isActive) {
-       
-        // Optional lets you handle null errors 
         Optional<List<MonitoredDirectory>> mOptional = repository.findByIsActive(isActive);
 
         if(mOptional.isPresent()){
