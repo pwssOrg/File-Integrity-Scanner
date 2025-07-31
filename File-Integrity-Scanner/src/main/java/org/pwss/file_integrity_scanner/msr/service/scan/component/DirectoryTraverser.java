@@ -22,7 +22,7 @@ public class DirectoryTraverser {
      * @throws ExecutionException   if an error occurs during the asynchronous file traversal
      * @throws InterruptedException if the thread executing the file traversal is interrupted
      */
-    public final List<File> scanDirectory(String directoryPath) throws ExecutionException, InterruptedException {
+    public final List<File> collectFilesInDirectory(String directoryPath) throws ExecutionException, InterruptedException {
         FileTraverserImpl traverser = new FileTraverserImpl();
         Future<List<File>> future = traverser.traverse(directoryPath);
 

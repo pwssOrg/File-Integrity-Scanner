@@ -63,9 +63,14 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         this.fileHashComputer = fileHashComputer;
     }
 
+    // Flag to indicate if an ongoing scan should be stopped
+    private volatile boolean stopRequested = false;
+
     @Async
     @Override
     public void scanAllDirectories() {
+        stopRequested = false; // Reset stop request at the start of a new scan.
+
         try {
             List<MonitoredDirectory> directories = monitoredDirectoryService.findByIsActive(true);
 
@@ -76,6 +81,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
             // Iterate over each monitored directory in database
             for (MonitoredDirectory dir : directories) {
+                if (stopRequested) {
+                    System.out.println("Scan stopped by user request.");
+                    break;
+                }
+
                 Scan scan = new Scan();
                 scan.setMonitoredDirectory(dir);
                 scan.setScanTime(OffsetDateTime.now());
@@ -84,6 +94,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 scanDirectory(dir, scan);
 
+                // After scanning, update the scan status to completed
                 scan.setStatus(ScanStatus.COMPLETED.toString());
                 repository.save(scan);
             }
@@ -99,10 +110,20 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     @Override
     public void scanDirectory(MonitoredDirectory monitoredDirectory, Scan scanInstance) {
         try {
-            List<File> files = directoryTraverser.scanDirectory(monitoredDirectory.getPath());
+            List<File> files = directoryTraverser.collectFilesInDirectory(monitoredDirectory.getPath());
 
             for (File file : files) {
+                if (stopRequested) {
+                    System.out.println("Scan stopped by user request.");
+                    break; // Exit if stop is requested
+                }
+                // Process each file found in the directory and its subdirectories
                 processFile(file, scanInstance);
+            }
+
+            if (stopRequested) {
+                scanInstance.setStatus(ScanStatus.CANCELLED.toString());
+                repository.save(scanInstance);
             }
 
         } catch (Exception e) {
@@ -163,12 +184,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     @Override
     public void stopScan() {
-        //if (isScanning) {
-        //    isScanning = false;
-        //    if (scanThread != null && scanThread.isAlive()) {
-        //        scanThread.interrupt();
-        //    }
-        //    executor.shutdownNow();
-        //}
+        stopRequested = true;
+        // TODO: Add proper logging here
+        System.out.println("Scan stop requested. Will stop after current file processing.");
     }
 }
