@@ -5,7 +5,7 @@ import org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "checksums")
+@Table(name = "checksum")
 public class Checksum {
 
     @Id

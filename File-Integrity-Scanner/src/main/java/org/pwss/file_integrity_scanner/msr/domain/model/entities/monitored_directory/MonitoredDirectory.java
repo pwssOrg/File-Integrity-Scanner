@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "monitored_directories")
+@Table(name = "monitored_directory")
 public class MonitoredDirectory {
 
     @Id
