@@ -12,7 +12,7 @@ import java.io.File;
 @Component
 public final class FileHashComputer {
 
-    
+
     public FileHashComputer() {
     }
 

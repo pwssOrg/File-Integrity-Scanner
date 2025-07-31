@@ -1,7 +1,6 @@
 package org.pwss.file_integrity_scanner.config;
 
 
-
 import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -33,7 +32,7 @@ public class AppConfig implements AsyncConfigurer {
     @Override
     public @Nullable AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return (throwable, method, obj) -> {
-            log.error("Exception in method: {}",method.getName());
+            log.error("Exception in method: {}", method.getName());
             throwable.printStackTrace();
         };
     }
@@ -42,16 +41,16 @@ public class AppConfig implements AsyncConfigurer {
      * Here is the Spring App Exectuor
      */
 
-  @Primary
-  @Bean(name = "taskExecutorDefault")
- public ThreadPoolTaskExecutor taskExecutor() {
-  ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-  executor.setCorePoolSize(corePoolSize);
-  executor.setMaxPoolSize(maxPoolSize);
-  executor.setQueueCapacity(queueCapacity);
-  executor.setThreadNamePrefix("MyAsyncThread-");
-  executor.setRejectedExecutionHandler((r, executor1) -> log.warn("Task rejected, thread pool is full and queue is also full"));
-  executor.initialize();
-  return executor;
- }
+    @Primary
+    @Bean(name = "taskExecutorDefault")
+    public ThreadPoolTaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("MyAsyncThread-");
+        executor.setRejectedExecutionHandler((r, executor1) -> log.warn("Task rejected, thread pool is full and queue is also full"));
+        executor.initialize();
+        return executor;
+    }
 }

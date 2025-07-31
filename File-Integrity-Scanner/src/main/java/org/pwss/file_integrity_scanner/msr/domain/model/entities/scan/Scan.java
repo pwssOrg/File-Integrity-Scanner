@@ -1,10 +1,9 @@
 package org.pwss.file_integrity_scanner.msr.domain.model.entities.scan;
 
 import jakarta.persistence.*;
+import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 
 import java.time.OffsetDateTime;
-
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 
 @Entity
 @Table(name = "scan")

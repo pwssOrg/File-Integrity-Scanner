@@ -1,8 +1,7 @@
 package org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum;
 
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File;
-
 import jakarta.persistence.*;
+import org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File;
 
 @Entity
 @Table(name = "checksum")

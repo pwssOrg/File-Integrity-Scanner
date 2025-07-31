@@ -1,10 +1,10 @@
 package org.pwss.file_integrity_scanner.msr.repository;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for managing {@link MonitoredDirectory} entities.
@@ -18,7 +18,7 @@ public interface MonitoredDirectoryRepository extends JpaRepository<MonitoredDir
      *
      * @param isActive true to find active directories, false to find inactive ones
      * @return an optional list of monitored directories matching the specified active status,
-     *         which may be empty if no matches are found
+     * which may be empty if no matches are found
      */
     Optional<List<MonitoredDirectory>> findByIsActive(boolean isActive);
 }

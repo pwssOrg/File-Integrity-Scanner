@@ -1,10 +1,9 @@
 package org.pwss.file_integrity_scanner.msr.domain.model.entities.scan_summary;
 
+import jakarta.persistence.*;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
-
-import jakarta.persistence.*;
 
 @Entity
 @Table(name = "scan_summary")

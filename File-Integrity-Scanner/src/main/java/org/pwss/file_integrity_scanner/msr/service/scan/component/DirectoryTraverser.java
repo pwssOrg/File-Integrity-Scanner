@@ -1,9 +1,9 @@
 package org.pwss.file_integrity_scanner.msr.service.scan.component;
 
-import org.pwss.path.FileNavigatorImpl;
+import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.stereotype.Component;
-import java.nio.file.Path;
-import java.util.ArrayList;
+
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -15,22 +15,21 @@ import java.util.concurrent.Future;
 public class DirectoryTraverser {
 
     /**
-     * Scans a directory and retrieves a list of all file paths within it.
+     * Scans a directory and retrieves a list of all files within it.
      *
      * @param directoryPath the path of the directory to scan
-     * @return a list of file paths found in the directory
-     * @throws java.io.IOException if an I/O error occurs while accessing the directory
-     * @throws InterruptedException if the thread is interrupted while waiting for the scan to complete
-     * @throws ExecutionException if the computation threw an exception
+     * @return a list of files found in the directory
+     * @throws ExecutionException   if an error occurs during the asynchronous file traversal
+     * @throws InterruptedException if the thread executing the file traversal is interrupted
      */
-    public final List<Path> scanDirectory(String directoryPath) throws java.io.IOException, InterruptedException, ExecutionException {
-        FileNavigatorImpl navigator = new FileNavigatorImpl(directoryPath);
-        List<Future<List<Path>>> futures = navigator.traverseFiles();
+    public final List<File> scanDirectory(String directoryPath) throws ExecutionException, InterruptedException {
+        FileTraverserImpl traverser = new FileTraverserImpl();
+        Future<List<File>> future = traverser.traverse(directoryPath);
 
-        List<Path> allPaths = new ArrayList<>();
-        for (Future<List<Path>> future : futures) {
-            allPaths.addAll(future.get());
-        }
-        return allPaths;
+        List<File> files = future.get();
+
+        traverser.shutdownThreadPool();
+
+        return files;
     }
 }

@@ -16,25 +16,17 @@ import org.pwss.file_integrity_scanner.msr.service.scan.component.DirectoryTrave
 import org.pwss.file_integrity_scanner.msr.service.scan.component.FileHashComputer;
 import org.pwss.file_integrity_scanner.msr.service.scan_summary.ScanSummaryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @Service
 public class ScanServiceImpl extends BaseService<ScanRepository> implements ScanService {
-
-    private boolean isScanning = false; // This needs to be removed. If you use this threading strategy in another project you need
-    // To use the volatile keyword. That keyword removes the caching from that boolean which is essintial when a boolean is used as a thread mutex.
 
     @Autowired
     private final MonitoredDirectoryService monitoredDirectoryService;
@@ -54,11 +46,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     @Autowired
     private final FileHashComputer fileHashComputer;
 
-    // Thread to handle the scan process
-    private Thread scanThread;
-    // Using a fixed thread pool to handle parallel scans (maybe we dont want to do this but let's try)
-    private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
                            MonitoredDirectoryService monitoredDirectoryService,
@@ -76,79 +63,46 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         this.fileHashComputer = fileHashComputer;
     }
 
+    @Async
     @Override
     public void scanAllDirectories() {
-        if (isScanning) {
-            System.out.println("Scan already in progress :D");
-            return;
-        }
+        try {
+            List<MonitoredDirectory> directories = monitoredDirectoryService.findByIsActive(true);
 
-        isScanning = true;
-
-        scanThread = new Thread(() -> {
-            try {
-                List<MonitoredDirectory> directories = monitoredDirectoryService.findByIsActive(true);
-
-                if (directories.isEmpty()) {
-                    System.out.println("No active directories to scan :(");
-                    isScanning = false;
-                    return;
-                }
-
-                // Create a list to hold futures for each directory scan
-                List<Future<?>> futures = new ArrayList<>();
-
-                // Iterate over each monitored directory in database
-                for (MonitoredDirectory dir : directories) {
-                    // Run each directory scan in parallel
-                    futures.add(executor.submit(() -> {
-                        Scan scan = new Scan();
-                        scan.setMonitoredDirectory(dir);
-                        scan.setScanTime(OffsetDateTime.now());
-                        scan.setStatus(ScanStatus.IN_PROGRESS.toString());
-                        repository.save(scan);
-
-                        scanDirectory(dir, scan);
-
-                        scan.setStatus(ScanStatus.COMPLETED.toString());
-                        repository.save(scan);
-                    }));
-                }
-
-                // Wait for all scans to complete
-                for (Future<?> future : futures) {
-                    try {
-                        future.get();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        // maybe we want to handle this somehow for each individual scan
-                        System.out.println("Scan interrupted");
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            } finally {
-                isScanning = false;
+            if (directories.isEmpty()) {
+                System.out.println("No active directories to scan :(");
+                return;
             }
-        });
 
-        // Start the scan thread
-        scanThread.start();
+            // Iterate over each monitored directory in database
+            for (MonitoredDirectory dir : directories) {
+                Scan scan = new Scan();
+                scan.setMonitoredDirectory(dir);
+                scan.setScanTime(OffsetDateTime.now());
+                scan.setStatus(ScanStatus.IN_PROGRESS.toString());
+                repository.save(scan);
+
+                scanDirectory(dir, scan);
+
+                scan.setStatus(ScanStatus.COMPLETED.toString());
+                repository.save(scan);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle any exceptions that occur during the scanning process
+            System.out.println("An error occurred while scanning directories: " + e.getMessage());
+        }
     }
 
+
+    @Async
     @Override
     public void scanDirectory(MonitoredDirectory monitoredDirectory, Scan scanInstance) {
-        // TODO: Fully migrate to use java.io.File instead, got some Maven issues I need help with
         try {
-            List<Path> paths = directoryTraverser.scanDirectory(monitoredDirectory.getPath());
+            List<File> files = directoryTraverser.scanDirectory(monitoredDirectory.getPath());
 
-            for (Path path : paths) {
-                if (!isScanning) {
-                    System.out.println("Scan stopped prematurely :o");
-                    break;
-                }
-                processFile(path.toFile(), scanInstance);
+            for (File file : files) {
+                processFile(file, scanInstance);
             }
 
         } catch (Exception e) {
@@ -158,8 +112,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         }
     }
 
-    @Override
     @Transactional
+    @Override
     public void processFile(File file, Scan scanInstance) {
         if (!file.isFile()) {
             return;
@@ -188,6 +142,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                     .atOffset(ZoneOffset.UTC);
             fileEntity.setMtime(lastModified);
+            System.out.println("Adding new file to DB: " + fileEntity.getPath());
         }
 
         fileService.save(fileEntity);
@@ -208,12 +163,12 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     @Override
     public void stopScan() {
-        if (isScanning) {
-            isScanning = false;
-            if (scanThread != null && scanThread.isAlive()) {
-                scanThread.interrupt();
-            }
-            executor.shutdownNow();
-        }
+        //if (isScanning) {
+        //    isScanning = false;
+        //    if (scanThread != null && scanThread.isAlive()) {
+        //        scanThread.interrupt();
+        //    }
+        //    executor.shutdownNow();
+        //}
     }
 }

@@ -1,12 +1,12 @@
 package org.pwss.file_integrity_scanner.msr.service.monitored_directory;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.msr.repository.MonitoredDirectoryRepository;
 import org.pwss.file_integrity_scanner.msr.service.BaseService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of the {@link MonitoredDirectoryService} interface.
@@ -22,15 +22,14 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
     public List<MonitoredDirectory> findByIsActive(boolean isActive) {
         Optional<List<MonitoredDirectory>> mOptional = repository.findByIsActive(isActive);
 
-        if(mOptional.isPresent()){
+        if (mOptional.isPresent()) {
             return mOptional.get();
-        }
-        else{
+        } else {
             // Write a ERROR log message (you can add the same log dependecy as in PWSS File Nav)
             // I will create a ticket for it :) 
-            return null; 
+            return null;
         }
-        
+
     }
 
 }
