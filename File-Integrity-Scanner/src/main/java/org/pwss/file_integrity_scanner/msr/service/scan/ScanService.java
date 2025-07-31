@@ -4,6 +4,7 @@ package org.pwss.file_integrity_scanner.msr.service.scan;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
 
+import java.io.File;
 import java.nio.file.Path;
 
 /**
@@ -34,7 +35,7 @@ public interface ScanService {
      * @param path         the path of the file to process
      * @param scanInstance the scan instance associated with the file
      */
-    void processFile(Path path, Scan scanInstance);
+    void processFile(File path, Scan scanInstance);
 
     /**
      * Stops any ongoing scans.

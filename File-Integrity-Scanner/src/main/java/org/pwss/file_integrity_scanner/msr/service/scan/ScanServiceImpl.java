@@ -138,8 +138,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     }
 
     @Override
-    @Transactional
     public void scanDirectory(MonitoredDirectory monitoredDirectory, Scan scanInstance) {
+        // TODO: Fully migrate to use java.io.File instead, got some Maven issues I need help with
         try {
             List<Path> paths = directoryTraverser.scanDirectory(monitoredDirectory.getPath());
 
@@ -148,7 +148,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                     System.out.println("Scan stopped prematurely :o");
                     break;
                 }
-                processFile(path, scanInstance);
+                processFile(path.toFile(), scanInstance);
             }
 
         } catch (Exception e) {
@@ -159,33 +159,33 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     }
 
     @Override
-    public void processFile(Path path, Scan scanInstance) {
-        File resolvedFile = path.toFile();
-        if (!resolvedFile.isFile()) {
+    @Transactional
+    public void processFile(File file, Scan scanInstance) {
+        if (!file.isFile()) {
             return;
         }
 
         org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File fileEntity;
-        boolean fileInDatabase = fileService.existsByPath(path.toString());
+        boolean fileInDatabase = fileService.existsByPath(file.getPath());
 
-        HashForFilesOutput computedHashes = fileHashComputer.computeHashes(resolvedFile);
+        HashForFilesOutput computedHashes = fileHashComputer.computeHashes(file);
 
         if (fileInDatabase) {
             // Fetch existing entity and update fields
-            fileEntity = fileService.findByPath(path.toString());
-            fileEntity.setSize(resolvedFile.length());
-            OffsetDateTime lastModified = Instant.ofEpochMilli(resolvedFile.lastModified())
+            fileEntity = fileService.findByPath(file.getPath());
+            fileEntity.setSize(file.length());
+            OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                     .atOffset(ZoneOffset.UTC);
             fileEntity.setMtime(lastModified);
             System.out.println("Updating existing file in DB: " + fileEntity.getPath());
         } else {
             // Create new entity
             fileEntity = new org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File();
-            fileEntity.setPath(resolvedFile.getPath());
-            fileEntity.setBasename(resolvedFile.getName());
-            fileEntity.setDirectory(resolvedFile.getParent());
-            fileEntity.setSize(resolvedFile.length());
-            OffsetDateTime lastModified = Instant.ofEpochMilli(resolvedFile.lastModified())
+            fileEntity.setPath(file.getPath());
+            fileEntity.setBasename(file.getName());
+            fileEntity.setDirectory(file.getParent());
+            fileEntity.setSize(file.length());
+            OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                     .atOffset(ZoneOffset.UTC);
             fileEntity.setMtime(lastModified);
         }

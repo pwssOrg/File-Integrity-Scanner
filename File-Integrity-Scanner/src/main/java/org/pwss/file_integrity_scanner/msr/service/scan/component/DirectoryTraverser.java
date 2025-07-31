@@ -1,8 +1,7 @@
 package org.pwss.file_integrity_scanner.msr.service.scan.component;
 
-import org.pwss.FileNavigatorImpl;
+import org.pwss.path.FileNavigatorImpl;
 import org.springframework.stereotype.Component;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
