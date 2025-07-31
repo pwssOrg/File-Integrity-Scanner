@@ -46,6 +46,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     @Autowired
     private final FileHashComputer fileHashComputer;
 
+    private final org.slf4j.Logger log;
+
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
                            MonitoredDirectoryService monitoredDirectoryService,
@@ -61,6 +63,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         this.checksumService = checksumService;
         this.directoryTraverser = directoryTraverser;
         this.fileHashComputer = fileHashComputer;
+        this.log = org.slf4j.LoggerFactory.getLogger(ScanServiceImpl.class);
     }
 
     // Flag to indicate if an ongoing scan should be stopped
@@ -75,14 +78,14 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             List<MonitoredDirectory> directories = monitoredDirectoryService.findByIsActive(true);
 
             if (directories.isEmpty()) {
-                System.out.println("No active directories to scan :(");
+                log.info("No active monitored directories found.");
                 return;
             }
 
             // Iterate over each monitored directory in database
             for (MonitoredDirectory dir : directories) {
                 if (stopRequested) {
-                    System.out.println("Scan stopped by user request.");
+                    log.info("Scan stopped by user request.");
                     break;
                 }
 
@@ -99,9 +102,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 repository.save(scan);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            // Handle any exceptions that occur during the scanning process
-            System.out.println("An error occurred while scanning directories: " + e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -114,7 +115,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
             for (File file : files) {
                 if (stopRequested) {
-                    System.out.println("Scan stopped by user request.");
                     break; // Exit if stop is requested
                 }
                 // Process each file found in the directory and its subdirectories
@@ -127,7 +127,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             scanInstance.setStatus(ScanStatus.FAILED.toString());
             repository.save(scanInstance);
         }
@@ -152,7 +152,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                     .atOffset(ZoneOffset.UTC);
             fileEntity.setMtime(lastModified);
-            System.out.println("Updating existing file in DB: " + fileEntity.getPath());
+            log.info("Updating existing file in DB: {}", fileEntity.getPath());
         } else {
             // Create new entity
             fileEntity = new org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File();
@@ -163,7 +163,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                     .atOffset(ZoneOffset.UTC);
             fileEntity.setMtime(lastModified);
-            System.out.println("Adding new file to DB: " + fileEntity.getPath());
+            log.info("Adding new file to DB: {}", fileEntity.getPath());
         }
 
         fileService.save(fileEntity);
@@ -185,7 +185,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     @Override
     public void stopScan() {
         stopRequested = true;
-        // TODO: Add proper logging here
-        System.out.println("Scan stop requested. Will stop after current file processing.");
+        log.info("Scan stop requested. Will stop after current file processing.");
     }
 }
