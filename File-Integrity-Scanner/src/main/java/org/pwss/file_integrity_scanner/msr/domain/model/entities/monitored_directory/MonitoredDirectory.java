@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
 
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.BaseEntity;
-
 @Entity
 @Table(name = "monitored_directory")
-public class MonitoredDirectory extends BaseEntity {
+public class MonitoredDirectory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

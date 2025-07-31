@@ -1,13 +1,12 @@
 package org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum;
 
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.BaseEntity;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "checksum")
-public class Checksum extends BaseEntity {
+public class Checksum {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,12 +4,11 @@ import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
 
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.BaseEntity;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 
 @Entity
 @Table(name = "scan")
-public class Scan extends BaseEntity {
+public class Scan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

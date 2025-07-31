@@ -9,9 +9,11 @@ on:
  
 jobs:
   security-file-integrity_scanner:
-    uses: pwssOrg/reusable-workflows/.github/workflows/sca_scan_base.yml@main
+    uses: pwssOrg/reusable-workflows/.github/workflows/sca_scan_base_postgres.yml@main
     with:
        working-path: File-Integrity-Scanner
        name-of-snyk-step: Check for vulnerabilities in File Integrity Scanner
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      USER_FOR_SNYK: ${{ secrets.READ_PACKAGE_USER_FOR_WORKFLOWS }}
+      READ_PACKAGE_TOKEN_INPUT: ${{ secrets.READ_PACKAGE_TOKEN_FOR_WORKFLOWS }}
