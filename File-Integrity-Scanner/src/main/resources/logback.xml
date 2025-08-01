@@ -9,8 +9,16 @@
             </Pattern>
         </layout>
     </appender>
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="CONSOLE" />
     </root>
-    <logger name="org.pwss.file_integrity_scanner" level="DEBUG"/>
+    <!-- File-Integrity-Scanner -->
+    <logger name="org.pwss.file_integrity_scanner" level="INFO"/>
+    <!-- Configure specific packages from dependencies -->
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="lib.pwss" level="DEBUG"/>
+    <logger name="org.hibernate" level="ERROR"/>
+    <logger name="org.postgresql" level="ERROR"/>
+     <!-- Configure specific packages from Spring -->
+     <logger name="org.springframework" level="ERROR"/>
 </configuration>
