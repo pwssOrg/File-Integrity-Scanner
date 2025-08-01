@@ -5,7 +5,7 @@ import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checks
 
 public interface ChecksumService {
     /**
-     * Saves the given checksum entity to the database.
+     * Saves a checksum entity to the database.
      *
      * @param checksum the checksum entity to save
      */

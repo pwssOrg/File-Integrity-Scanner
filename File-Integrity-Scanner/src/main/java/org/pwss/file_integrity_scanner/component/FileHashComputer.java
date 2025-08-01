@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.msr.service.scan.component;
+package org.pwss.file_integrity_scanner.component;
 
 import lib.pwss.hash.FileHashHandler;
 import lib.pwss.hash.model.HashForFilesOutput;

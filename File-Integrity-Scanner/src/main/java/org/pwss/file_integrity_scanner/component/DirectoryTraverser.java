@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.msr.service.scan.component;
+package org.pwss.file_integrity_scanner.component;
 
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.stereotype.Component;

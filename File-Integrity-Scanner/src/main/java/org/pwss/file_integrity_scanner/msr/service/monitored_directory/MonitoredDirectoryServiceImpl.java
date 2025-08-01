@@ -14,8 +14,11 @@ import java.util.Optional;
 @Service
 public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirectoryRepository> implements MonitoredDirectoryService {
 
+    private final org.slf4j.Logger log;
+
     public MonitoredDirectoryServiceImpl(MonitoredDirectoryRepository repository) {
         super(repository);
+        this.log = org.slf4j.LoggerFactory.getLogger(MonitoredDirectoryServiceImpl.class);
     }
 
     @Override
@@ -25,8 +28,7 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
         if (mOptional.isPresent()) {
             return mOptional.get();
         } else {
-            // Write a ERROR log message (you can add the same log dependecy as in PWSS File Nav)
-            // I will create a ticket for it :) 
+            log.info("No monitored directories found with active status: {}", isActive);
             return null;
         }
 

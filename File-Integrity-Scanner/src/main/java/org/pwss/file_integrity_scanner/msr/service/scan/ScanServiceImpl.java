@@ -2,6 +2,8 @@ package org.pwss.file_integrity_scanner.msr.service.scan;
 
 import jakarta.transaction.Transactional;
 import lib.pwss.hash.model.HashForFilesOutput;
+import org.pwss.file_integrity_scanner.component.DirectoryTraverser;
+import org.pwss.file_integrity_scanner.component.FileHashComputer;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
@@ -12,8 +14,6 @@ import org.pwss.file_integrity_scanner.msr.service.BaseService;
 import org.pwss.file_integrity_scanner.msr.service.checksum.ChecksumService;
 import org.pwss.file_integrity_scanner.msr.service.file.FileService;
 import org.pwss.file_integrity_scanner.msr.service.monitored_directory.MonitoredDirectoryService;
-import org.pwss.file_integrity_scanner.msr.service.scan.component.DirectoryTraverser;
-import org.pwss.file_integrity_scanner.msr.service.scan.component.FileHashComputer;
 import org.pwss.file_integrity_scanner.msr.service.scan_summary.ScanSummaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;

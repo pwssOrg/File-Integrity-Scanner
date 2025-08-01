@@ -10,8 +10,11 @@ import java.util.Optional;
 @Service
 public class FileServiceImpl extends BaseService<FileRepository> implements FileService {
 
+    private final org.slf4j.Logger log;
+
     public FileServiceImpl(FileRepository repository) {
         super(repository);
+        this.log = org.slf4j.LoggerFactory.getLogger(FileServiceImpl.class);
     }
 
     @Override
@@ -21,8 +24,7 @@ public class FileServiceImpl extends BaseService<FileRepository> implements File
         if (mOptional.isPresent()) {
             return mOptional.get();
         } else {
-            // Write a ERROR log message (you can add the same log dependency as in PWSS File Nav)
-            // I will create a ticket for it :)
+            log.info("File with path '{}' not found.", path);
             return null;
         }
     }
