@@ -15,7 +15,6 @@
     <!-- File-Integrity-Scanner -->
     <logger name="org.pwss.file_integrity_scanner" level="INFO"/>
     <!-- Configure specific packages from dependencies -->
-    <logger name="org.hibernate" level="INFO"/>
     <logger name="lib.pwss" level="DEBUG"/>
     <logger name="org.hibernate" level="ERROR"/>
     <logger name="org.postgresql" level="ERROR"/>
