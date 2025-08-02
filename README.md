@@ -39,7 +39,7 @@ or desired, ensuring full control over data integrity for the end-user.
 ### Requirements
 
 - **PostgreSQL 17.5**
-- **Spring 3.54**
+- **Spring 4.0.0-M1**
 
 ### Steps
 
