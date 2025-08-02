@@ -28,10 +28,19 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
         if (mOptional.isPresent()) {
             return mOptional.get();
         } else {
-            log.info("No monitored directories found with active status: {}", isActive);
+            log.warn("No monitored directories found with active status: {}", isActive);
             return null;
         }
 
     }
 
+      @Override
+    public void save(MonitoredDirectory mDirectory) {
+      this.repository.save(mDirectory);
+    }
+
+    @Override
+    public Boolean isBaseLineEstablished(MonitoredDirectory mDirectory) {
+        return mDirectory.getBaselineEstablished();
+    }
 }

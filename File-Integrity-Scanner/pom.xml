@@ -91,13 +91,13 @@
         <dependency>
             <groupId>lib.pwss</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
         </dependency>
-
+        <!--https://github.com/pwssOrg/PWSS-DirectoryNav/packages/2588313-->
         <dependency>
             <groupId>lib.pwss</groupId>
             <artifactId>directory_nav</artifactId>
-            <version>1.4.1</version>
+            <version>1.5</version>
         </dependency>
 
 

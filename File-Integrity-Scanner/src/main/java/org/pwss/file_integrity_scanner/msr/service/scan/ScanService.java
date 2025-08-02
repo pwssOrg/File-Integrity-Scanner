@@ -1,7 +1,5 @@
 package org.pwss.file_integrity_scanner.msr.service.scan;
 
-
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
 
 import java.io.File;
@@ -14,22 +12,39 @@ import java.io.File;
 public interface ScanService {
     /**
      * Initiates scanning of all monitored directories.
-     * This method will start the scanning process for each directory that is being monitored
+     * This method will start the scanning process for each directory that is being
+     * monitored
      * within the system.
      */
     void scanAllDirectories();
 
     /**
-     * Scans a specific monitored directory using the provided scan instance.
+     * Scans a monitored directory using the provided scan instance.
      *
-     * @param monitoredDirectory the directory to be scanned
-     * @param scanInstance       the scan instance used for scanning the directory
+     * This method is an overloaded variant that calls the two-parameter method with
+     * default value set to true for
+     * includeSubFolders.
+     *
+     * @param scanInstance the scan instance used for scanning the directory
+     * @return true if the monitored directory scan is successful, false otherwise
      */
-    void scanDirectory(MonitoredDirectory monitoredDirectory, Scan scanInstance);
+    Boolean scanMonitoredDirectory(Scan scanInstance);
 
     /**
-     * Processes a file by checking its existence in the database, updating or creating
-     * the corresponding file entity, and saving associated checksum and scan details.
+     * Scans a monitored directory using the provided scan instance.
+     *
+     * @param scanInstance      the scan instance used for scanning the directory
+     * @param includeSubFolders whether to include subfolders in the scan (default
+     *                          is false)
+     * @return true if the monitored directory scan is successful, false otherwise
+     */
+    Boolean scanMonitoredDirectory(Scan scanInstance, boolean includeSubFolders);
+
+    /**
+     * Processes a file by checking its existence in the database, updating or
+     * creating
+     * the corresponding file entity, and saving associated checksum and scan
+     * details.
      *
      * @param file         the file to process
      * @param scanInstance the scan instance associated with the file
