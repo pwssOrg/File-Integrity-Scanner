@@ -104,7 +104,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 repository.save(scan);
 
                 // If Scan was Successful (And also invocation of method scanDirectory)
-                if (scanDirectory(scan)) {
+                if (scanDirectoryInternal(scan)) {
 
                     log.info("Successful Scan Result for All Monitored Directories {}", dir.getPath());
 
@@ -140,10 +140,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     /**
      * Scans a monitored directory using the provided scan instance.
-     * @param scanInstance       the scan instance used for scanning the directory
+     * 
+     * @param scanInstance the scan instance used for scanning the directory
      * @return true if the monitored directory scan is successful, false otherwise
      */
-    private final Boolean scanDirectory(Scan scanInstance) {
+    private final Boolean scanDirectoryInternal(Scan scanInstance) {
 
         MonitoredDirectory monitoredDirectory;
 
@@ -181,9 +182,20 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         }
     }
 
+    /**
+     * Processes a file by checking its existence in the database, updating or
+     * creating
+     * the corresponding file entity, and saving associated checksum and scan
+     * details.
+     *
+     * This method is annotated with {@link Transactional}, ensuring all operations
+     * within this method are executed within a single transaction.
+     *
+     * @param file         the file to process
+     * @param scanInstance the scan instance associated with the file
+     */
     @Transactional
-    @Override
-    public void processFile(File file, Scan scanInstance) {
+    private void processFile(File file, Scan scanInstance) {
         if (!file.isFile()) {
             return;
         }
@@ -193,19 +205,17 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
         HashForFilesOutput computedHashes = fileHashComputer.computeHashes(file);
 
-       MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
+        MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
-    
-       if(monitoredDirectoryService.isBaseLineEstablished(mDirectory)){
-            
-        // Compare current hash to previous hash (Ticket #46)
+        if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
 
-       }
+            // Compare current hash to previous hash (Ticket #46)
 
-       else{
+        }
+
+        else {
             // Scan without comparing hashes for this Monitored Directory
-       }
-
+        }
 
         if (fileInDatabase) {
             // Fetch existing entity and update fields
@@ -258,17 +268,14 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     @Override
     public Boolean scanMonitoredDirectory(Scan scanInstance, boolean includeSubFolders) {
 
-        // TODO: Try / Catch and
-
         final MonitoredDirectory mDirectory;
 
         mDirectory = scanInstance.getMonitoredDirectory();
-
         if (includeSubFolders) {
 
             // Regular scan
 
-            if (scanDirectory(scanInstance)) {
+            if (scanDirectoryInternal(scanInstance)) {
 
                 log.info("Scan Successful for Monitored Directory {}", mDirectory.getPath());
                 scanInstance.setStatus(ScanStatus.COMPLETED.toString());
@@ -279,10 +286,9 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                     monitoredDirectoryService.save(mDirectory);
                 }
 
-                  scanInstance.setStatus(ScanStatus.COMPLETED.toString());
-                    // Save scanInstance in the persistence layer
-                    this.repository.save(scanInstance);
-                    return true; // OK Scan :)
+                // Save scanInstance in the persistence layer
+                this.repository.save(scanInstance);
+                return true; // OK Scan :)
 
             }
 
@@ -291,7 +297,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 log.error("Scan failed for Monitored Directory {}", mDirectory.getPath());
 
                 // An added Note that is saved to the persistence layer
-                mDirectory.setNotes("FAILED");
+                mDirectory.setNotes(ScanStatus.FAILED.toString());
                 monitoredDirectoryService.save(mDirectory);
                 this.repository.save(scanInstance);
                 return false;
@@ -343,8 +349,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             }
 
         }
-        // Should not happen :P 
-         return false;
+        // Fallback return - this should not be reached under normal execution
+        return false;
     }
-   
+
 }
