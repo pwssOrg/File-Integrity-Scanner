@@ -17,6 +17,12 @@ import java.util.concurrent.Future;
 @Component
 public class DirectoryTraverser {
 
+    public final Future<List<File>> traverseDirectory(String directoryPath, boolean includeSubFolders)
+            throws ExecutionException, InterruptedException {
+        FileTraverserImpl traverser = new FileTraverserImpl();
+        return traverser.traverse(directoryPath);
+    }
+
     /**
      * Scans a directory and retrieves a list of all files within it.
      *
@@ -45,8 +51,8 @@ public class DirectoryTraverser {
      *
      * @param directoryPath the path of the directory to scan for top-level files
      * @return an Optional containing a list of top-level files found in the
-     *         directory,
-     *         or empty if no files are found
+     * directory,
+     * or empty if no files are found
      * @throws ExecutionException   if an error occurs during the asynchronous file
      *                              traversal
      * @throws InterruptedException if the thread executing the file traversal is

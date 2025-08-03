@@ -18,7 +18,7 @@ public interface ScanService {
 
     /**
      * Scans a monitored directory using the provided scan instance.
-     *
+     * <p>
      * This method is an overloaded variant that calls the two-parameter method with
      * default value set to true for
      * includeSubFolders.

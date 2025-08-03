@@ -14,10 +14,11 @@ import org.pwss.file_integrity_scanner.msr.service.BaseService;
 import org.pwss.file_integrity_scanner.msr.service.checksum.ChecksumService;
 import org.pwss.file_integrity_scanner.msr.service.file.FileService;
 import org.pwss.file_integrity_scanner.msr.service.monitored_directory.MonitoredDirectoryService;
+import org.pwss.file_integrity_scanner.msr.service.scan.internal.ScanTaskState;
 import org.pwss.file_integrity_scanner.msr.service.scan_summary.ScanSummaryService;
-import org.pwss.util.PWSSDirectoryNavUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -27,7 +28,10 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class ScanServiceImpl extends BaseService<ScanRepository> implements ScanService {
@@ -54,14 +58,16 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     private final DateTimeFormatter timeAndDateStringForLogFormat;
 
+    private ConcurrentMap<String, ScanTaskState> activeScanTasks;
+
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
-            MonitoredDirectoryService monitoredDirectoryService,
-            FileService fileService,
-            ScanSummaryService scanSummaryService,
-            ChecksumService checksumService,
-            DirectoryTraverser directoryTraverser,
-            FileHashComputer fileHashComputer) {
+                           MonitoredDirectoryService monitoredDirectoryService,
+                           FileService fileService,
+                           ScanSummaryService scanSummaryService,
+                           ChecksumService checksumService,
+                           DirectoryTraverser directoryTraverser,
+                           FileHashComputer fileHashComputer) {
         super(repository);
         this.monitoredDirectoryService = monitoredDirectoryService;
         this.fileService = fileService;
@@ -71,6 +77,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         this.fileHashComputer = fileHashComputer;
         this.log = org.slf4j.LoggerFactory.getLogger(ScanServiceImpl.class);
         this.timeAndDateStringForLogFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.activeScanTasks = new ConcurrentHashMap<>();
     }
 
     // Flag to indicate if an ongoing scan should be stopped
@@ -78,19 +85,19 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     @Override
     public void scanAllDirectories() {
+        log.info("Starting scan of all monitored directories at {}", OffsetDateTime.now().format(timeAndDateStringForLogFormat));
         stopRequested = false; // Reset stop request at the start of a new scan.
 
         try {
-            List<MonitoredDirectory> directories = monitoredDirectoryService.findByIsActive(true);
+            List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
 
-            if (directories.isEmpty()) {
+            if (activeDirs.isEmpty()) {
                 log.warn("No active monitored directories found.");
                 return;
             }
 
             // Iterate over each monitored directory in database
-            for (MonitoredDirectory dir : directories) {
-
+            for (MonitoredDirectory dir : activeDirs) {
                 if (stopRequested) {
                     log.info("Scan stopped by user request.");
                     break;
@@ -103,35 +110,15 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 repository.save(scan);
 
-                // If Scan was Successful (And also invocation of method scanDirectory)
-                if (scanDirectoryInternal(scan)) {
-
-                    log.info("Successful Scan Result for All Monitored Directories {}", dir.getPath());
-
-                    // If the Baseline has not yet been established and the Scan was Successful
-                    if (!dir.getBaselineEstablished()) {
-                        dir.setBaselineEstablished(true);
-                        monitoredDirectoryService.save(dir);
-                    }
-
-                    scan.setStatus(ScanStatus.COMPLETED.toString());
+                // Start scanning the directory and its subdirectories
+                if (activeScanTasks == null) {
+                    log.info("Active scan tasks map is null");
+                } else {
+                    log.info("Active scan tasks map is initialized with size: {}", activeScanTasks.size());
                 }
 
-                // Else - the scan has failed!
-                else {
-                    // No changes to the baseLineEstablished Boolean for the Monitored Directory
-
-                    log.error("Scan failed for Monitored Directory {}", dir.getPath());
-
-                    // An added Note that is saved to the persistence layer
-                    dir.setNotes(ScanStatus.FAILED.toString());
-                    monitoredDirectoryService.save(dir);
-
-                    // After scanning, update the scan status to completed
-                    scan.setStatus(ScanStatus.FAILED.toString());
-                }
-
-                repository.save(scan);
+                Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), true);
+                activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
             }
         } catch (Exception e) {
             log.error("Error while scanning all monitored directories {},", e.getMessage());
@@ -139,55 +126,125 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     }
 
     /**
-     * Scans a monitored directory using the provided scan instance.
-     * 
-     * @param scanInstance the scan instance used for scanning the directory
-     * @return true if the monitored directory scan is successful, false otherwise
+     * Asynchronously scans a directory and its subdirectories( if specified)to retrieve a list of files.
+     *
+     * @param directoryPath     the path of the directory to scan
+     * @param includeSubFolders a flag indicating whether to include subdirectories in the scan
+     * @return a Future containing the list of files found in the directory
      */
-    private final Boolean scanDirectoryInternal(Scan scanInstance) {
+    @Async
+    private Future<List<File>> scanDirectoryAsync(String directoryPath, boolean includeSubFolders) throws ExecutionException, InterruptedException {
+        return directoryTraverser.traverseDirectory(directoryPath, includeSubFolders);
+    }
 
-        MonitoredDirectory monitoredDirectory;
+    /**
+     * Monitors active scan tasks and processes completed scans.
+     * <p>
+     * This method is scheduled to run at a fixed delay of 5000 milliseconds.
+     * It iterates through the active scan tasks, checks their status, and processes
+     * completed scans by invoking the `finishScanTask` method.
+     * <p>
+     * If a scan is still in progress, it logs the status.
+     */
+    @Scheduled(fixedDelay = 5000, initialDelay = 2500)
+    public final void monitorActiveScans() {
+        if (activeScanTasks.isEmpty()) {
+            log.info("No active scan tasks to process.");
+            return;
+        }
+
+        for (String dirPath : activeScanTasks.keySet()) {
+            ScanTaskState task = activeScanTasks.get(dirPath);
+            Future<List<File>> future = task.future();
+
+            if (future.isDone()) {
+                log.info("Traversing completed for directory: {}", dirPath);
+                completeScan(task);
+                activeScanTasks.remove(dirPath);
+            } else {
+                log.info("Traversing for directory {} is still in progress.", dirPath);
+            }
+        }
+    }
+
+    /**
+     * Completes the scan process for a given scan task state.
+     * <p>
+     * This method retrieves the list of files from the completed scan task and processes each file.
+     * If a stop request is detected, the scan is marked as cancelled. Otherwise, the scan is marked
+     * as completed, and the baseline is established for the monitored directory if it has not been set.
+     * <p>
+     * Any errors during processing are logged, and the scan is marked as failed. The updated scan
+     * status is saved to the repository at the end of the method. The task is removed from the active
+     * scan tasks map regardless of success or failure.
+     *
+     * @param scanTaskState the state of the scan task to process, containing the scan and its future result
+     * @return true if the scan was successfully completed, false otherwise
+     */
+    @Async
+    private boolean completeScan(ScanTaskState scanTaskState) {
+        String dirPath = scanTaskState.scan().getMonitoredDirectory().getPath();
+        Scan scan = scanTaskState.scan();
 
         try {
-            monitoredDirectory = scanInstance.getMonitoredDirectory();
-            List<File> files = directoryTraverser.collectFilesInDirectory(monitoredDirectory.getPath());
+            // Retrieve the list of files from the completed scan
+            List<File> files = scanTaskState.future().get(); // Non-blocking since the future is done.
 
             for (File file : files) {
                 if (stopRequested) {
-                    break; // Exit if stop is requested
+                    break;// Exit if stop is requested
                 }
                 // Process each file found in the directory and its subdirectories
-                processFile(file, scanInstance);
+                processFile(file, scanTaskState.scan());
             }
 
             if (stopRequested) {
-                scanInstance.setStatus(ScanStatus.CANCELLED.toString());
-                repository.save(scanInstance);
+                // Mark the scan as cancelled if a stop was requested
+                scan.setStatus(ScanStatus.CANCELLED.toString());
+                repository.save(scan);
                 return false; // Scan Stopped / Not complete (no baseline)
             } else {
-                log.debug("Scan Successful for monitored directory {}", monitoredDirectory.getPath());
+                MonitoredDirectory dir = scan.getMonitoredDirectory();
+                scan.setStatus(ScanStatus.COMPLETED.toString());
+
+                // If the Baseline has not yet been established and the Scan was Successful
+                if (!dir.getBaselineEstablished()) {
+                    log.info("Establishing baseline for directory: {}", dirPath);
+                    dir.setBaselineEstablished(true);
+                    monitoredDirectoryService.save(dir);
+                } else {
+                    log.info("Baseline already established for directory: {}", dirPath);
+                }
+                log.info("Completed scan for directory {}", dirPath);
+                repository.save(scan);
+
                 return true; // Successful Scan
             }
 
         } catch (Exception e) {
-
+            // Handle errors during scan processing
             log.error("Scan Failed {} - Start Time {} - End Time {}", e.getMessage(),
-                    scanInstance.getScanTime().format(timeAndDateStringForLogFormat),
+                    scan.getScanTime().format(timeAndDateStringForLogFormat),
                     OffsetDateTime.now().format(timeAndDateStringForLogFormat));
 
-            scanInstance.setStatus(ScanStatus.FAILED.toString());
-            repository.save(scanInstance);
-            return false; // Scan Failed
-
+            scan.setStatus(ScanStatus.FAILED.toString());
+            repository.save(scan);
+        } finally {
+            // Remove the task from active tasks regardless of success or failure
+            activeScanTasks.remove(dirPath);
+            log.info("Removed scan task for directory: {}", dirPath);
         }
+        return false; // Shouldn't reach here under normal execution
     }
+
+
 
     /**
      * Processes a file by checking its existence in the database, updating or
      * creating
      * the corresponding file entity, and saving associated checksum and scan
      * details.
-     *
+     * <p>
      * This method is annotated with {@link Transactional}, ensuring all operations
      * within this method are executed within a single transaction.
      *
@@ -211,9 +268,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
             // Compare current hash to previous hash (Ticket #46)
 
-        }
-
-        else {
+        } else {
             // Scan without comparing hashes for this Monitored Directory
         }
 
@@ -267,90 +322,81 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     @Override
     public Boolean scanMonitoredDirectory(Scan scanInstance, boolean includeSubFolders) {
-
-        final MonitoredDirectory mDirectory;
-
-        mDirectory = scanInstance.getMonitoredDirectory();
-        if (includeSubFolders) {
-
-            // Regular scan
-
-            if (scanDirectoryInternal(scanInstance)) {
-
-                log.info("Scan Successful for Monitored Directory {}", mDirectory.getPath());
-                scanInstance.setStatus(ScanStatus.COMPLETED.toString());
-
-                // If the Baseline has not yet been established and the Scan was Successful
-                if (!mDirectory.getBaselineEstablished()) {
-                    mDirectory.setBaselineEstablished(true);
-                    monitoredDirectoryService.save(mDirectory);
-                }
-
-                // Save scanInstance in the persistence layer
-                this.repository.save(scanInstance);
-                return true; // OK Scan :)
-
-            }
-
-            else {
-
-                log.error("Scan failed for Monitored Directory {}", mDirectory.getPath());
-
-                // An added Note that is saved to the persistence layer
-                mDirectory.setNotes(ScanStatus.FAILED.toString());
-                monitoredDirectoryService.save(mDirectory);
-                this.repository.save(scanInstance);
-                return false;
-            }
-
-        }
-
-        // No Subfolders
-        else {
-
-            final File file;
-
-            try {
-
-                file = new File(mDirectory.getPath());
-                log.debug("Created new entity - scanMonitoredDirectory -  In No Subfolders If Block - Path {}",
-                        file.getAbsolutePath());
-                Optional<List<File>> topLevelFiles = directoryTraverser.collectTopLevelFiles(file);
-
-                if (topLevelFiles.isPresent()) {
-
-                    topLevelFiles.get().stream().forEach(tp -> processFile(tp, scanInstance));
-
-                    scanInstance.setStatus(ScanStatus.COMPLETED.toString());
-                    // Save scanInstance in the persistence layer
-                    this.repository.save(scanInstance);
-                    return true; // OK Scan :)
-                } else {
-                    scanInstance.setStatus(ScanStatus.FAILED.toString());
-                    // Save scanInstance in the persistence layer
-                    this.repository.save(scanInstance);
-                    return false; // No Top Files Present - Scan Failed
-                }
-            }
-
-            catch (ExecutionException executingException) {
-
-                log.error("ExecutionException in scanMonitoredDirectory - {}", executingException);
-            }
-
-            catch (InterruptedException interruptedException) {
-
-                log.error("InterruptedException in scanMonitoredDirectory", interruptedException.getMessage());
-            }
-
-            catch (Exception exception) {
-
-                log.error("Generic Exception in scanMonitoredDirectory", exception.getMessage());
-            }
-
-        }
-        // Fallback return - this should not be reached under normal execution
+//
+        //final MonitoredDirectory mDirectory;
+//
+        //mDirectory = scanInstance.getMonitoredDirectory();
+        //if (includeSubFolders) {
+//
+        //    // Regular scan
+//
+        //    if (completeScan(scanInstance)) {
+//
+        //        log.info("Scan Successful for Monitored Directory {}", mDirectory.getPath());
+        //        scanInstance.setStatus(ScanStatus.COMPLETED.toString());
+//
+        //        // If the Baseline has not yet been established and the Scan was Successful
+        //        if (!mDirectory.getBaselineEstablished()) {
+        //            mDirectory.setBaselineEstablished(true);
+        //            monitoredDirectoryService.save(mDirectory);
+        //        }
+//
+        //        // Save scanInstance in the persistence layer
+        //        this.repository.save(scanInstance);
+        //        return true; // OK Scan :)
+//
+        //    } else {
+//
+        //        log.error("Scan failed for Monitored Directory {}", mDirectory.getPath());
+//
+        //        // An added Note that is saved to the persistence layer
+        //        mDirectory.setNotes(ScanStatus.FAILED.toString());
+        //        monitoredDirectoryService.save(mDirectory);
+        //        this.repository.save(scanInstance);
+        //        return false;
+        //    }
+//
+        //}
+//
+        //// No Subfolders
+        //else {
+//
+        //    final File file;
+//
+        //    try {
+//
+        //        file = new File(mDirectory.getPath());
+        //        log.debug("Created new entity - scanMonitoredDirectory -  In No Subfolders If Block - Path {}",
+        //                file.getAbsolutePath());
+        //        Optional<List<File>> topLevelFiles = directoryTraverser.collectTopLevelFiles(file);
+//
+        //        if (topLevelFiles.isPresent()) {
+//
+        //            topLevelFiles.get().stream().forEach(tp -> processFile(tp, scanInstance));
+//
+        //            scanInstance.setStatus(ScanStatus.COMPLETED.toString());
+        //            // Save scanInstance in the persistence layer
+        //            this.repository.save(scanInstance);
+        //            return true; // OK Scan :)
+        //        } else {
+        //            scanInstance.setStatus(ScanStatus.FAILED.toString());
+        //            // Save scanInstance in the persistence layer
+        //            this.repository.save(scanInstance);
+        //            return false; // No Top Files Present - Scan Failed
+        //        }
+        //    } catch (ExecutionException executingException) {
+//
+        //        log.error("ExecutionException in scanMonitoredDirectory - {}", executingException);
+        //    } catch (InterruptedException interruptedException) {
+//
+        //        log.error("InterruptedException in scanMonitoredDirectory", interruptedException.getMessage());
+        //    } catch (Exception exception) {
+//
+        //        log.error("Generic Exception in scanMonitoredDirectory", exception.getMessage());
+        //    }
+//
+        //}
+        //// Fallback return - this should not be reached under normal execution
         return false;
     }
-
 }
