@@ -17,32 +17,24 @@ import java.util.concurrent.Future;
 @Component
 public class DirectoryTraverser {
 
-    public final Future<List<File>> traverseDirectory(String directoryPath, boolean includeSubFolders)
-            throws ExecutionException, InterruptedException {
-        FileTraverserImpl traverser = new FileTraverserImpl();
-        return traverser.traverse(directoryPath);
-    }
-
     /**
-     * Scans a directory and retrieves a list of all files within it.
+     * Collects all files in a directory asynchronously.
+     * <p>
+     * This method uses a `FileTraverserImpl` instance to traverse the specified directory
+     * and retrieve a list of files. The traversal can include subdirectories based on the
+     * `includeSubFolders` flag.
      *
      * @param directoryPath the path of the directory to scan
-     * @return a list of files found in the directory
-     * @throws ExecutionException   if an error occurs during the asynchronous file
-     *                              traversal
-     * @throws InterruptedException if the thread executing the file traversal is
-     *                              interrupted
+     * @param includeSubFolders a flag indicating whether to include subdirectories in the scan
+     * @return a Future containing the list of files found in the directory
+     * @throws ExecutionException if an error occurs during the asynchronous file traversal
+     * @throws InterruptedException if the thread executing the file traversal is interrupted
      */
-    public final List<File> collectFilesInDirectory(String directoryPath)
+    public final Future<List<File>> collectFilesInDirectory(String directoryPath, boolean includeSubFolders)
             throws ExecutionException, InterruptedException {
         FileTraverserImpl traverser = new FileTraverserImpl();
-        Future<List<File>> future = traverser.traverse(directoryPath);
-
-        List<File> files = future.get();
-
-        traverser.shutdownThreadPool();
-
-        return files;
+        // TODO: Make includeSubFolders working
+        return traverser.traverse(directoryPath);
     }
 
     /**

@@ -27,7 +27,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -57,8 +56,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     private final org.slf4j.Logger log;
 
     private final DateTimeFormatter timeAndDateStringForLogFormat;
-
-    private ConcurrentMap<String, ScanTaskState> activeScanTasks;
+    private final ConcurrentMap<String, ScanTaskState> activeScanTasks;
 
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
@@ -111,12 +109,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 repository.save(scan);
 
                 // Start scanning the directory and its subdirectories
-                if (activeScanTasks == null) {
-                    log.info("Active scan tasks map is null");
-                } else {
-                    log.info("Active scan tasks map is initialized with size: {}", activeScanTasks.size());
-                }
-
                 Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), true);
                 activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
             }
@@ -134,7 +126,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      */
     @Async
     private Future<List<File>> scanDirectoryAsync(String directoryPath, boolean includeSubFolders) throws ExecutionException, InterruptedException {
-        return directoryTraverser.traverseDirectory(directoryPath, includeSubFolders);
+        return directoryTraverser.collectFilesInDirectory(directoryPath, includeSubFolders);
     }
 
     /**
@@ -146,8 +138,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * <p>
      * If a scan is still in progress, it logs the status.
      */
-    @Scheduled(fixedDelay = 5000, initialDelay = 2500)
-    public final void monitorActiveScans() {
+    @Scheduled(fixedDelay = 5000)
+    public void monitorActiveScans() {
         if (activeScanTasks.isEmpty()) {
             log.info("No active scan tasks to process.");
             return;
@@ -159,7 +151,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
             if (future.isDone()) {
                 log.info("Traversing completed for directory: {}", dirPath);
-                completeScan(task);
+                if (completeScanTask(task)) {
+                    log.info("Scan completed successfully for directory: {}", dirPath);
+                } else {
+                    log.warn("Scan was not completed successfully for directory: {}", dirPath);
+                }
                 activeScanTasks.remove(dirPath);
             } else {
                 log.info("Traversing for directory {} is still in progress.", dirPath);
@@ -182,7 +178,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * @return true if the scan was successfully completed, false otherwise
      */
     @Async
-    private boolean completeScan(ScanTaskState scanTaskState) {
+    private boolean completeScanTask(ScanTaskState scanTaskState) {
         String dirPath = scanTaskState.scan().getMonitoredDirectory().getPath();
         Scan scan = scanTaskState.scan();
 
@@ -236,7 +232,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         }
         return false; // Shouldn't reach here under normal execution
     }
-
 
 
     /**
