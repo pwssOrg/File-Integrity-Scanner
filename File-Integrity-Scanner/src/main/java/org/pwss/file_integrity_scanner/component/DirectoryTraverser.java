@@ -24,10 +24,10 @@ public class DirectoryTraverser {
      * and retrieve a list of files. The traversal can include subdirectories based on the
      * `includeSubFolders` flag.
      *
-     * @param directoryPath the path of the directory to scan
+     * @param directoryPath     the path of the directory to scan
      * @param includeSubFolders a flag indicating whether to include subdirectories in the scan
      * @return a Future containing the list of files found in the directory
-     * @throws ExecutionException if an error occurs during the asynchronous file traversal
+     * @throws ExecutionException   if an error occurs during the asynchronous file traversal
      * @throws InterruptedException if the thread executing the file traversal is interrupted
      */
     public final Future<List<File>> collectFilesInDirectory(String directoryPath, boolean includeSubFolders)
