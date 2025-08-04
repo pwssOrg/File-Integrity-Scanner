@@ -111,7 +111,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 // If scan should include monitored directory subdirectories
                 if (dir.getIncludeSubdirectories()) {
                     // Add the scan to active tasks for monitoring
-                    Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), true);
+                    Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath());
                     activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
                 } else { // If not, scan only the top-level files
                     // TODO: Handle non subdirectory scans in a nice manner :D
