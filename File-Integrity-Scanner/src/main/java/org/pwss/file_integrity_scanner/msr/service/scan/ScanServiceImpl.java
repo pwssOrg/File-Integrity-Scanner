@@ -109,6 +109,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 repository.save(scan);
 
                 // Start scanning the directory and its subdirectories
+                // TODO: Add new column to MonitoredDirectory to indicate if subdirectories should be included in the scan
+                // TODO: Add if statement to check if subdirectories should be included, if so add activeScanTasks else handle differently
                 Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), true);
                 activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
             }

@@ -6,5 +6,5 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public final record ScanTaskState(Future<List<File>> future, Scan scan) {
+public record ScanTaskState(Future<List<File>> future, Scan scan) {
 }
