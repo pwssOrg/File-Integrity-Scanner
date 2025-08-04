@@ -19,21 +19,19 @@ public class DirectoryTraverser {
 
     /**
      * Collects all files in a directory asynchronously.
-     * <p>
-     * This method uses a `FileTraverserImpl` instance to traverse the specified directory
-     * and retrieve a list of files. The traversal can include subdirectories based on the
-     * `includeSubFolders` flag.
      *
-     * @param directoryPath     the path of the directory to scan
-     * @param includeSubFolders a flag indicating whether to include subdirectories in the scan
+     * This method uses a `FileTraverserImpl` instance to traverse the specified directory
+     * and retrieve a list of files. The traversal is performed asynchronously, and the
+     * result is returned as a `Future`.
+     *
+     * @param directoryPath the path of the directory to scan
      * @return a Future containing the list of files found in the directory
-     * @throws ExecutionException   if an error occurs during the asynchronous file traversal
+     * @throws ExecutionException if an error occurs during the asynchronous file traversal
      * @throws InterruptedException if the thread executing the file traversal is interrupted
      */
-    public final Future<List<File>> collectFilesInDirectory(String directoryPath, boolean includeSubFolders)
+    public final Future<List<File>> collectFilesInDirectory(String directoryPath)
             throws ExecutionException, InterruptedException {
         FileTraverserImpl traverser = new FileTraverserImpl();
-        // TODO: Make includeSubFolders working
         return traverser.traverse(directoryPath);
     }
 

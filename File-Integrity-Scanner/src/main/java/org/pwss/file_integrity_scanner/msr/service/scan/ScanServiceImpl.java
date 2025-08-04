@@ -108,11 +108,15 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 repository.save(scan);
 
-                // Start scanning the directory and its subdirectories
-                // TODO: Add new column to MonitoredDirectory to indicate if subdirectories should be included in the scan
-                // TODO: Add if statement to check if subdirectories should be included, if so add activeScanTasks else handle differently
-                Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), true);
-                activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
+                // If scan should include monitored directory subdirectories
+                if (dir.getIncludeSubdirectories()) {
+                    // Add the scan to active tasks for monitoring
+                    Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), true);
+                    activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
+                } else { // If not, scan only the top-level files
+                    // TODO: Handle non subdirectory scans in a nice manner :D
+                }
+
             }
         } catch (Exception e) {
             log.error("Error while scanning all monitored directories {},", e.getMessage());
@@ -123,12 +127,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * Asynchronously scans a directory and its subdirectories( if specified)to retrieve a list of files.
      *
      * @param directoryPath     the path of the directory to scan
-     * @param includeSubFolders a flag indicating whether to include subdirectories in the scan
      * @return a Future containing the list of files found in the directory
      */
     @Async
-    private Future<List<File>> scanDirectoryAsync(String directoryPath, boolean includeSubFolders) throws ExecutionException, InterruptedException {
-        return directoryTraverser.collectFilesInDirectory(directoryPath, includeSubFolders);
+    private Future<List<File>> scanDirectoryAsync(String directoryPath) throws ExecutionException, InterruptedException {
+        return directoryTraverser.collectFilesInDirectory(directoryPath);
     }
 
     /**
@@ -141,7 +144,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * If a scan is still in progress, it logs the status.
      */
     @Scheduled(fixedDelay = 5000)
-    public void monitorActiveScans() {
+    public void monitorAsyncScans() {
         if (activeScanTasks.isEmpty()) {
             log.info("No active scan tasks to process.");
             return;
