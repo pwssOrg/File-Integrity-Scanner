@@ -56,6 +56,10 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     private final DateTimeFormatter timeAndDateStringForLogFormat;
     private final ConcurrentMap<String, ScanTaskState> activeScanTasks;
+    // Flag to indicate if an ongoing scan should be stopped
+    private boolean stopRequested = false;
+
+    private final int SCAN_TASK_MONITOR_DELAY = 5000; // Delay in milliseconds for monitoring scan tasks
 
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
@@ -76,9 +80,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         this.timeAndDateStringForLogFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.activeScanTasks = new ConcurrentHashMap<>();
     }
-
-    // Flag to indicate if an ongoing scan should be stopped
-    private boolean stopRequested = false;
 
     @Override
     public void scanAllDirectories() {
@@ -107,7 +108,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 repository.save(scan);
 
-                Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(),dir.getIncludeSubdirectories());
+                Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), dir.getIncludeSubdirectories());
                 activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
             }
         } catch (Exception e) {
@@ -129,7 +130,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
         repository.save(scan);
 
-        Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(),dir.getIncludeSubdirectories());
+        Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), dir.getIncludeSubdirectories());
         activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
     }
 
@@ -140,7 +141,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * @return a Future containing the list of files found in the directory
      */
     private Future<List<File>> scanDirectoryAsync(String directoryPath, boolean includeSubdirectories) {
-        if(includeSubdirectories) {
+        if (includeSubdirectories) {
             return directoryTraverser.collectFilesInDirectory(directoryPath);
         } else {
             return directoryTraverser.collectTopLevelFiles(new File(directoryPath));
@@ -156,10 +157,10 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * <p>
      * If a scan is still in progress, it logs the status.
      */
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = SCAN_TASK_MONITOR_DELAY)
     public void monitorOngoingScanTasks() {
         if (activeScanTasks.isEmpty()) {
-            log.info("No active scan tasks to process.");
+            log.debug("No active scan tasks to process.");
             return;
         }
 
