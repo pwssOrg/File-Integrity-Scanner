@@ -246,6 +246,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
             scanInstance.setStatus(ScanStatus.FAILED.toString());
             repository.save(scanInstance);
+            return false; // Scan Failed
         } finally {
             // Remove the task from active tasks regardless of success or failure
             if (activeScanTasks.containsKey(dirPath)) {
@@ -253,9 +254,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 log.info("Removed scan task for directory: {}", dirPath);
             }
         }
-        return false; // Shouldn't reach here under normal execution
     }
-
 
     /**
      * Processes a file by checking its existence in the database, updating or
