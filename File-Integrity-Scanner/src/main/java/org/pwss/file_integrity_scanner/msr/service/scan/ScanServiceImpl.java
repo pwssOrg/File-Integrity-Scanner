@@ -277,53 +277,57 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File fileEntity;
         boolean fileInDatabase = fileService.existsByPath(file.getPath());
 
-        HashForFilesOutput computedHashes = fileHashComputer.computeHashes(file);
+        try {
+            HashForFilesOutput computedHashes = fileHashComputer.computeHashes(file);
 
-        MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
+            MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
-        if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
+            if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
 
-            // Compare current hash to previous hash (Ticket #46)
+                // Compare current hash to previous hash (Ticket #46)
 
-        } else {
-            // Scan without comparing hashes for this Monitored Directory
+            } else {
+                // Scan without comparing hashes for this Monitored Directory
+            }
+
+            if (fileInDatabase) {
+                // Fetch existing entity and update fields
+                fileEntity = fileService.findByPath(file.getPath());
+                fileEntity.setSize(file.length());
+                OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
+                        .atOffset(ZoneOffset.UTC);
+                fileEntity.setMtime(lastModified);
+                log.info("Updating existing file in DB: {}", fileEntity.getPath());
+            } else {
+                // Create new entity
+                fileEntity = new org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File();
+                fileEntity.setPath(file.getPath());
+                fileEntity.setBasename(file.getName());
+                fileEntity.setDirectory(file.getParent());
+                fileEntity.setSize(file.length());
+                OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
+                        .atOffset(ZoneOffset.UTC);
+                fileEntity.setMtime(lastModified);
+                log.info("Adding new file to DB: {}", fileEntity.getPath());
+            }
+
+            fileService.save(fileEntity);
+
+            Checksum checksums = new Checksum();
+            checksums.setChecksumSha256(computedHashes.sha256());
+            checksums.setChecksumSha3(computedHashes.sha3());
+            checksums.setChecksumBlake2b(computedHashes.blake2());
+            checksums.setFile(fileEntity);
+            checksumService.save(checksums);
+
+            ScanSummary scanSummary = new ScanSummary();
+            scanSummary.setFile(fileEntity);
+            scanSummary.setScan(scanInstance);
+            scanSummary.setChecksum(checksums);
+            scanSummaryService.save(scanSummary);
+        } catch (OutOfMemoryError memoryError) {
+            log.warn("Out of memory error while processing file: {}. Skipping file.", file.getPath());
         }
-
-        if (fileInDatabase) {
-            // Fetch existing entity and update fields
-            fileEntity = fileService.findByPath(file.getPath());
-            fileEntity.setSize(file.length());
-            OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
-                    .atOffset(ZoneOffset.UTC);
-            fileEntity.setMtime(lastModified);
-            log.info("Updating existing file in DB: {}", fileEntity.getPath());
-        } else {
-            // Create new entity
-            fileEntity = new org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File();
-            fileEntity.setPath(file.getPath());
-            fileEntity.setBasename(file.getName());
-            fileEntity.setDirectory(file.getParent());
-            fileEntity.setSize(file.length());
-            OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
-                    .atOffset(ZoneOffset.UTC);
-            fileEntity.setMtime(lastModified);
-            log.info("Adding new file to DB: {}", fileEntity.getPath());
-        }
-
-        fileService.save(fileEntity);
-
-        Checksum checksums = new Checksum();
-        checksums.setChecksumSha256(computedHashes.sha256());
-        checksums.setChecksumSha3(computedHashes.sha3());
-        checksums.setChecksumBlake2b(computedHashes.blake2());
-        checksums.setFile(fileEntity);
-        checksumService.save(checksums);
-
-        ScanSummary scanSummary = new ScanSummary();
-        scanSummary.setFile(fileEntity);
-        scanSummary.setScan(scanInstance);
-        scanSummary.setChecksum(checksums);
-        scanSummaryService.save(scanSummary);
     }
 
     @Override

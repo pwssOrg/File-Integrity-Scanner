@@ -24,7 +24,7 @@ public final class FileHashComputer {
      * @param file the file for which hashes need to be computed
      * @return an object containing the computed hashes for the file
      */
-    public final HashForFilesOutput computeHashes(File file) {
+    public HashForFilesOutput computeHashes(File file) {
         return fileHashHandler.GetAllHashes(file);
     }
 }
