@@ -30,6 +30,9 @@ public class MonitoredDirectory {
     @Column(name = "baseline_established", nullable = false)
     private Boolean baselineEstablished = false;
 
+    @Column(name = "include_subdirectories", nullable = false)
+    private Boolean includeSubdirectories = true;
+
     // Getters and setters
 
     public Integer getId() {
@@ -86,5 +89,13 @@ public class MonitoredDirectory {
 
     public void setBaselineEstablished(Boolean baselineEstablished) {
         this.baselineEstablished = baselineEstablished;
+    }
+
+    public Boolean getIncludeSubdirectories() {
+        return includeSubdirectories;
+    }
+
+    public void setIncludeSubdirectories(Boolean includeSubdirectories) {
+        this.includeSubdirectories = includeSubdirectories;
     }
 }

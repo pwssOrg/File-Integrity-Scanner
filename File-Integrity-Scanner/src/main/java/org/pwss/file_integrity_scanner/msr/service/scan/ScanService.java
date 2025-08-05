@@ -1,6 +1,6 @@
 package org.pwss.file_integrity_scanner.msr.service.scan;
 
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.scan.Scan;
+import org.pwss.file_integrity_scanner.msr.domain.model.entities.monitored_directory.MonitoredDirectory;
 
 /**
  * Service interface for managing directory scans.
@@ -17,26 +17,14 @@ public interface ScanService {
     void scanAllDirectories();
 
     /**
-     * Scans a monitored directory using the provided scan instance.
+     * Initiates scanning of a single monitored directory.
+     * <p>
+     * This method starts the scanning process for the specified monitored directory.
+     * It ensures that only the provided directory is scanned, rather than all monitored directories.
      *
-     * This method is an overloaded variant that calls the two-parameter method with
-     * default value set to true for
-     * includeSubFolders.
-     *
-     * @param scanInstance the scan instance used for scanning the directory
-     * @return true if the monitored directory scan is successful, false otherwise
+     * @param monitoredDirectory the monitored directory to be scanned
      */
-    Boolean scanMonitoredDirectory(Scan scanInstance);
-
-    /**
-     * Scans a monitored directory using the provided scan instance.
-     *
-     * @param scanInstance      the scan instance used for scanning the directory
-     * @param includeSubFolders whether to include subfolders in the scan (default
-     *                          is false)
-     * @return true if the monitored directory scan is successful, false otherwise
-     */
-    Boolean scanMonitoredDirectory(Scan scanInstance, boolean includeSubFolders);
+    void scanSingleDirectory(MonitoredDirectory monitoredDirectory);
 
     /**
      * Stops any ongoing scans.

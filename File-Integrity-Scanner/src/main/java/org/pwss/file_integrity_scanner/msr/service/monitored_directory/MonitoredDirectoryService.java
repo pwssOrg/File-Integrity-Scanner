@@ -17,7 +17,7 @@ public interface MonitoredDirectoryService {
      *
      * @param isActive true to find active directories, false to find inactive ones
      * @return a list of monitored directories matching the specified active status,
-     *         or null if no matches are found or an error occurs
+     * or null if no matches are found or an error occurs
      */
     List<MonitoredDirectory> findByIsActive(boolean isActive);
 
@@ -32,7 +32,7 @@ public interface MonitoredDirectoryService {
 
     /**
      * Persists a monitored directory entity in the database.
-     *
+     * <p>
      * This method saves or updates the provided {@code MonitoredDirectory}
      * entity, ensuring its state is recorded persistently. It handles all
      * necessary operations to make the entity available for future queries.

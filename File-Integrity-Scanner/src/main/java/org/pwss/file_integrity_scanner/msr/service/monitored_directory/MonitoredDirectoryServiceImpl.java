@@ -36,7 +36,7 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
 
     @Override
     public void save(MonitoredDirectory mDirectory) {
-      this.repository.save(mDirectory);
+        this.repository.save(mDirectory);
     }
 
     @Override
