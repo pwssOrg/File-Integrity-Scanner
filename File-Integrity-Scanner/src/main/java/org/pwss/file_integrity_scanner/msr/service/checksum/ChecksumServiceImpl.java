@@ -6,6 +6,7 @@ import org.pwss.file_integrity_scanner.msr.repository.ChecksumRepository;
 import org.pwss.file_integrity_scanner.msr.service.BaseService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class ChecksumServiceImpl extends BaseService<ChecksumRepository> impleme
             return mOptional.get();
         } else {
             log.warn("No checksums found for file: {}", file.getPath());
-            return null;
+            return Collections.emptyList();
         }
 
     }

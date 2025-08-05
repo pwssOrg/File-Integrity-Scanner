@@ -319,6 +319,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
                 List<Checksum> dbChecksums = checksumService.findByFile(fileEntity);
                 if (!dbChecksums.isEmpty()) {
+                    // TODO: Maybe not getFirst but let's discuss this later
                     Checksum oldChecksum = dbChecksums.getFirst();
                     if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
                         log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
