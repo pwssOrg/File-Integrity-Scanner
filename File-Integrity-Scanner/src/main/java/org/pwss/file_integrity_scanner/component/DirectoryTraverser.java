@@ -26,11 +26,8 @@ public class DirectoryTraverser {
      *
      * @param directoryPath the path of the directory to scan
      * @return a Future containing the list of files found in the directory
-     * @throws ExecutionException if an error occurs during the asynchronous file traversal
-     * @throws InterruptedException if the thread executing the file traversal is interrupted
      */
-    public final Future<List<File>> collectFilesInDirectory(String directoryPath)
-            throws ExecutionException, InterruptedException {
+    public final Future<List<File>> collectFilesInDirectory(String directoryPath) {
         FileTraverserImpl traverser = new FileTraverserImpl();
         return traverser.traverse(directoryPath);
     }
