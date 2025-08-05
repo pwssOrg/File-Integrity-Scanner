@@ -17,7 +17,6 @@ import org.pwss.file_integrity_scanner.msr.service.monitored_directory.Monitored
 import org.pwss.file_integrity_scanner.msr.service.scan.internal.ScanTaskState;
 import org.pwss.file_integrity_scanner.msr.service.scan_summary.ScanSummaryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -98,7 +96,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             // Iterate over each monitored directory in database
             for (MonitoredDirectory dir : activeDirs) {
                 if (stopRequested) {
-                    log.info("Scan stopped by user request.");
+                    log.info("Scan stopped  by user request.");
                     break;
                 }
 
@@ -109,15 +107,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 repository.save(scan);
 
-                // If scan should include monitored directory subdirectories
-                if (dir.getIncludeSubdirectories()) {
-                    // Add the scan to active tasks for monitoring
-                    Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath());
-                    activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
-                } else { // If not, scan only the top-level files
-                    scanTopLevelDirectory(scan);
-                }
-
+                Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(),dir.getIncludeSubdirectories());
+                activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
             }
         } catch (Exception e) {
             log.error("Error while scanning all monitored directories {},", e.getMessage());
@@ -138,51 +129,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
         repository.save(scan);
 
-        // If scan should include monitored directory subdirectories
-        if (dir.getIncludeSubdirectories()) {
-            // Add the scan to active tasks for monitoring
-            Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath());
-            activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
-        } else { // If not, scan only the top-level files
-            scanTopLevelDirectory(scan);
-        }
-    }
-
-    /**
-     * Scans the top-level directory for files and processes them.
-     * <p>
-     * This method retrieves the top-level files in the monitored directory associated
-     * with the given scan instance. If files are found, it processes them and finalizes
-     * the scan task. If no files are found, the scan is marked as failed. Any exceptions
-     * during the process are logged.
-     *
-     * @param scanInstance the scan instance associated with the directory to be scanned
-     */
-    @Async
-    private void scanTopLevelDirectory(Scan scanInstance) {
-        final MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
-        final File file;
-
-        try {
-            file = new File(mDirectory.getPath());
-            Optional<List<File>> topLevelFiles = directoryTraverser.collectTopLevelFiles(file);
-            if (topLevelFiles.isPresent()) {
-                log.info("Found {} top-level files in directory: {}", topLevelFiles.get().size(), mDirectory.getPath());
-                if (finalizeScanTask(scanInstance, topLevelFiles.get())) {
-                    log.info("Scan top-level completed successfully for directory: {}", mDirectory.getPath());
-                } else {
-                    log.warn("Scan top-level was not completed successfully for directory: {}", mDirectory.getPath());
-                }
-            } else {
-                log.warn("No top-level files found in directory: {}", mDirectory.getPath());
-                scanInstance.setStatus(ScanStatus.FAILED.toString());
-                repository.save(scanInstance);
-            }
-        } catch (ExecutionException e) {
-            log.error("ExecutionException while scanning top-level directory {}: {}", mDirectory.getPath(), e.getMessage());
-        } catch (InterruptedException e) {
-            log.error("InterruptedException while scanning top-level directory {}: {}", mDirectory.getPath(), e.getMessage());
-        }// Shouldn't reach here under normal execution
+        Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(),dir.getIncludeSubdirectories());
+        activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
     }
 
     /**
@@ -191,9 +139,12 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * @param directoryPath the path of the directory to scan
      * @return a Future containing the list of files found in the directory
      */
-    @Async
-    private Future<List<File>> scanDirectoryAsync(String directoryPath) {
-        return directoryTraverser.collectFilesInDirectory(directoryPath);
+    private Future<List<File>> scanDirectoryAsync(String directoryPath, boolean includeSubdirectories) {
+        if(includeSubdirectories) {
+            return directoryTraverser.collectFilesInDirectory(directoryPath);
+        } else {
+            return directoryTraverser.collectTopLevelFiles(new File(directoryPath));
+        }
     }
 
     /**
@@ -250,7 +201,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      * @param files        the list of files to process
      * @return true if the scan was successfully completed, false otherwise
      */
-    @Async
     private boolean finalizeScanTask(Scan scanInstance, List<File> files) {
         String dirPath = scanInstance.getMonitoredDirectory().getPath();
 
