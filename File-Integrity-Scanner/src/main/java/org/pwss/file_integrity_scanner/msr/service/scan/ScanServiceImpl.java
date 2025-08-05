@@ -282,14 +282,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
             MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
-            if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
-
-                // Compare current hash to previous hash (Ticket #46)
-
-            } else {
-                // Scan without comparing hashes for this Monitored Directory
-            }
-
             if (fileInDatabase) {
                 // Fetch existing entity and update fields
                 fileEntity = fileService.findByPath(file.getPath());
@@ -297,7 +289,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                         .atOffset(ZoneOffset.UTC);
                 fileEntity.setMtime(lastModified);
-                log.info("Updating existing file in DB: {}", fileEntity.getPath());
+                log.debug("Updating existing file in DB: {}", fileEntity.getPath());
             } else {
                 // Create new entity
                 fileEntity = new org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File();
@@ -308,22 +300,37 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                         .atOffset(ZoneOffset.UTC);
                 fileEntity.setMtime(lastModified);
-                log.info("Adding new file to DB: {}", fileEntity.getPath());
+                log.debug("Adding new file to DB: {}", fileEntity.getPath());
             }
 
             fileService.save(fileEntity);
 
-            Checksum checksums = new Checksum();
-            checksums.setChecksumSha256(computedHashes.sha256());
-            checksums.setChecksumSha3(computedHashes.sha3());
-            checksums.setChecksumBlake2b(computedHashes.blake2());
-            checksums.setFile(fileEntity);
-            checksumService.save(checksums);
+            Checksum checksum = new Checksum();
+            checksum.setChecksumSha256(computedHashes.sha256());
+            checksum.setChecksumSha3(computedHashes.sha3());
+            checksum.setChecksumBlake2b(computedHashes.blake2());
+            checksum.setFile(fileEntity);
+            checksumService.save(checksum);
+
+            // If the baseline is established, check if the file has changed
+            if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
+                List<Checksum> dbChecksums = checksumService.findByFile(fileEntity);
+                if (!dbChecksums.isEmpty()) {
+                    Checksum oldChecksum = dbChecksums.getFirst();
+                    if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
+                        log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
+                    } else {
+                        log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
+                    }
+                } else {
+                    log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
+                }
+            }
 
             ScanSummary scanSummary = new ScanSummary();
             scanSummary.setFile(fileEntity);
             scanSummary.setScan(scanInstance);
-            scanSummary.setChecksum(checksums);
+            scanSummary.setChecksum(checksum);
             scanSummaryService.save(scanSummary);
         } catch (OutOfMemoryError memoryError) {
             log.warn("Out of memory error while processing file: {}. Skipping file.", file.getPath());
