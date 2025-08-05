@@ -53,13 +53,16 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     private final FileHashComputer fileHashComputer;
 
     private final org.slf4j.Logger log;
-
     private final DateTimeFormatter timeAndDateStringForLogFormat;
+
+    // Map to hold active scan tasks, keyed by directory path
     private final ConcurrentMap<String, ScanTaskState> activeScanTasks;
+
     // Flag to indicate if an ongoing scan should be stopped
     private boolean stopRequested = false;
 
-    private final int SCAN_TASK_MONITOR_DELAY = 5000; // Delay in milliseconds for monitoring scan tasks
+    // Delay in milliseconds for monitoring scan tasks
+    private final int SCAN_TASK_MONITOR_DELAY = 5000;
 
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
@@ -321,6 +324,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                         log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
                     } else {
                         log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
+                        // TODO: Figure out what to do with changed files, add some notes to scan summary?
                     }
                 } else {
                     log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
