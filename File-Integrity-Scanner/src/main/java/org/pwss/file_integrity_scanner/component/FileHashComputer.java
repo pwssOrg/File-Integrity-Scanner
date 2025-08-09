@@ -40,7 +40,7 @@ public final class FileHashComputer {
         try {
             return fileHashHandler.GetAllHashes(file);
         } catch (OutOfMemoryError outOfMemoryError) {
-            log.debug("Large file detected, switching to BigFileHashHandler for file: {}", file.getPath());
+            log.debug("OutOfMemoryError occurred, switching to BigFileHashHandler for file: {}", file.getPath());
             return bigFileHashHandler.GetAllHashes(file);
         }
     }
