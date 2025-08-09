@@ -1,7 +1,7 @@
 package org.pwss.file_integrity_scanner;
 
-import lib.pwss.hash.FileHashHandler;
 import lib.pwss.hash.compare.util.HashCompareUtil;
+import lib.pwss.hash.file_hash_handler.FileHashHandler;
 import lib.pwss.hash.model.HashForFilesOutput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner.component;
 
-import lib.pwss.hash.FileHashHandler;
+import lib.pwss.hash.file_hash_handler.BigFileHashHandler;
+import lib.pwss.hash.file_hash_handler.FileHashHandler;
 import lib.pwss.hash.compare.util.HashCompareUtil;
 import lib.pwss.hash.model.HashForFilesOutput;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checksum;
@@ -14,11 +15,20 @@ import java.io.File;
 @Component
 public final class FileHashComputer {
 
+    private final org.slf4j.Logger log;
+
+    // TODO: Let the user adjust the maximum limit
+    private final long TEMP_USER_DEFINED_MAX_LIMIT = 5000L * 1024 * 1024; // 100 MB
 
     public FileHashComputer() {
+        this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
     }
 
+    // Instance of FileHashHandler for computing hashes of smaller files
     private final FileHashHandler fileHashHandler = new FileHashHandler();
+
+    // Instance of BigFileHashHandler for computing hashes of larger files
+    private final BigFileHashHandler bigFileHashHandler = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
 
     /**
      * Computes all hashes for the given file.
@@ -27,7 +37,12 @@ public final class FileHashComputer {
      * @return an object containing the computed hashes for the file
      */
     public HashForFilesOutput computeHashes(File file) {
-        return fileHashHandler.GetAllHashes(file);
+        try {
+            return fileHashHandler.GetAllHashes(file);
+        } catch (OutOfMemoryError outOfMemoryError) {
+            log.debug("Large file detected, switching to BigFileHashHandler for file: {}", file.getPath());
+            return bigFileHashHandler.GetAllHashes(file);
+        }
     }
 
     /**
