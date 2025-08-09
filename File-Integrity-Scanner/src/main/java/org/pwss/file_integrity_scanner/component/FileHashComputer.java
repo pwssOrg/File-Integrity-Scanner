@@ -15,20 +15,22 @@ import java.io.File;
 @Component
 public final class FileHashComputer {
 
-    private final org.slf4j.Logger log;
-
     // TODO: Let the user adjust the maximum limit
     private final long TEMP_USER_DEFINED_MAX_LIMIT = 5000L * 1024 * 1024; // 5000 MB
 
-    public FileHashComputer() {
-        this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
-    }
+    private final org.slf4j.Logger log;
 
     // Instance of FileHashHandler for computing hashes of smaller files
-    private final FileHashHandler fileHashHandler = new FileHashHandler();
+    private final FileHashHandler fileHashHandler;
 
     // Instance of BigFileHashHandler for computing hashes of larger files
-    private final BigFileHashHandler bigFileHashHandler = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
+    private final BigFileHashHandler bigFileHashHandler;
+
+    public FileHashComputer() {
+        this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
+        this.fileHashHandler = new FileHashHandler();
+        this.bigFileHashHandler = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
+    }
 
     /**
      * Computes all hashes for the given file.
