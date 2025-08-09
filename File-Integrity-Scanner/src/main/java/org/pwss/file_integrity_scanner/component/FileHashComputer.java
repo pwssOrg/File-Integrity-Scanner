@@ -18,7 +18,7 @@ public final class FileHashComputer {
     private final org.slf4j.Logger log;
 
     // TODO: Let the user adjust the maximum limit
-    private final long TEMP_USER_DEFINED_MAX_LIMIT = 5000L * 1024 * 1024; // 100 MB
+    private final long TEMP_USER_DEFINED_MAX_LIMIT = 5000L * 1024 * 1024; // 5000 MB
 
     public FileHashComputer() {
         this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
