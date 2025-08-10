@@ -2,12 +2,14 @@ package org.pwss.file_integrity_scanner.component;
 
 import lib.pwss.hash.file_hash_handler.BigFileHashHandler;
 import lib.pwss.hash.file_hash_handler.FileHashHandler;
+import lib.pwss.hash.FileHash;
 import lib.pwss.hash.compare.util.HashCompareUtil;
 import lib.pwss.hash.model.HashForFilesOutput;
 import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checksum;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Component responsible for computing hashes for files.
@@ -15,36 +17,57 @@ import java.io.File;
 @Component
 public final class FileHashComputer {
 
-    // TODO: Let the user adjust the maximum limit
     private final long TEMP_USER_DEFINED_MAX_LIMIT = 5000L * 1024 * 1024; // 5000 MB
+
+    /**
+     * Max size of a byte array in java -2
+     * (2^31-1) - 2
+     * You may get OOM exceptions for less if there is not enough memory free.
+     */
+    private final int MAX_SIZE_OF_BYTE_ARRAY = 2147483645;
 
     private final org.slf4j.Logger log;
 
     // Instance of FileHashHandler for computing hashes of smaller files
-    private final FileHashHandler fileHashHandler;
+    private final FileHash fileHashHandler;
 
     // Instance of BigFileHashHandler for computing hashes of larger files
-    private final BigFileHashHandler bigFileHashHandler;
+    private final FileHash fileHashHandlerB;
 
     public FileHashComputer() {
         this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
         this.fileHashHandler = new FileHashHandler();
-        this.bigFileHashHandler = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
+        this.fileHashHandlerB = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
     }
 
     /**
-     * Computes all hashes for the given file.
+     * Computes hashes for the given file using appropriate hash handler based on
+     * file size.
      *
-     * @param file the file for which hashes need to be computed
-     * @return an object containing the computed hashes for the file
+     * @param file The file to compute hashes for
+     * @return An Optional containing {@link HashForFilesOutput} if successful, or
+     *         empty if an error occurs
      */
-    public HashForFilesOutput computeHashes(File file) {
+    public Optional<HashForFilesOutput> computeHashes(File file) {
+
         try {
-            return fileHashHandler.GetAllHashes(file);
+
+            if (file.length() > MAX_SIZE_OF_BYTE_ARRAY)
+                return Optional.of(fileHashHandlerB.GetAllHashes(file));
+            else
+                return Optional.of(fileHashHandler.GetAllHashes(file));
+
         } catch (OutOfMemoryError outOfMemoryError) {
             log.debug("OutOfMemoryError occurred, switching to BigFileHashHandler for file: {}", file.getPath());
-            return bigFileHashHandler.GetAllHashes(file);
+            return Optional.of(fileHashHandlerB.GetAllHashes(file));
         }
+
+        catch (NullPointerException nullPointerException) {
+
+            log.error("nullPointerException for file: {} - {}", file.getPath(), nullPointerException.getMessage());
+            return Optional.empty();
+        }
+
     }
 
     /**
