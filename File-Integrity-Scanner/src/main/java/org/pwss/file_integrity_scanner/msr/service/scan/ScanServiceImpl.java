@@ -16,6 +16,8 @@ import org.pwss.file_integrity_scanner.msr.service.file.FileService;
 import org.pwss.file_integrity_scanner.msr.service.monitored_directory.MonitoredDirectoryService;
 import org.pwss.file_integrity_scanner.msr.service.scan.internal.ScanTaskState;
 import org.pwss.file_integrity_scanner.msr.service.scan_summary.ScanSummaryService;
+import org.pwss.io_file.FileTraverser;
+import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -65,6 +67,9 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     // Delay in milliseconds for monitoring scan tasks
     private final int SCAN_TASK_MONITOR_DELAY = 5000;
 
+    // FileTraverser from PWSS Directory Nav
+    private FileTraverser fileTraverser;
+
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
             MonitoredDirectoryService monitoredDirectoryService,
@@ -89,6 +94,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     public void scanAllDirectories() {
         log.info("Starting scan of all monitored directories at {}",
                 OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+
+        fileTraverser = new FileTraverserImpl();
         stopRequested = false; // Reset stop request at the start of a new scan.
 
         try {
@@ -113,16 +120,29 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 repository.save(scan);
 
-                Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), dir.getIncludeSubdirectories());
+                Future<List<File>> futureFiles;
+
+                if (dir.getIncludeSubdirectories()) {
+
+                    futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
+                }
+
+                else {
+
+                    futureFiles = scanDirectoryAsync(dir.getPath());
+                }
                 activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
             }
         } catch (Exception e) {
             log.error("Error while scanning all monitored directories {},", e.getMessage());
         }
+
     }
 
     @Override
     public void scanSingleDirectory(MonitoredDirectory dir) {
+        fileTraverser = new FileTraverserImpl();
+
         if (!dir.getIsActive()) {
             log.warn("Monitored directory {} is not active. Skipping scan.", dir.getPath());
             return;
@@ -135,20 +155,54 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
         repository.save(scan);
 
-        Future<List<File>> futureFiles = scanDirectoryAsync(dir.getPath(), dir.getIncludeSubdirectories());
+        Future<List<File>> futureFiles;
+
+        if (dir.getIncludeSubdirectories()) {
+            futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
+        } else {
+
+            futureFiles = scanDirectoryAsync(dir.getPath());
+        }
+
         activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
+
+    }
+
+    /**
+     * Asynchronously scans a directory to retrieve a list of top-level files.
+     *
+     * This is an overloaded version that calls the main implementation with a null
+     * fileTraverser, which results in only collecting top-level files from the
+     * specified directory.
+     *
+     * @param directoryPath the path of the directory to scan for top-level files
+     * @return a {@link Future} containing the list of top-level files found in the
+     *         directory
+     */
+    private Future<List<File>> scanDirectoryAsync(String directoryPath) {
+
+        return scanDirectoryAsync(directoryPath, null);
     }
 
     /**
      * Asynchronously scans a directory and its subdirectories to retrieve a list of
      * files.
      *
+     * This method uses either a provided {@link FileTraverser} instance to traverse
+     * the
+     * directory,
+     * or it collects only top-level files in the directory if no traversal strategy
+     * is specified.
+     *
      * @param directoryPath the path of the directory to scan
-     * @return a Future containing the list of files found in the directory
+     * @param fileTraverser an optional FileTraverser implementation for directory
+     *                      traversal;
+     *                      if null, only top-level files are collected
+     * @return a {@link Future} containing the list of files found in the directory
      */
-    private Future<List<File>> scanDirectoryAsync(String directoryPath, boolean includeSubdirectories) {
-        if (includeSubdirectories) {
-            return directoryTraverser.collectFilesInDirectory(directoryPath);
+    private Future<List<File>> scanDirectoryAsync(String directoryPath, FileTraverser fileTraverser) {
+        if (fileTraverser != null) {
+            return directoryTraverser.collectFilesInDirectory(directoryPath, fileTraverser);
         } else {
             return directoryTraverser.collectTopLevelFiles(new File(directoryPath));
         }
@@ -166,7 +220,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     @Scheduled(fixedDelay = SCAN_TASK_MONITOR_DELAY)
     public void monitorOngoingScanTasks() {
         if (activeScanTasks.isEmpty()) {
-            log.debug("No active scan tasks to process.");
             return;
         }
 
@@ -262,6 +315,14 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             if (activeScanTasks.containsKey(dirPath)) {
                 activeScanTasks.remove(dirPath);
                 log.info("Removed scan task for directory: {}", dirPath);
+
+                if (activeScanTasks.isEmpty()) {
+
+                    fileTraverser.shutdownThreadPool();
+
+                    log.info("Scan finalized with Monitored Directory: {} being the last element", dirPath);
+                }
+
             }
         }
     }
@@ -292,8 +353,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
         if (computedHashesOpt.isPresent()) {
             computedHashes = computedHashesOpt.get();
-        }
-        else {
+        } else {
 
             return;
         }

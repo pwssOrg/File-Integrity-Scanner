@@ -1,5 +1,6 @@
 package org.pwss.file_integrity_scanner.component;
 
+import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.pwss.util.PWSSDirectoryNavUtil;
 import org.springframework.scheduling.annotation.Async;
@@ -25,20 +26,21 @@ public class DirectoryTraverser {
     /**
      * Collects all files in a directory asynchronously.
      * <p>
-     * This method uses a `FileTraverserImpl` instance to traverse the specified
-     * directory
-     * and retrieve a list of files. The traversal is performed asynchronously, and
-     * the
-     * result is returned as a `Future`.
+     * This method uses a provided {@link FileTraverser} instance to traverse the
+     * specified
+     * directory and retrieve a list of files. The traversal is performed
+     * asynchronously,
+     * and the result is returned as a {@link Future}.
      *
      * @param directoryPath the path of the directory to scan
+     * @param fileTraverser the FileTraverser implementation used for directory
+     *                      traversal
      * @return a Future containing the list of files found in the directory
      */
     @Async
-    public Future<List<File>> collectFilesInDirectory(String directoryPath) {
+    public Future<List<File>> collectFilesInDirectory(String directoryPath, FileTraverser fileTraverser) {
         log.info("Starting asynchronous traversal scan for directory: {}", directoryPath);
-        FileTraverserImpl traverser = new FileTraverserImpl();
-        return traverser.traverse(directoryPath);
+        return fileTraverser.traverse(directoryPath);
     }
 
     /**
@@ -47,7 +49,7 @@ public class DirectoryTraverser {
      * This method retrieves the files located directly in the specified directory
      * without traversing its subdirectories. The operation is performed
      * synchronously,
-     * but returns a `CompletableFuture` to align with async frameworks like
+     * but returns a {@link CompletableFuture} to align with async frameworks like
      * Spring's @Async annotation,
      * allowing for further chaining or handling of results asynchronously.
      *
@@ -59,7 +61,8 @@ public class DirectoryTraverser {
     public CompletableFuture<List<File>> collectTopLevelFiles(File directoryPath) {
         log.info("Starting synchronous collection of top-level files from directory: {}", directoryPath);
 
-        // Retrieve the files directly within the specified directory, excluding subdirectories
+        // Retrieve the files directly within the specified directory, excluding
+        // subdirectories
         List<File> files = PWSSDirectoryNavUtil.GetSelectedFolderWithoutSubFolders(directoryPath);
 
         // Return a completed CompletableFuture with the list of files.
