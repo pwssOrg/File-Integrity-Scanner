@@ -26,6 +26,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -59,19 +60,19 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     private final ConcurrentMap<String, ScanTaskState> activeScanTasks;
 
     // Flag to indicate if an ongoing scan should be stopped
-    private boolean stopRequested = false;
+    private volatile boolean stopRequested = false;
 
     // Delay in milliseconds for monitoring scan tasks
     private final int SCAN_TASK_MONITOR_DELAY = 5000;
 
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
-                           MonitoredDirectoryService monitoredDirectoryService,
-                           FileService fileService,
-                           ScanSummaryService scanSummaryService,
-                           ChecksumService checksumService,
-                           DirectoryTraverser directoryTraverser,
-                           FileHashComputer fileHashComputer) {
+            MonitoredDirectoryService monitoredDirectoryService,
+            FileService fileService,
+            ScanSummaryService scanSummaryService,
+            ChecksumService checksumService,
+            DirectoryTraverser directoryTraverser,
+            FileHashComputer fileHashComputer) {
         super(repository);
         this.monitoredDirectoryService = monitoredDirectoryService;
         this.fileService = fileService;
@@ -86,7 +87,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
     @Override
     public void scanAllDirectories() {
-        log.info("Starting scan of all monitored directories at {}", OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+        log.info("Starting scan of all monitored directories at {}",
+                OffsetDateTime.now().format(timeAndDateStringForLogFormat));
         stopRequested = false; // Reset stop request at the start of a new scan.
 
         try {
@@ -138,7 +140,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     }
 
     /**
-     * Asynchronously scans a directory and its subdirectories to retrieve a list of files.
+     * Asynchronously scans a directory and its subdirectories to retrieve a list of
+     * files.
      *
      * @param directoryPath the path of the directory to scan
      * @return a Future containing the list of files found in the directory
@@ -183,7 +186,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 } catch (InterruptedException e) {
                     log.error("Scan interrupted for directory {}: {}", dirPath, e.getMessage());
                 } catch (ExecutionException e) {
-                    log.error("Execution exception while completing scan for directory {}: {}", dirPath, e.getMessage());
+                    log.error("Execution exception while completing scan for directory {}: {}", dirPath,
+                            e.getMessage());
                 }
                 activeScanTasks.remove(dirPath);
             } else {
@@ -195,9 +199,12 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     /**
      * Finalizes the scan task for a given scan instance and list of files.
      * <p>
-     * This method processes each file in the provided list, updates the scan status,
-     * and establishes a baseline for the monitored directory if necessary. If a stop
-     * request is detected, the scan is marked as cancelled. In case of errors during
+     * This method processes each file in the provided list, updates the scan
+     * status,
+     * and establishes a baseline for the monitored directory if necessary. If a
+     * stop
+     * request is detected, the scan is marked as cancelled. In case of errors
+     * during
      * processing, the scan is marked as failed. Regardless of the outcome, the task
      * is removed from the active scan tasks map.
      *
@@ -273,17 +280,27 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      */
     @Transactional
     private void processFile(File file, Scan scanInstance) {
-        if (!file.isFile()) {
+        if (file == null || !file.isFile()) {
             return;
         }
 
-        org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File fileEntity;
         boolean fileInDatabase = fileService.existsByPath(file.getPath());
 
-        HashForFilesOutput computedHashes = fileHashComputer.computeHashes(file);
+        final HashForFilesOutput computedHashes;
+
+        final Optional<HashForFilesOutput> computedHashesOpt = fileHashComputer.computeHashes(file);
+
+        if (computedHashesOpt.isPresent()) {
+            computedHashes = computedHashesOpt.get();
+        }
+        else {
+
+            return;
+        }
 
         MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
+        org.pwss.file_integrity_scanner.msr.domain.model.entities.file.File fileEntity;
         if (fileInDatabase) {
             // Fetch existing entity and update fields
             fileEntity = fileService.findByPath(file.getPath());
@@ -324,7 +341,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                     log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
                 } else {
                     log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
-                    // TODO: Figure out what to do with changed files, add some notes to scan summary?
+                    // TODO: Figure out what to do with changed files, add some notes to scan
+                    // summary?
                 }
             } else {
                 log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
