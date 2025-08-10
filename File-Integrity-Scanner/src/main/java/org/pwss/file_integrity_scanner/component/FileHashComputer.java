@@ -64,7 +64,7 @@ public final class FileHashComputer {
 
         catch (NullPointerException nullPointerException) {
 
-            log.error("nullPointerExceptionfor file: {} - {}", file.getPath(), nullPointerException.getMessage());
+            log.error("nullPointerException for file: {} - {}", file.getPath(), nullPointerException.getMessage());
             return Optional.empty();
         }
 
