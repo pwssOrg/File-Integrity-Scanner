@@ -5,7 +5,8 @@ import lib.pwss.hash.file_hash_handler.FileHashHandler;
 import lib.pwss.hash.FileHash;
 import lib.pwss.hash.compare.util.HashCompareUtil;
 import lib.pwss.hash.model.HashForFilesOutput;
-import org.pwss.file_integrity_scanner.msr.domain.model.entities.checksum.Checksum;
+
+import org.pwss.file_integrity_scanner.dsr.domain.entities.checksum.Checksum;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -17,7 +18,7 @@ import java.util.Optional;
 @Component
 public final class FileHashComputer {
 
-    private final long TEMP_USER_DEFINED_MAX_LIMIT = 5000L * 1024 * 1024; // 5000 MB
+    private final long TEMP_USER_DEFINED_MAX_LIMIT = 10000L * 1024 * 1024; // 10 000 MB
 
     /**
      * Max size of a byte array in java -2
