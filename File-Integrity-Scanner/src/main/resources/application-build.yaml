@@ -1,4 +1,3 @@
-
 spring:
   main:
     show-banner: false
@@ -7,7 +6,7 @@ spring:
     database: postgresql
     hibernate:
       auto_quote_keyword: true
-      ddl-auto: validate
+      ddl-auto: update
       jdbc:
         time_zone: UTC
   datasource:
