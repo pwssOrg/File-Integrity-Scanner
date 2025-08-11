@@ -268,12 +268,14 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     private boolean finalizeScanTask(Scan scanInstance, List<File> files) {
         String dirPath = scanInstance.getMonitoredDirectory().getPath();
 
-        log.debug("Finalizing Scan Task for MonitoredDirectory {}",  dirPath);
+        log.debug("Finalizing Scan Task for MonitoredDirectory {}", dirPath);
 
         try {
             // Retrieve the list of files from the completed scan
             for (File file : files) {
-             
+                if (stopRequested) {
+                    break;// Exit if stop is requested
+                }
                 // Process each file found in the directory and its subdirectories
                 processFile(file, scanInstance);
             }
