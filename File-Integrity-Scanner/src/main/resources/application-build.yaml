@@ -5,7 +5,7 @@ spring:
     open-in-view: false
     database: postgresql
     hibernate:
-      auto_quote_keyword: false
+      auto_quote_keyword: true
       ddl-auto: update
       jdbc:
         time_zone: UTC
