@@ -41,9 +41,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.READ_PACKAGE_TOKEN_FOR_WORKFLOWS }}
       run: echo "GITHUB_TOKEN is set to access private packages"
 
-    - name: Set up Spring profile for build
-      run: "export SPRING_PROFILES_ACTIVE=build"
-
+   
     # Add a step to create Maven settings with the GitHub token
     - name: Setup Maven Settings
       run: |
@@ -91,4 +89,6 @@ jobs:
 
 
     - name: Install dependencies
+      env:
+          SPRING_PROFILES_ACTIVE: build
       run: make build
