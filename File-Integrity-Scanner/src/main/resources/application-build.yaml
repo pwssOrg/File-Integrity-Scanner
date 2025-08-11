@@ -1,0 +1,20 @@
+spring:
+  main:
+    show-banner: false
+  jpa:
+    open-in-view: false
+    database: postgresql
+    hibernate:
+      auto_quote_keyword: false
+      ddl-auto: update
+      jdbc:
+        time_zone: UTC
+  datasource:
+    url: jdbc:postgresql://localhost:26556/integrity_hash
+    username: ${INTEGRITY_HASH_DB_USER}
+    password: ${INTEGRITY_HASH_DB_PASSWORD}
+  application:
+    name: FileIntegrityApp
+
+server:
+  port: 15400
