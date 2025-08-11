@@ -36,11 +36,12 @@ jobs:
         cache: 'maven'
 
 
-    - name: Set up environment variables
+    - name: Set up environment variable for GitHub Packages
       env:
         GITHUB_TOKEN: ${{ secrets.READ_PACKAGE_TOKEN_FOR_WORKFLOWS }}
       run: echo "GITHUB_TOKEN is set to access private packages"
 
+   
     # Add a step to create Maven settings with the GitHub token
     - name: Setup Maven Settings
       run: |
@@ -88,4 +89,6 @@ jobs:
 
 
     - name: Install dependencies
+      env:
+          SPRING_PROFILES_ACTIVE: build
       run: make build
