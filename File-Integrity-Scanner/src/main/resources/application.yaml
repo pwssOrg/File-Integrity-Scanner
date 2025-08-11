@@ -7,7 +7,7 @@ spring:
     database: postgresql
     hibernate:
       auto_quote_keyword: false
-      ddl-auto: update
+      ddl-auto: validate
       jdbc:
         time_zone: UTC
   datasource:
