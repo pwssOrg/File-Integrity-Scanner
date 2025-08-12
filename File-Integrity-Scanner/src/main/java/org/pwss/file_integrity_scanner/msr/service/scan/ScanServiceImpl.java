@@ -213,6 +213,13 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         }
     }
 
+    /**
+     * Starts monitoring of ongoing scan tasks.
+     * <p>
+     * This method schedules a task to monitor active scan tasks at a fixed rate.
+     * <p>
+     * The monitoring task is executed every 5000 milliseconds.
+     */
     private void startMonitoring() {
         if (monitorTaskFuture == null || monitorTaskFuture.isCancelled()) {
             // Delay in milliseconds for monitoring scan tasks
@@ -220,30 +227,34 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             monitorTaskFuture = taskScheduler.scheduleAtFixedRate(this::monitorOngoingScanTasks, Duration.ofMillis(SCAN_TASK_MONITOR_DELAY));
             log.info("Scan task monitoring started.");
         } else {
-            log.warn("Monitoring is already running.");
+            log.debug("Monitoring is already running.");
         }
     }
 
+    /**
+     * Stops the monitoring of ongoing scan tasks.
+     * <p>
+     * This method cancels the scheduled monitoring task if it is currently running.
+     */
     private void stopMonitoring() {
         if (monitorTaskFuture != null && !monitorTaskFuture.isCancelled()) {
             monitorTaskFuture.cancel(true);
             log.info("Scan task monitoring stopped.");
         } else {
-            log.warn("Monitoring is not running.");
+            log.debug("Monitoring is not running.");
         }
     }
 
     /**
      * Monitors active scan tasks and processes completed scans.
      * <p>
-     * This method is scheduled to run at a fixed delay of 5000 milliseconds.
      * It iterates through the active scan tasks, checks their status, and processes
      * completed scans by invoking the `finishScanTask` method.
      * <p>
      * If a scan is still in progress, it logs the status.
      */
     private void monitorOngoingScanTasks() {
-        log.debug("Hello i am invoked");
+        log.debug("monitorOngoingScanTasks: Invoked to check active scan tasks.");
         if (activeScanTasks.isEmpty()) {
             return;
         }
