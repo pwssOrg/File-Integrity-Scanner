@@ -19,6 +19,7 @@ import org.pwss.file_integrity_scanner.dsr.service.scan_summary.ScanSummaryServi
 import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
