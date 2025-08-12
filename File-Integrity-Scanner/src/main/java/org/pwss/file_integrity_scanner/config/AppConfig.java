@@ -7,10 +7,12 @@ import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @EnableAsync
 @EnableScheduling
@@ -37,6 +39,21 @@ public class AppConfig implements AsyncConfigurer {
             log.error("Exception in method: {}", method.getName());
             throwable.printStackTrace();
         };
+    }
+
+    /**
+     * Creates and configures a TaskScheduler bean.
+     * <p>
+     * This method provides a ThreadPoolTaskScheduler instance, which is used
+     * for scheduling tasks in a multithreaded environment.
+     *
+     * @return a configured instance of ThreadPoolTaskScheduler
+     */
+    @Bean(name = "threadPoolTaskScheduler")
+    public TaskScheduler threadPoolTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setThreadNamePrefix("MySchedulerThread-");
+        return scheduler;
     }
 
     /**
