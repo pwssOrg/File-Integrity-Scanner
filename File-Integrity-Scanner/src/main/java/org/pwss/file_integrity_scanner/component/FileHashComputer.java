@@ -6,7 +6,7 @@ import lib.pwss.hash.FileHash;
 import lib.pwss.hash.compare.util.HashCompareUtil;
 import lib.pwss.hash.model.HashForFilesOutput;
 
-import org.pwss.file_integrity_scanner.dsr.domain.entities.checksum.Checksum;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

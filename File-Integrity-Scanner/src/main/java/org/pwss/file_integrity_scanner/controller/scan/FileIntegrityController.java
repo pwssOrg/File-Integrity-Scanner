@@ -1,6 +1,6 @@
 package org.pwss.file_integrity_scanner.controller.scan;
 
-import org.pwss.file_integrity_scanner.dsr.service.scan.ScanServiceImpl;
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ public class FileIntegrityController {
 
     // Endpoint to start a file integrity scan, requires AUTHORIZED role
     @PostMapping("/start-scan")
-    @PreAuthorize("hasRole('AUTHORIZED')") // Ensure the user has the required role
+   // @PreAuthorize("hasRole('AUTHORIZED')") // Ensure the user has the required role
     public final ResponseEntity<String> startFileIntegrityScan() {
 
         scanService.scanAllDirectories();
@@ -33,7 +33,7 @@ public class FileIntegrityController {
 
     // Endpoint to Stop a file integrity scan, requires AUTHORIZED role
     @PostMapping("/stop-scan")
-    @PreAuthorize("hasRole('AUTHORIZED')") // Ensure the user has the required role
+    //@PreAuthorize("hasRole('AUTHORIZED')") // Ensure the user has the required role
     public final ResponseEntity<String> stopFileIntegrityScan() {
 
         scanService.stopScan();

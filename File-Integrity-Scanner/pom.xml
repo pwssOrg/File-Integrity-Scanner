@@ -6,7 +6,7 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
@@ -86,11 +86,11 @@
             <version>42.7.7</version>
         </dependency>
 
-                <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>7.0.0-M1</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>4.0.0-M1</version>
         </dependency>
 
 
@@ -105,6 +105,14 @@
             <groupId>lib.pwss</groupId>
             <artifactId>directory_nav</artifactId>
             <version>1.5</version>
+        </dependency>
+
+        <!-- Dependecy used for user login -->
+        <!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.5.0</version>
         </dependency>
 
 
