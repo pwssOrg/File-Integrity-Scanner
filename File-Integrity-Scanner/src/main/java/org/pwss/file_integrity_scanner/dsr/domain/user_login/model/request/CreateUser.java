@@ -5,10 +5,6 @@ public final class CreateUser {
     public String password;
     public String username;
 
-    public String email;
-
-
-
     public CreateUser() {
     }
 

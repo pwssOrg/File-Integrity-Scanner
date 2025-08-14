@@ -1,15 +1,17 @@
 package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
+
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
 import org.pwss.file_integrity_scanner.dsr.service.BaseService;
-import org.pwss.file_integrity_scanner.login.jwt.model.GrantedAuthorityImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,10 @@ public class UserServiceImpl
 
     private final org.pwss.file_integrity_scanner.dsr.service.user_login.time.TimeServiceImpl timeService;
 
+    private final org.slf4j.Logger log;
+
+    private final String AUTHORITY = "AUTHORIZED";
+
     @Autowired
     public UserServiceImpl(org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository repository,
             org.pwss.file_integrity_scanner.dsr.service.user_login.auth.AuthServiceImpl authService,
@@ -42,6 +48,7 @@ public class UserServiceImpl
 
         this.authService = authService;
         this.timeService = timeService;
+        this.log = org.slf4j.LoggerFactory.getLogger(UserServiceImpl.class);
 
     }
 
@@ -106,9 +113,7 @@ public class UserServiceImpl
 
                 return user;
             } catch (Exception ex) {
-
-                // TODO: Add logger
-
+                log.error("Error occurred while creating a user {}", ex.getMessage());
             }
 
         }
@@ -126,7 +131,7 @@ public class UserServiceImpl
         if (CheckIfUsernameExists(username) && storedPasswordHash != null ||
                 Objects.equals(storedPasswordHash, "")) {
 
-            System.out.println(storedPasswordHash);
+            log.debug("Stored Password Hash",storedPasswordHash);
 
             String[] parts = storedPasswordHash.split(":");
 
@@ -154,7 +159,7 @@ public class UserServiceImpl
                 diff |= storedHash[i] ^ inputWordPasswordHash[i];
             }
 
-            System.out.println("diff -> " + (diff == 0));
+            log.debug("diff ->  {}" ,(diff == 0));
 
             return diff == 0;
 
@@ -163,7 +168,7 @@ public class UserServiceImpl
         }
     }
 
-    @Transactional
+   
     @Override
     public UserDetails loadUserByUsername(String username)
             throws org.springframework.security.core.userdetails.UsernameNotFoundException {
@@ -178,6 +183,8 @@ public class UserServiceImpl
 
     }
 
+
+
     /**
      * Converts an entity user into a Spring security user
      *
@@ -186,23 +193,25 @@ public class UserServiceImpl
      */
     private org.springframework.security.core.userdetails.UserDetails BuildSpringSecurityUser(User user) {
 
-        boolean accountNonExpired = true;
-        boolean credentialsNonExpired = true;
-        boolean accountNonLocked = true;
+        final boolean accountExpired = false;
+        final boolean credentialsExpired = false;
+        final boolean accountLocked = false;
 
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
-        // TODO: Get authorities for the user from the database
-        authorities.add(new GrantedAuthorityImpl("user_level_1"));
+        authorities.add(new org.pwss.file_integrity_scanner.login.GrantedAuthorityImpl(AUTHORITY));
 
-        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
-
-        org.springframework.security.core.userdetails.UserDetails springSecurityUser = new org.springframework.security.core.userdetails.User(
-                user.username,
-                bCryptPasswordEncoder1.encode(user.auth.hash), true, accountNonLocked, accountNonExpired,
-                credentialsNonExpired, authorities);
-
+        final  org.springframework.security.core.userdetails.UserDetails springSecurityUser =  org.springframework.security.core.userdetails.User.builder()
+                 .accountExpired(accountExpired)
+                 .accountLocked(accountLocked)
+                 .credentialsExpired(credentialsExpired)
+                 .username(user.getUsername())
+                 .password(user.auth.getHash()) // {noop} indicates no password encoding
+                 .authorities(authorities)
+                 .build();
         return springSecurityUser;
     }
+
+
 
 }

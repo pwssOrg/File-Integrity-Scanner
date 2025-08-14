@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.login.jwt.model;
+package org.pwss.file_integrity_scanner.login;
 
 import org.springframework.security.core.GrantedAuthority;
 
