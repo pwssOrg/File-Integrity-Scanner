@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * REST controller for handling user-related operations.
+ */
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -43,18 +46,32 @@ public class UserController {
     @Autowired
     private final UserServiceImpl service;
 
+    /**
+     * Constructor for UserController.
+     *
+     * @param userServiceImpl       the service to handle user operations.
+     * @param authenticationManager the manager for authentication.
+     */
     public UserController(UserServiceImpl userServiceImpl, AuthenticationManager authenticationManager) {
         this.service = userServiceImpl;
         this.log = org.slf4j.LoggerFactory.getLogger(UserController.class);
         this.authenticationManager = authenticationManager;
     }
 
+    /**
+     * Handles user login operations.
+     *
+     * @param request      the login request containing username and password.
+     * @param httpRequest  the HTTP servlet request.
+     * @param httpResponse the HTTP servlet response.
+     * @return a ResponseEntity with the result of the login attempt.
+     * @throws UsernameNotFoundException if the user is not found.
+     * @throws WrongPasswordException    if the password is incorrect.
+     */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> Login(@RequestBody LoginRequest request, HttpServletRequest httpRequest,
             HttpServletResponse httpResponse)
             throws UsernameNotFoundException, WrongPasswordException {
-
-        log.debug("in login Controller");
 
         try {
 
@@ -91,14 +108,23 @@ public class UserController {
 
             return new ResponseEntity<>(new LoginResponse(false), HttpStatus.NOT_FOUND);
         }
-    } 
+    }
 
+    /**
+     * Handles user creation operations.
+     *
+     * @param request the create user request containing user details.
+     * @return a ResponseEntity with the result of the creation operation or a
+     *         status code indicating the outcome.
+     * @throws NoSuchAlgorithmException if there is an issue with the algorithm used
+     *                                  for password hashing.
+     * @throws InvalidKeySpecException  if the key specification is invalid.
+     */
     @PostMapping("/create-user")
     public ResponseEntity<User> CreateUser(@RequestBody CreateUser request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
 
-
-        if(!service.isEmpty()){
+        if (!service.isEmpty()) {
             log.debug("A user is already present in the repository");
             return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
         }
