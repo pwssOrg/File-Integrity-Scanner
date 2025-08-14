@@ -21,7 +21,7 @@ public class Auth {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    public Integer id;
     @Column(name = "hash", nullable = false)
     public String hash;
 
@@ -38,11 +38,11 @@ public class Auth {
         this.hash = hash;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

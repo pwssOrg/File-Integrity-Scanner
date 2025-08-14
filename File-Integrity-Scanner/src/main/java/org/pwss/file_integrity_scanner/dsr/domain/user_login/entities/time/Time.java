@@ -24,18 +24,18 @@ public class Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    public Integer id;
     @Column(name = "created", nullable = false)
     public OffsetDateTime created;
 
     @Column(name = "updated", nullable = false)
     public OffsetDateTime updated;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
