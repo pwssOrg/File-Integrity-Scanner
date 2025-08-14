@@ -221,10 +221,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
      */
     private void startMonitoring() {
         if (monitorTaskFuture == null || monitorTaskFuture.isCancelled()) {
-            // Delay in milliseconds for monitoring scan tasks
-            int SCAN_TASK_MONITOR_DELAY = 5000;
-            monitorTaskFuture = taskScheduler.scheduleAtFixedRate(this::monitorOngoingScanTasks, Duration.ofMillis(SCAN_TASK_MONITOR_DELAY));
-            log.info("Scan task monitoring started.");
+            // Schedule rate in milliseconds for monitoring scan tasks.
+            final long frequency = 5000L;
+            final Duration duration = Duration.ofMillis(frequency);
+            monitorTaskFuture = taskScheduler.scheduleAtFixedRate(this::monitorOngoingScanTasks, duration);
+            log.info("Scan task monitoring started (delay: {} ms).", frequency);
         } else {
             log.debug("Monitoring is already running.");
         }
@@ -274,7 +275,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 } catch (InterruptedException e) {
                     log.error("Scan interrupted for directory {}: {}", dirPath, e.getMessage());
                     activeScanTasks.remove(dirPath);
-                    return;
                 } catch (ExecutionException e) {
                     log.error("Execution exception while completing scan for directory {}: {}", dirPath, e.getMessage());
                     activeScanTasks.remove(dirPath);
