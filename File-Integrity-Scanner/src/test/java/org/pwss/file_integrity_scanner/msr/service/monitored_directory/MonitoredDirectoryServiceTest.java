@@ -1,9 +1,8 @@
 package org.pwss.file_integrity_scanner.msr.service.monitored_directory;
 
-import org.pwss.file_integrity_scanner.msr.service.monitored_directory.MonitoredDirectoryService;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
+import org.pwss.file_integrity_scanner.dsr.service.monitored_directory.MonitoredDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 

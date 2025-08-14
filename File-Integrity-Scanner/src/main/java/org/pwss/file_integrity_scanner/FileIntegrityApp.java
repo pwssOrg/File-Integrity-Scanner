@@ -1,6 +1,6 @@
 package org.pwss.file_integrity_scanner;
 
-import org.pwss.file_integrity_scanner.msr.service.scan.ScanService;
+import org.pwss.file_integrity_scanner.dsr.service.scan.ScanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
