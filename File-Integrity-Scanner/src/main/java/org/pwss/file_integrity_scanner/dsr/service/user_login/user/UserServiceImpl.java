@@ -24,6 +24,19 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Implementation of the {@link UserService} that provides functionality related
+ * to
+ * user management.
+ * This service interacts with an authentication service and a data repository
+ * to perform operations
+ * such as checking if users exist or if the system is empty.
+ *
+ * <p>
+ * This class extends any necessary interfaces and provides concrete
+ * implementations for abstract methods.
+ * </p>
+ */
 @Service
 public class UserServiceImpl
         extends BaseService<org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository>
@@ -50,25 +63,15 @@ public class UserServiceImpl
 
     }
 
-
-
     @Override
     public boolean ValidateCreateUserRequest(
             org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request) {
-       
 
-        boolean result; 
+        boolean result;
 
         result = isEmpty();
-
         // More validate options for the CreateUser Request can be added here
-
         return result;
-    }
-
-    private final Optional<User> getUserByUsernamePrivate(String username) {
-
-        return repository.findByUsername(username);
     }
 
     @Override
@@ -123,8 +126,7 @@ public class UserServiceImpl
                 log.error("Error occurred while creating a user {}", ex.getMessage());
             }
 
-        }
-        else{
+        } else {
 
             return null;
         }
@@ -194,6 +196,36 @@ public class UserServiceImpl
     }
 
     /**
+     * Checks if both the authentication service and the data repository are empty.
+     *
+     * This method first queries the {@code authService} to determine if it is
+     * empty.
+     * If the {@code authService} reports that it is not empty, this method
+     * immediately returns false.
+     * Otherwise, it proceeds to query the {@code repository} to check if its count
+     * is zero.
+     * The final result of this method is true only if both the {@code authService}
+     * and
+     * the {@code repository} are empty, otherwise it returns false.
+     *
+     * @return {@code true} if both the authentication service and data repository
+     *         are empty,
+     *         {@code false} otherwise.
+     */
+    @Override
+    public Boolean isEmpty() {
+
+        boolean result = authService.isEmpty();
+
+        return result && repository.count() == (0L);
+    }
+
+    private final Optional<User> getUserByUsernamePrivate(String username) {
+
+        return repository.findByUsername(username);
+    }
+
+    /**
      * Converts an entity user into a Spring security user
      *
      * @param user pwss entity User
@@ -219,16 +251,6 @@ public class UserServiceImpl
                 .authorities(authorities)
                 .build();
         return springSecurityUser;
-    }
-
-
-
-    @Override
-    public Boolean isEmpty() {
-       
-        boolean result = authService.isEmpty();
-
-        return result && repository.count() == (0L);
     }
 
 }
