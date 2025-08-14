@@ -131,4 +131,6 @@ public interface UserService extends UserDetailsService {
      * @return boolean
      */
     boolean ValidatePassword(final String inputWord, String userName) throws UsernameNotFoundException;
+
+    Boolean isEmpty();
 }

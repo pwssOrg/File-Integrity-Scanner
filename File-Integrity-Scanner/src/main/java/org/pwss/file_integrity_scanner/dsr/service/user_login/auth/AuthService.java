@@ -10,4 +10,6 @@ public interface AuthService {
      * @param auth the auth entity to save
      */
     void save(Auth auth);
+
+    Boolean isEmpty();
 }

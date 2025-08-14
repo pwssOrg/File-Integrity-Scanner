@@ -1,15 +1,24 @@
 package org.pwss.file_integrity_scanner.controller.scan;
 
+import java.util.Optional;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.MonitoredDirectoryRequest;
+
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
+
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,10 +28,15 @@ public class FileIntegrityController {
     @Autowired
     private final ScanServiceImpl scanService;
 
+    @Autowired
+    private final MonitoredDirectoryServiceImpl monitoredDirectoryService;
+
     private final org.slf4j.Logger log;
 
-    public FileIntegrityController(ScanServiceImpl scanService) {
+    public FileIntegrityController(ScanServiceImpl scanService,
+            MonitoredDirectoryServiceImpl monitoredDirectoryService) {
         this.scanService = scanService;
+        this.monitoredDirectoryService = monitoredDirectoryService;
         this.log = org.slf4j.LoggerFactory.getLogger(FileIntegrityController.class);
     }
 
@@ -39,6 +53,26 @@ public class FileIntegrityController {
                 HttpStatus.OK);
     }
 
+    @PostMapping("/start-scan/monitored-directory")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<String> startFileIntegrityScanMonitoredDirectory(
+            @RequestBody MonitoredDirectoryRequest scanMonitoredDirectoryRequest) {
+
+        final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService
+                .findById(scanMonitoredDirectoryRequest.monitoredDirectoryId());
+
+        if (oMonitoredDirectory.isPresent()) {
+
+            scanService.scanSingleDirectory(oMonitoredDirectory.get());
+            return new ResponseEntity<>(
+                    "Scanning 1 Monitored Directory\n\nStarted scan...",
+                    HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided",
+                    HttpStatus.NOT_FOUND);
+        }
+    }
+
     // Endpoint to Stop a file integrity scan, requires AUTHORIZED role
     @PostMapping("/stop-scan")
     @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
@@ -49,4 +83,30 @@ public class FileIntegrityController {
                 "Stopped Scan",
                 HttpStatus.ACCEPTED);
     }
+
+    @PostMapping("/new-baseline")
+    @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
+    public ResponseEntity<String> newBaseline(@RequestBody MonitoredDirectoryRequest scanMonitoredDirectoryRequest) {
+
+        final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService
+                .findById(scanMonitoredDirectoryRequest.monitoredDirectoryId());
+
+        if (oMonitoredDirectory.isPresent()) {
+
+            if (monitoredDirectoryService.setNewBaseline(oMonitoredDirectory.get())) {
+                return new ResponseEntity<>("Your Baseline has been reset.\nA new Baseline will be created on your next scan! ", HttpStatus.OK);
+            }
+
+            else {
+                return new ResponseEntity<>("Error occurred while setting a new BaseLine", HttpStatus.I_AM_A_TEAPOT);
+            }
+        }
+
+        else {
+            return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided",
+                    HttpStatus.NOT_FOUND);
+        }
+
+    }
+
 }

@@ -1,8 +1,11 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+
+import jakarta.transaction.Transactional;
 
 /**
  * Service interface for managing {@link MonitoredDirectory} entities.
@@ -20,6 +23,8 @@ public interface MonitoredDirectoryService {
      *         or null if no matches are found or an error occurs
      */
     List<MonitoredDirectory> findByIsActive(boolean isActive);
+
+    Optional<MonitoredDirectory> findById(Integer id);
 
     /**
      * Checks whether the baseline has been established for the given monitored
@@ -41,5 +46,8 @@ public interface MonitoredDirectoryService {
      *                   updated in the database
      */
     void save(MonitoredDirectory mDirectory);
+
+    
+    Boolean setNewBaseline(MonitoredDirectory mDirectory);
 
 }

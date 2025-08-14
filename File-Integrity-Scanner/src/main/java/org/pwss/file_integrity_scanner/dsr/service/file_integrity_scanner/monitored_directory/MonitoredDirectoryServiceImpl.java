@@ -5,6 +5,8 @@ import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.Mon
 import org.pwss.file_integrity_scanner.dsr.service.BaseService;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -43,5 +45,29 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
     @Override
     public Boolean isBaseLineEstablished(MonitoredDirectory mDirectory) {
         return mDirectory.getBaselineEstablished();
+    }
+
+    @Override
+    public Optional<MonitoredDirectory> findById(Integer id) {
+        return repository.findById(id);
+    }
+
+    @Transactional
+    @Override
+    public Boolean setNewBaseline(MonitoredDirectory mDirectory) {
+
+        try {
+
+            mDirectory.setBaselineEstablished(false);
+
+            repository.save(mDirectory);
+
+            return true;
+        }
+
+        catch (Exception exception) {
+            log.error("Exception when setting a new baseline", exception.getMessage());
+            return false;
+        }
     }
 }

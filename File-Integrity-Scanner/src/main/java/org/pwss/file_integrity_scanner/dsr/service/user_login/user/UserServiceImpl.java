@@ -1,6 +1,5 @@
 package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
-
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,11 +50,20 @@ public class UserServiceImpl
 
     }
 
+
+
     @Override
     public boolean ValidateCreateUserRequest(
             org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request) {
-        // TODO: Create validator here
-        return true;
+       
+
+        boolean result; 
+
+        result = isEmpty();
+
+        // More validate options for the CreateUser Request can be added here
+
+        return result;
     }
 
     private final Optional<User> getUserByUsernamePrivate(String username) {
@@ -117,6 +124,10 @@ public class UserServiceImpl
             }
 
         }
+        else{
+
+            return null;
+        }
         return null;
     }
 
@@ -131,7 +142,7 @@ public class UserServiceImpl
         if (CheckIfUsernameExists(username) && storedPasswordHash != null ||
                 Objects.equals(storedPasswordHash, "")) {
 
-            log.debug("Stored Password Hash",storedPasswordHash);
+            log.debug("Stored Password Hash", storedPasswordHash);
 
             String[] parts = storedPasswordHash.split(":");
 
@@ -159,7 +170,7 @@ public class UserServiceImpl
                 diff |= storedHash[i] ^ inputWordPasswordHash[i];
             }
 
-            log.debug("diff ->  {}" ,(diff == 0));
+            log.debug("diff ->  {}", (diff == 0));
 
             return diff == 0;
 
@@ -168,7 +179,6 @@ public class UserServiceImpl
         }
     }
 
-   
     @Override
     public UserDetails loadUserByUsername(String username)
             throws org.springframework.security.core.userdetails.UsernameNotFoundException {
@@ -182,8 +192,6 @@ public class UserServiceImpl
             throw new org.springframework.security.core.userdetails.UsernameNotFoundException("Username not found");
 
     }
-
-
 
     /**
      * Converts an entity user into a Spring security user
@@ -201,17 +209,26 @@ public class UserServiceImpl
 
         authorities.add(new org.pwss.file_integrity_scanner.login.GrantedAuthorityImpl(AUTHORITY));
 
-        final  org.springframework.security.core.userdetails.UserDetails springSecurityUser =  org.springframework.security.core.userdetails.User.builder()
-                 .accountExpired(accountExpired)
-                 .accountLocked(accountLocked)
-                 .credentialsExpired(credentialsExpired)
-                 .username(user.getUsername())
-                 .password(user.auth.getHash()) // {noop} indicates no password encoding
-                 .authorities(authorities)
-                 .build();
+        final org.springframework.security.core.userdetails.UserDetails springSecurityUser = org.springframework.security.core.userdetails.User
+                .builder()
+                .accountExpired(accountExpired)
+                .accountLocked(accountLocked)
+                .credentialsExpired(credentialsExpired)
+                .username(user.getUsername())
+                .password(user.auth.getHash()) // {noop} indicates no password encoding
+                .authorities(authorities)
+                .build();
         return springSecurityUser;
     }
 
 
+
+    @Override
+    public Boolean isEmpty() {
+       
+        boolean result = authService.isEmpty();
+
+        return result && repository.count() == (0L);
+    }
 
 }

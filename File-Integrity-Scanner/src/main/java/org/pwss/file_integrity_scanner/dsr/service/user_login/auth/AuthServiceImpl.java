@@ -9,14 +9,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthServiceImpl extends BaseService<AuthRepository> implements AuthService {
 
-
     @Autowired
     public AuthServiceImpl(AuthRepository repository) {
-         super(repository);
+        super(repository);
     }
 
     @Override
     public void save(Auth auth) {
         repository.save(auth);
+    }
+
+    @Override
+    public Boolean isEmpty() {
+        return repository.count() == (0L);
     }
 }

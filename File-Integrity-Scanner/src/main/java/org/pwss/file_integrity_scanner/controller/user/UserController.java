@@ -3,7 +3,6 @@ package org.pwss.file_integrity_scanner.controller.user;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.LoginRequest;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,11 +55,6 @@ public class UserController {
             throws UsernameNotFoundException, WrongPasswordException {
 
         log.debug("in login Controller");
-        Authentication authenticationBefore = SecurityContextHolder.getContext().getAuthentication();
-        log.debug("isAuthenticated: {} ", authenticationBefore.isAuthenticated());
-        authenticationBefore.getAuthorities().stream().toList().forEach(a -> System.out.println(a.getAuthority()));
-
-        log.debug(authenticationBefore.getCredentials().toString());
 
         try {
 
@@ -82,15 +75,10 @@ public class UserController {
                 // …and persist it to the HTTP session so the user stays logged in
                 securityContextRepository.saveContext(context, httpRequest, httpResponse);
 
-                java.util.List<String> roles = authentication.getAuthorities()
-                        .stream().map(GrantedAuthority::getAuthority).toList();
-
                 UserDetails ud = service.loadUserByUsername(request.getUsername());
 
                 log.debug("from returned UserDetails {} ",
                         ud.getAuthorities().stream().findFirst().get().getAuthority());
-
-                log.debug("Authorities: {} ", authentication.isAuthenticated());
 
                 return new ResponseEntity<>(new LoginResponse(true), HttpStatus.ACCEPTED);
 
@@ -103,11 +91,17 @@ public class UserController {
 
             return new ResponseEntity<>(new LoginResponse(false), HttpStatus.NOT_FOUND);
         }
-    }
+    } 
 
     @PostMapping("/create-user")
     public ResponseEntity<User> CreateUser(@RequestBody CreateUser request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+
+        if(!service.isEmpty()){
+            log.debug("A user is already present in the repository");
+            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
+        }
 
         User user = service.CreateUser(request);
 
