@@ -30,10 +30,6 @@ public class User {
     public Auth auth;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_session_id")
-    public UserSession userSession;
-
-    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_time")
     public Time time;
 
@@ -59,14 +55,6 @@ public class User {
 
     public void setAuth(Auth auth) {
         this.auth = auth;
-    }
-
-    public UserSession getUserSession() {
-        return userSession;
-    }
-
-    public void setUserSession(UserSession userSession) {
-        this.userSession = userSession;
     }
 
     public Time getTime() {
