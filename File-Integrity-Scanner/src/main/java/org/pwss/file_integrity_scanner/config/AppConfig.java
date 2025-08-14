@@ -53,6 +53,7 @@ public class AppConfig implements AsyncConfigurer {
     public TaskScheduler threadPoolTaskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setThreadNamePrefix("MySchedulerThread-");
+        scheduler.setRejectedExecutionHandler((r, executor) -> log.warn("Scheduling rejected: task={}, executor={}", r, executor));
         return scheduler;
     }
 

@@ -170,7 +170,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         }
 
         activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
-
     }
 
     /**
@@ -274,7 +273,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                     }
                 } catch (InterruptedException e) {
                     log.error("Scan interrupted for directory {}: {}", dirPath, e.getMessage());
-                    Thread.currentThread().interrupt();
                     activeScanTasks.remove(dirPath);
                     return;
                 } catch (ExecutionException e) {
@@ -354,9 +352,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                 activeScanTasks.remove(dirPath);
                 log.info("Removed scan task for directory: {}", dirPath);
                 if (activeScanTasks.isEmpty()) {
-                    fileTraverser.shutdownThreadPool();
                     log.info("Scan finalized with Monitored Directory: {} being the last element", dirPath);
+                    // Stop monitoring if no active scan tasks remain
                     stopMonitoring();
+                    // Shutdown the file traverser thread pool
+                    fileTraverser.shutdownThreadPool();
                 }
             }
         }
@@ -389,7 +389,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         if (computedHashesOpt.isPresent()) {
             computedHashes = computedHashesOpt.get();
         } else {
-
             return;
         }
 
