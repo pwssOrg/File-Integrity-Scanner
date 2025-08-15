@@ -20,7 +20,6 @@ public final class UsernameNotFoundException extends Exception {
      *                getMessage method).
      */
     public UsernameNotFoundException(String message) {
-        super(message);
         super(message + " \nPWSS @Exception");
     }
 
