@@ -133,7 +133,7 @@ public class UserController {
         User user = service.CreateUser(request);
 
         if (user == null) {
-            throw new Error();
+            throw new IllegalStateException("Failed to create user: service returned null.");
         } else {
             return new ResponseEntity<>(user, HttpStatus.CREATED);
         }
