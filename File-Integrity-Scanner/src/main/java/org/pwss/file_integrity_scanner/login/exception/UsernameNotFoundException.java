@@ -21,7 +21,7 @@ public final class UsernameNotFoundException extends Exception {
      */
     public UsernameNotFoundException(String message) {
         super(message);
-        message = message + (" \nPWSS @Exception");
+        super(message + " \nPWSS @Exception");
     }
 
     /**
