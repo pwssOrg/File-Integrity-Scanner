@@ -21,7 +21,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -134,17 +133,14 @@ public class UserServiceImpl
     }
 
     @Override
-    @Transactional
     public boolean ValidatePassword(String inputWord, String username)
             throws org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException {
 
         final String storedPasswordHash = repository.findByUsername(username)
                 .orElseThrow(org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException::new).auth.hash;
 
-        if (CheckIfUsernameExists(username) && storedPasswordHash != null ||
-                Objects.equals(storedPasswordHash, "")) {
-
-            log.debug("Stored Password Hash", storedPasswordHash);
+        if (CheckIfUsernameExists(username) && storedPasswordHash != null && storedPasswordHash.length() > 60 &&
+                storedPasswordHash.contains(":")) {
 
             String[] parts = storedPasswordHash.split(":");
 
@@ -172,7 +168,7 @@ public class UserServiceImpl
                 diff |= storedHash[i] ^ inputWordPasswordHash[i];
             }
 
-            log.debug("diff ->  {}", (diff == 0));
+            log.debug("Results of comparison between the login hash and the stored hash ->  {}", (diff == 0));
 
             return diff == 0;
 
