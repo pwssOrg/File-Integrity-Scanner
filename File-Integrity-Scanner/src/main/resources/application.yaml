@@ -19,3 +19,4 @@ spring:
 
 server:
   port: 15400
+  connection-timeout: 240000 # milliseconds (4 minute)

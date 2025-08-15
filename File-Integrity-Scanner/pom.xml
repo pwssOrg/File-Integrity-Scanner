@@ -6,7 +6,7 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
@@ -84,6 +84,13 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.7</version>
+        </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>4.0.0-M1</version>
         </dependency>
 
 

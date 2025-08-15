@@ -19,9 +19,9 @@ public class AppConfig implements AsyncConfigurer {
 
 
     // Thread pool config values
-    private final int corePoolSize = 5;
-    private final int maxPoolSize = 10;
-    private final int queueCapacity = 25;
+    private final int corePoolSize = 10;
+    private final int maxPoolSize = 50;
+    private final int queueCapacity = 200;
 
     //Log
 
