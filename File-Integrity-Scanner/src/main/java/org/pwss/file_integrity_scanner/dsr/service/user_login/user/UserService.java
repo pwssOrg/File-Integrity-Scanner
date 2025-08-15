@@ -27,8 +27,8 @@ public interface UserService extends UserDetailsService {
      *         iterations count
      * @throws NoSuchAlgorithmException If no such algorithm exists for creating
      *                                  hash
-     * @throws InvalidKeySpecException  If an invalid key is present in the clear
-     *                                  text -> hash mechanism would be invalid
+     * @throws InvalidKeySpecException  if the key specification is invalid.
+     * 
      */
     default String GenerateHashWithSalt(final String password)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -72,8 +72,8 @@ public interface UserService extends UserDetailsService {
      * @return The hashed byte array of the password
      * @throws NoSuchAlgorithmException If no such algorithm exists for creating
      *                                  hash
-     * @throws InvalidKeySpecException  If an invalid key is present in the clear
-     *                                  text -> hash mechanism would be invalid
+     * @throws InvalidKeySpecException  if the key specification is invalid
+     * 
      */
     default byte[] CreateHash(
             final String password,
@@ -101,20 +101,10 @@ public interface UserService extends UserDetailsService {
      * @return The created User entity
      * @throws NoSuchAlgorithmException If no such algorithm exists for creating
      *                                  hash
-     * @throws InvalidKeySpecException  If an invalid key is present in the clear
-     *                                  text -> hash mechanism would be invalid
+     * @throws InvalidKeySpecException  if the key specification is invalid
      */
     User CreateUser(org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request)
             throws NoSuchAlgorithmException, InvalidKeySpecException;
-
-    /**
-     * Validates the http request data of a client request.
-     *
-     * @param request A CreateUser request object containing user details
-     * @return True if validation passes; False otherwise
-     */
-    boolean ValidateCreateUserRequest(
-            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request);
 
     /**
      * Checks if a username already exists in the persistence layer.
@@ -134,6 +124,14 @@ public interface UserService extends UserDetailsService {
     Optional<User> GetUserByUsername(String username);
 
     /**
+     * Checks if the repository is empty.
+     *
+     * @return {@code true} if the repository has no entries; {@code false}
+     *         otherwise.
+     */
+    Boolean isEmpty();
+
+    /**
      * Validates the input word against the stored hash.
      *
      * @param inputWord Clear text password to be validated
@@ -143,10 +141,12 @@ public interface UserService extends UserDetailsService {
     boolean ValidatePassword(final String inputWord, String userName) throws UsernameNotFoundException;
 
     /**
-     * Checks if the repository is empty.
+     * Validates the http request data of a client request.
      *
-     * @return {@code true} if the repository has no entries; {@code false}
-     *         otherwise.
+     * @param request A CreateUser request object
+     * @return True if validation passes; False otherwise
      */
-    Boolean isEmpty();
+    boolean ValidateCreateUserRequest(
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request);
+
 }

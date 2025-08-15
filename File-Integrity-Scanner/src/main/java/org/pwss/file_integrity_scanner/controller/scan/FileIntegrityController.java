@@ -21,18 +21,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for managing file integrity scans.
+ */
 @RestController
 @RequestMapping("/api/file-integrity")
 public class FileIntegrityController {
 
-    @Autowired
     private final ScanServiceImpl scanService;
 
-    @Autowired
     private final MonitoredDirectoryServiceImpl monitoredDirectoryService;
 
     private final org.slf4j.Logger log;
 
+    /**
+     * Constructs a new FileIntegrityController with the specified services.
+     *
+     * @param scanService               The service to handle file integrity scans
+     * @param monitoredDirectoryService The service to manage monitored directories
+     */
+    @Autowired
     public FileIntegrityController(ScanServiceImpl scanService,
             MonitoredDirectoryServiceImpl monitoredDirectoryService) {
         this.scanService = scanService;
@@ -40,7 +48,11 @@ public class FileIntegrityController {
         this.log = org.slf4j.LoggerFactory.getLogger(FileIntegrityController.class);
     }
 
-    // Endpoint to start a file integrity scan, requires AUTHORIZED role
+    /**
+     * Starts a file integrity scan for all directories, requires AUTHORIZED role.
+     *
+     * @return A response indicating the start of the scan
+     */
     @PostMapping("/start-scan")
     @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
     public ResponseEntity<String> startFileIntegrityScan() {
@@ -53,6 +65,15 @@ public class FileIntegrityController {
                 HttpStatus.OK);
     }
 
+    /**
+     * Starts a file integrity scan for a specific monitored directory, requires
+     * AUTHORIZED role.
+     *
+     * @param scanMonitoredDirectoryRequest The request containing the ID of the
+     *                                      monitored directory to scan
+     * @return A response indicating the start of the scan or an error if the
+     *         directory is not found
+     */
     @PostMapping("/start-scan/monitored-directory")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScanMonitoredDirectory(
@@ -73,7 +94,11 @@ public class FileIntegrityController {
         }
     }
 
-    // Endpoint to Stop a file integrity scan, requires AUTHORIZED role
+    /**
+     * Stops a file integrity scan, requires AUTHORIZED role.
+     *
+     * @return A response indicating the stop of the scan
+     */
     @PostMapping("/stop-scan")
     @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
     public ResponseEntity<String> stopFileIntegrityScan() {
@@ -84,6 +109,15 @@ public class FileIntegrityController {
                 HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Creates a new baseline for a specific monitored directory, requires
+     * AUTHORIZED role.
+     *
+     * @param scanMonitoredDirectoryRequest The request containing the ID of the
+     *                                      monitored directory
+     * @return A response indicating the creation of the new baseline or an error if
+     *         the directory is not found
+     */
     @PostMapping("/new-baseline")
     @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
     public ResponseEntity<String> newBaseline(@RequestBody MonitoredDirectoryRequest scanMonitoredDirectoryRequest) {
@@ -94,16 +128,18 @@ public class FileIntegrityController {
         if (oMonitoredDirectory.isPresent()) {
 
             if (monitoredDirectoryService.setNewBaseline(oMonitoredDirectory.get())) {
-                return new ResponseEntity<>("Your Baseline has been reset.\nA new Baseline will be created on your next scan! ", HttpStatus.OK);
+                return new ResponseEntity<>(
+                        "Your Baseline has been reset.\nA new Baseline will be created on your next scan! ",
+                        HttpStatus.OK);
             }
 
             else {
-                return new ResponseEntity<>("Error occurred while setting a new BaseLine", HttpStatus.I_AM_A_TEAPOT);
+                return new ResponseEntity<>("Failed to create a New Baseline.", HttpStatus.I_AM_A_TEAPOT);
             }
         }
 
         else {
-            return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided",
+            return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided.",
                     HttpStatus.NOT_FOUND);
         }
 

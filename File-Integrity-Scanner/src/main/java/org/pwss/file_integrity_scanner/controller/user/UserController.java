@@ -102,9 +102,10 @@ public class UserController {
             } else
                 throw new WrongPasswordException();
         } catch (WrongPasswordException passwordException) {
-
             return new ResponseEntity<LoginResponse>(new LoginResponse(false), HttpStatus.NOT_FOUND);
         } catch (UsernameNotFoundException notFoundException) {
+
+            log.debug("User with username - {} was not found.", request.getUsername(), notFoundException);
 
             return new ResponseEntity<>(new LoginResponse(false), HttpStatus.NOT_FOUND);
         }
