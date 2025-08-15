@@ -107,7 +107,7 @@
             <version>1.5</version>
         </dependency>
 
-        <!-- Dependecy used for user login -->
+        <!-- Dependency used for user login -->
         <!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
         <dependency>
             <groupId>com.auth0</groupId>
