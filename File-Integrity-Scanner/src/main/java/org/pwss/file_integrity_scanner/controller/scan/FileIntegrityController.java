@@ -134,7 +134,7 @@ public class FileIntegrityController {
             }
 
             else {
-                return new ResponseEntity<>("Failed to create a New Baseline.", HttpStatus.I_AM_A_TEAPOT);
+                return new ResponseEntity<>("Failed to create a New Baseline.", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
 
