@@ -52,7 +52,7 @@ public final class WrongPasswordException extends Exception {
     }
 
     /**
-     * Constructs a new UsernameNotFoundException with the specified detail message
+     * Constructs a new WrongPasswordException with the specified detail message
      * and cause.
      *
      * @param message The detail message (which is saved for later retrieval by the
