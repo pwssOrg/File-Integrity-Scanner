@@ -54,7 +54,7 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
 
     @Transactional
     @Override
-    public Boolean setNewBaseline(MonitoredDirectory mDirectory) {
+    public Boolean resetBaseline(MonitoredDirectory mDirectory) {
 
         try {
 
@@ -66,7 +66,7 @@ public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirector
         }
 
         catch (Exception exception) {
-            log.error("Exception when setting a new baseline", exception.getMessage());
+            log.error("Exception occurred when trying to reset a baseline {}", exception.getMessage());
             return false;
         }
     }

@@ -60,7 +60,7 @@ public interface MonitoredDirectoryService {
     void save(MonitoredDirectory mDirectory);
 
     /**
-     * Sets a new baseline for the specified monitored directory.
+     * Resets a baseline for the specified monitored directory.
      *
      * A "baseline" typically represents a known good state against which subsequent
      * changes
@@ -73,8 +73,8 @@ public interface MonitoredDirectoryService {
      * @param mDirectory The monitored directory for which the new baseline should
      *                   be set.
      *                   Must not be null.
-     * @return True if the baseline was successfully set; false otherwise.
+     * @return True if the baseline was successfully reset; false otherwise.
      */
-    Boolean setNewBaseline(MonitoredDirectory mDirectory);
+    Boolean resetBaseline(MonitoredDirectory mDirectory);
 
 }

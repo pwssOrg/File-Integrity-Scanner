@@ -127,14 +127,14 @@ public class FileIntegrityController {
 
         if (oMonitoredDirectory.isPresent()) {
 
-            if (monitoredDirectoryService.setNewBaseline(oMonitoredDirectory.get())) {
+            if (monitoredDirectoryService.resetBaseline(oMonitoredDirectory.get())) {
                 return new ResponseEntity<>(
                         "Your Baseline has been reset.\nA new Baseline will be created on your next scan! ",
                         HttpStatus.OK);
             }
 
             else {
-                return new ResponseEntity<>("Failed to create a New Baseline.", HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>("The baseline could not be reset.", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
 
