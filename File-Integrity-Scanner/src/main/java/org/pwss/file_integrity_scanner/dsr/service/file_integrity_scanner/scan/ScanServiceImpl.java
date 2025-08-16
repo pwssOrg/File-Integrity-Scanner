@@ -19,20 +19,20 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_s
 import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 @Service
 public class ScanServiceImpl extends BaseService<ScanRepository> implements ScanService {
@@ -58,6 +58,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     private final org.slf4j.Logger log;
     private final DateTimeFormatter timeAndDateStringForLogFormat;
 
+    @Qualifier("threadPoolTaskScheduler")
+    @Autowired
+    private final TaskScheduler taskScheduler;
+    private ScheduledFuture<?> monitorTaskFuture;
+
     // Map to hold active scan tasks, keyed by directory path
     private final ConcurrentMap<String, ScanTaskState> activeScanTasks;
 
@@ -77,7 +82,8 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             ScanSummaryService scanSummaryService,
             ChecksumService checksumService,
             DirectoryTraverser directoryTraverser,
-            FileHashComputer fileHashComputer) {
+            FileHashComputer fileHashComputer,
+                           TaskScheduler taskScheduler) {
         super(repository);
         this.monitoredDirectoryService = monitoredDirectoryService;
         this.fileService = fileService;
@@ -88,6 +94,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         this.log = org.slf4j.LoggerFactory.getLogger(ScanServiceImpl.class);
         this.timeAndDateStringForLogFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.activeScanTasks = new ConcurrentHashMap<>();
+        this.taskScheduler = taskScheduler;
     }
 
     @Override
@@ -122,15 +129,13 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 Future<List<File>> futureFiles;
 
+                this.startMonitoring();
                 if (dir.getIncludeSubdirectories()) {
-
                     futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
-                }
-
-                else {
-
+                } else {
                     futureFiles = scanDirectoryAsync(dir.getPath());
                 }
+
                 activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
             }
         } catch (Exception e) {
@@ -157,6 +162,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
         Future<List<File>> futureFiles;
 
+        this.startMonitoring();
         if (dir.getIncludeSubdirectories()) {
             futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
         } else {
@@ -165,7 +171,6 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
         }
 
         activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
-
     }
 
     /**
@@ -209,16 +214,48 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     }
 
     /**
+     * Starts monitoring of ongoing scan tasks.
+     * <p>
+     * This method schedules a task to monitor active scan tasks at a fixed rate.
+     * <p>
+     * The monitoring task is executed every 5000 milliseconds.
+     */
+    private void startMonitoring() {
+        if (monitorTaskFuture == null || monitorTaskFuture.isCancelled()) {
+            // Schedule rate in milliseconds for monitoring scan tasks.
+            final long frequency = 5000L;
+            final Duration duration = Duration.ofMillis(frequency);
+            monitorTaskFuture = taskScheduler.scheduleAtFixedRate(this::monitorOngoingScanTasks, duration);
+            log.info("Scan task monitoring started (delay: {} ms).", frequency);
+        } else {
+            log.debug("Monitoring is already running.");
+        }
+    }
+
+    /**
+     * Stops the monitoring of ongoing scan tasks.
+     * <p>
+     * This method cancels the scheduled monitoring task if it is currently running.
+     */
+    private void stopMonitoring() {
+        if (monitorTaskFuture != null && !monitorTaskFuture.isCancelled()) {
+            monitorTaskFuture.cancel(true);
+            log.info("Scan task monitoring stopped.");
+        } else {
+            log.debug("Monitoring is not running.");
+        }
+    }
+
+    /**
      * Monitors active scan tasks and processes completed scans.
      * <p>
-     * This method is scheduled to run at a fixed delay of 5000 milliseconds.
      * It iterates through the active scan tasks, checks their status, and processes
      * completed scans by invoking the `finishScanTask` method.
      * <p>
      * If a scan is still in progress, it logs the status.
      */
-    @Scheduled(fixedDelay = SCAN_TASK_MONITOR_DELAY)
-    public void monitorOngoingScanTasks() {
+    private void monitorOngoingScanTasks() {
+        log.debug("monitorOngoingScanTasks: Invoked to check active scan tasks.");
         if (activeScanTasks.isEmpty()) {
             return;
         }
@@ -238,9 +275,11 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
                     }
                 } catch (InterruptedException e) {
                     log.error("Scan interrupted for directory {}: {}", dirPath, e.getMessage());
+                    activeScanTasks.remove(dirPath);
                 } catch (ExecutionException e) {
                     log.error("Execution exception while completing scan for directory {}: {}", dirPath,
                             e.getMessage());
+                    activeScanTasks.remove(dirPath);
                 }
                 activeScanTasks.remove(dirPath);
             } else {
@@ -320,10 +359,13 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
 
                 if (activeScanTasks.isEmpty()) {
                     log.debug("Active Scan Tasks Map is empty");
-
-                    fileTraverser.shutdownThreadPool();
-
                     log.info("Scan finalized with Monitored Directory: {} being the last element", dirPath);
+
+                    // Stop monitoring if no active scan tasks remain
+                    stopMonitoring();
+
+                    // Shutdown the file traverser thread pool
+                    fileTraverser.shutdownThreadPool();
                 }
 
             }
