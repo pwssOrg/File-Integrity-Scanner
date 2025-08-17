@@ -3,7 +3,7 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.check
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ChecksumRepository;
-import org.pwss.file_integrity_scanner.dsr.service.BaseService;
+import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ChecksumServiceImpl extends BaseService<ChecksumRepository> implements ChecksumService {
+public class ChecksumServiceImpl extends PWSSbaseService<ChecksumRepository,Checksum, Long> implements ChecksumService {
 
     private final org.slf4j.Logger log;
 

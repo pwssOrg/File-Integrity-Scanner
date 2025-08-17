@@ -3,7 +3,7 @@ package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
-import org.pwss.file_integrity_scanner.dsr.service.BaseService;
+import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,7 +38,8 @@ import java.util.Optional;
  */
 @Service
 public class UserServiceImpl
-        extends BaseService<org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository>
+        extends
+        PWSSbaseService<org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository, User, Integer>
         implements UserService {
 
     private final org.pwss.file_integrity_scanner.dsr.service.user_login.auth.AuthServiceImpl authService;
@@ -105,18 +106,18 @@ public class UserServiceImpl
 
                 Time authFromRepository = timeService.save(time);
 
-                auth.hash = hashedPasswordWithSalt;
+                auth.setHash(hashedPasswordWithSalt);
 
                 if (authFromRepository != null)
-                    auth.time = authFromRepository;
+                    auth.setTime(authFromRepository);
                 else
                     return null;
 
                 authService.save(auth);
 
-                user.username = request.username;
-                user.time = time;
-                user.auth = auth;
+                user.setUsername(request.username);
+                user.setTime(time);
+                user.setAuth(auth);
 
                 repository.save(user);
 
@@ -137,7 +138,7 @@ public class UserServiceImpl
             throws org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException {
 
         final String storedPasswordHash = repository.findByUsername(username)
-                .orElseThrow(org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException::new).auth.hash;
+                .orElseThrow(org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException::new).getAuth().getHash();
 
         if (CheckIfUsernameExists(username) && storedPasswordHash != null && storedPasswordHash.length() > 60 &&
                 storedPasswordHash.contains(":")) {
@@ -243,7 +244,7 @@ public class UserServiceImpl
                 .accountLocked(accountLocked)
                 .credentialsExpired(credentialsExpired)
                 .username(user.getUsername())
-                .password(user.auth.getHash()) // {noop} indicates no password encoding
+                .password(user.getAuth().getHash()) // {noop} indicates no password encoding
                 .authorities(authorities)
                 .build();
         return springSecurityUser;

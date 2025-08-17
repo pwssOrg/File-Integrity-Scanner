@@ -1,10 +1,8 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory;
 
-
-
-
-
 import java.time.OffsetDateTime;
+
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,9 +11,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Entity representing a monitored directory.
+ */
 @Entity
 @Table(name = "monitored_directory")
-public class MonitoredDirectory {
+public class MonitoredDirectory extends PWSSbaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,13 +38,18 @@ public class MonitoredDirectory {
     private String notes;
 
     @Column(name = "baseline_established", nullable = false)
-    private Boolean baselineEstablished = false;
+    private Boolean baselineEstablished;
 
     @Column(name = "include_subdirectories", nullable = false)
-    private Boolean includeSubdirectories = true;
+    private Boolean includeSubdirectories;
 
     // Getters and setters
 
+    /**
+     * The unique identifier for the monitored directory.
+     *
+     * @return the ID of this directory
+     */
     public Integer getId() {
         return id;
     }
@@ -52,6 +58,11 @@ public class MonitoredDirectory {
         this.id = id;
     }
 
+    /**
+     * The path to the monitored directory.
+     *
+     * @return the path of this directory
+     */
     public String getPath() {
         return path;
     }
@@ -60,6 +71,11 @@ public class MonitoredDirectory {
         this.path = path;
     }
 
+    /**
+     * Indicates whether the monitoring for this directory is active.
+     *
+     * @return true if monitoring is active, false otherwise
+     */
     public Boolean getIsActive() {
         return isActive;
     }
@@ -68,6 +84,11 @@ public class MonitoredDirectory {
         this.isActive = isActive;
     }
 
+    /**
+     * The date and time when the directory was added to monitoring.
+     *
+     * @return the timestamp of when this directory was added
+     */
     public OffsetDateTime getAddedAt() {
         return addedAt;
     }
@@ -76,6 +97,11 @@ public class MonitoredDirectory {
         this.addedAt = addedAt;
     }
 
+    /**
+     * The date and time of the last scan for changes in the directory.
+     *
+     * @return the timestamp of the last scan
+     */
     public OffsetDateTime getLastScanned() {
         return lastScanned;
     }
@@ -84,6 +110,11 @@ public class MonitoredDirectory {
         this.lastScanned = lastScanned;
     }
 
+    /**
+     * Additional notes or comments about the monitored directory.
+     *
+     * @return any notes associated with this directory
+     */
     public String getNotes() {
         return notes;
     }
@@ -92,6 +123,11 @@ public class MonitoredDirectory {
         this.notes = notes;
     }
 
+    /**
+     * Indicates whether a baseline has been established for the directory.
+     *
+     * @return true if a baseline is established, false otherwise
+     */
     public Boolean getBaselineEstablished() {
         return baselineEstablished;
     }
@@ -100,6 +136,11 @@ public class MonitoredDirectory {
         this.baselineEstablished = baselineEstablished;
     }
 
+    /**
+     * Indicates whether subdirectories should be included in monitoring.
+     *
+     * @return true if subdirectories are included, false otherwise
+     */
     public Boolean getIncludeSubdirectories() {
         return includeSubdirectories;
     }
@@ -107,4 +148,10 @@ public class MonitoredDirectory {
     public void setIncludeSubdirectories(Boolean includeSubdirectories) {
         this.includeSubdirectories = includeSubdirectories;
     }
+
+    @Override
+    protected String getDBSection() {
+        return FIS;
+    }
+
 }

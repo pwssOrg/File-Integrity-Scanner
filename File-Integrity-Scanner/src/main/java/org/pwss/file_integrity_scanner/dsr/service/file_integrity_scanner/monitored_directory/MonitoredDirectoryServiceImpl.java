@@ -2,7 +2,7 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monit
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.MonitoredDirectoryRepository;
-import org.pwss.file_integrity_scanner.dsr.service.BaseService;
+import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -14,7 +14,7 @@ import java.util.Optional;
  * Implementation of the {@link MonitoredDirectoryService} interface.
  */
 @Service
-public class MonitoredDirectoryServiceImpl extends BaseService<MonitoredDirectoryRepository>
+public class MonitoredDirectoryServiceImpl extends PWSSbaseService<MonitoredDirectoryRepository,MonitoredDirectory, Integer>
         implements MonitoredDirectoryService {
 
     private final org.slf4j.Logger log;

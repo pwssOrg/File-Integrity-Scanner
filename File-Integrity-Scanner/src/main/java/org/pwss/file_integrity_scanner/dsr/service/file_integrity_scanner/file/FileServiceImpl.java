@@ -2,13 +2,13 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.FileRepository;
-import org.pwss.file_integrity_scanner.dsr.service.BaseService;
+import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class FileServiceImpl extends BaseService<FileRepository> implements FileService {
+public class FileServiceImpl extends PWSSbaseService<FileRepository,File, Long> implements FileService {
 
     private final org.slf4j.Logger log;
 
