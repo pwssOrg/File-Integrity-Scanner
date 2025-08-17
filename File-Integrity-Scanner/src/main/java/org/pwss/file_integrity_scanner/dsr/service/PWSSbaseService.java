@@ -36,15 +36,4 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
         this.repository = repository;
     }
 
-    /**
-     * Gets the maximum count of records in the table managed by this service.
-     *
-     * This method is a convenience wrapper around the repository's {@link JpaRepository#count()} method,
-     * providing an easy way to get the total number of records managed by the repository.
-     *
-     * @return The total number of records in the table managed by this service.
-     */
-    public long getMaxCount() {
-        return repository.count();
-    }
 }
