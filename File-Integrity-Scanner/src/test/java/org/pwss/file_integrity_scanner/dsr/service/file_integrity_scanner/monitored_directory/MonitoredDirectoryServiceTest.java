@@ -26,7 +26,7 @@ public class MonitoredDirectoryServiceTest {
     MonitoredDirectory monitoredDirectorySpy;
 
     @BeforeEach
-     void setUp() {
+    void setUp() {
 
         monitoredDirectoryMock = mock(MonitoredDirectory.class);
         monitoredDirectorySpy = spy(new MonitoredDirectory());
