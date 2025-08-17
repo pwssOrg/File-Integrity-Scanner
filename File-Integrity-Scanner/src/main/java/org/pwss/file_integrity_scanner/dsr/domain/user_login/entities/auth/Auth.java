@@ -1,5 +1,6 @@
 package org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth;
 
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 
 import jakarta.persistence.CascadeType;
@@ -14,7 +15,7 @@ import jakarta.persistence.OneToOne;
 
 
 @Entity(name = "auth")
-public class Auth {
+public class Auth extends PWSSbaseEntity {
 
     public Auth() {
     }
@@ -52,5 +53,10 @@ public class Auth {
 
     public void setTime(Time time) {
         this.time = time;
+    }
+
+    @Override
+    protected String getDBSection() {
+      return USER_LOGIN;
     }
 }

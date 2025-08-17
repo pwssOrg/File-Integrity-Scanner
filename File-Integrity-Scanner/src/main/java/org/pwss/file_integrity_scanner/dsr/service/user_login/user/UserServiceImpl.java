@@ -3,7 +3,7 @@ package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
-import org.pwss.file_integrity_scanner.dsr.service.BaseService;
+import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,7 +38,8 @@ import java.util.Optional;
  */
 @Service
 public class UserServiceImpl
-        extends BaseService<org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository>
+        extends
+        PWSSbaseService<org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository, User, Integer>
         implements UserService {
 
     private final org.pwss.file_integrity_scanner.dsr.service.user_login.auth.AuthServiceImpl authService;

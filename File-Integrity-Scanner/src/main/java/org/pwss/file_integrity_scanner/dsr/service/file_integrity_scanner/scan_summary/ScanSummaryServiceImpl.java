@@ -2,11 +2,11 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ScanSummaryRepository;
-import org.pwss.file_integrity_scanner.dsr.service.BaseService;
+import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ScanSummaryServiceImpl extends BaseService<ScanSummaryRepository> implements ScanSummaryService {
+public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepository,ScanSummary, Integer> implements ScanSummaryService {
 
     public ScanSummaryServiceImpl(ScanSummaryRepository repository) {
         super(repository);

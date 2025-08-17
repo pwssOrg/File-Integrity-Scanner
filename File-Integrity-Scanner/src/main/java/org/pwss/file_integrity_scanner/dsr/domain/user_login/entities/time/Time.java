@@ -4,6 +4,8 @@ package org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time;
 
 import java.time.OffsetDateTime;
 
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity(name = "time")
-public class Time {
+public class Time extends PWSSbaseEntity {
 
     public Time(OffsetDateTime created, OffsetDateTime updated) {
         this.created = created;
@@ -53,6 +55,11 @@ public class Time {
 
     public void setUpdated(OffsetDateTime updated) {
         this.updated = updated;
+    }
+
+    @Override
+    protected String getDBSection() {
+        return USER_LOGIN;
     }
 
 

@@ -1,5 +1,6 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary;
 
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
@@ -14,7 +15,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "scan_summary")
-public class ScanSummary {
+public class ScanSummary extends PWSSbaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,5 +65,10 @@ public class ScanSummary {
 
     public void setChecksum(Checksum checksum) {
         this.checksum = checksum;
+    }
+
+    @Override
+    protected String getDBSection() {
+        return FIS;
     }
 }

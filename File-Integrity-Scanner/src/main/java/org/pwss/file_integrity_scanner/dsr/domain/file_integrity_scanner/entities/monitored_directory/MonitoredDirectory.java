@@ -1,10 +1,8 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory;
 
-
-
-
-
 import java.time.OffsetDateTime;
+
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "monitored_directory")
-public class MonitoredDirectory {
+public class MonitoredDirectory extends PWSSbaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +35,10 @@ public class MonitoredDirectory {
     private String notes;
 
     @Column(name = "baseline_established", nullable = false)
-    private Boolean baselineEstablished = false;
+    private Boolean baselineEstablished;
 
     @Column(name = "include_subdirectories", nullable = false)
-    private Boolean includeSubdirectories = true;
+    private Boolean includeSubdirectories;
 
     // Getters and setters
 
@@ -107,4 +105,10 @@ public class MonitoredDirectory {
     public void setIncludeSubdirectories(Boolean includeSubdirectories) {
         this.includeSubdirectories = includeSubdirectories;
     }
+
+    @Override
+    protected String getDBSection() {
+        return FIS;
+    }
+
 }

@@ -2,6 +2,7 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import jakarta.transaction.Transactional;
 import lib.pwss.hash.model.HashForFilesOutput;
+
 import org.pwss.file_integrity_scanner.component.DirectoryTraverser;
 import org.pwss.file_integrity_scanner.component.FileHashComputer;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
@@ -11,7 +12,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ScanRepository;
-import org.pwss.file_integrity_scanner.dsr.service.BaseService;
+import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.checksum.ChecksumService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.FileService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryService;
@@ -21,7 +22,6 @@ import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 @Service
-public class ScanServiceImpl extends BaseService<ScanRepository> implements ScanService {
+public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Integer> implements ScanService {
 
     @Autowired
     private final MonitoredDirectoryService monitoredDirectoryService;
@@ -63,16 +63,24 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     private final TaskScheduler taskScheduler;
     private ScheduledFuture<?> monitorTaskFuture;
 
-    // Map to hold active scan tasks, keyed by directory path
+    /**
+     * Map to hold active scan tasks, keyed by directory path
+     */
     private final ConcurrentMap<String, ScanTaskState> activeScanTasks;
 
-    // Flag to indicate if an ongoing scan should be stopped
+    /**
+     * Flag to indicate if an ongoing scan should be stopped
+     */
     private volatile boolean stopRequested = false;
 
-    // Delay in milliseconds for monitoring scan tasks
-    private final int SCAN_TASK_MONITOR_DELAY = 5000;
+    /**
+     * Schedule rate in milliseconds for monitoring scan tasks.
+     */
+    private final long SCAN_TASK_MONITOR_DELAY = 5000L;
 
-    // FileTraverser from PWSS Directory Nav
+    /**
+     * FileTraverser from PWSS Directory Nav
+     */
     private FileTraverser fileTraverser;
 
     @Autowired
@@ -83,7 +91,7 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
             ChecksumService checksumService,
             DirectoryTraverser directoryTraverser,
             FileHashComputer fileHashComputer,
-                           TaskScheduler taskScheduler) {
+            TaskScheduler taskScheduler) {
         super(repository);
         this.monitoredDirectoryService = monitoredDirectoryService;
         this.fileService = fileService;
@@ -147,6 +155,10 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     @Override
     public void scanSingleDirectory(MonitoredDirectory dir) {
         fileTraverser = new FileTraverserImpl();
+
+        if (dir == null) {
+            throw new NullPointerException("Monitored directory cannot be null");
+        }
 
         if (!dir.getIsActive()) {
             log.warn("Monitored directory {} is not active. Skipping scan.", dir.getPath());
@@ -216,17 +228,16 @@ public class ScanServiceImpl extends BaseService<ScanRepository> implements Scan
     /**
      * Starts monitoring of ongoing scan tasks.
      * <p>
-     * This method schedules a task to monitor active scan tasks at a fixed rate.
-     * <p>
-     * The monitoring task is executed every 5000 milliseconds.
+     * This method schedules a task to monitor active scan tasks at a fixed rate,
+     * determined by the SCAN_TASK_MONITOR_DELAY constant. If a monitoring task is
+     * not already running,
+     * it initializes and starts one using the task scheduler.
      */
     private void startMonitoring() {
         if (monitorTaskFuture == null || monitorTaskFuture.isCancelled()) {
-            // Schedule rate in milliseconds for monitoring scan tasks.
-            final long frequency = 5000L;
-            final Duration duration = Duration.ofMillis(frequency);
+            final Duration duration = Duration.ofMillis(SCAN_TASK_MONITOR_DELAY);
             monitorTaskFuture = taskScheduler.scheduleAtFixedRate(this::monitorOngoingScanTasks, duration);
-            log.info("Scan task monitoring started (delay: {} ms).", frequency);
+            log.info("Scan task monitoring started (delay: {} ms).", SCAN_TASK_MONITOR_DELAY);
         } else {
             log.debug("Monitoring is already running.");
         }

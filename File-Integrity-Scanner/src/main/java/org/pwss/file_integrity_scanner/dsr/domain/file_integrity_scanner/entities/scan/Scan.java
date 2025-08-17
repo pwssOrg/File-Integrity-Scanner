@@ -13,12 +13,13 @@ import jakarta.persistence.Table;
 
 import java.time.OffsetDateTime;
 
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 
 
 @Entity
 @Table(name = "scan")
-public class Scan {
+public class Scan extends PWSSbaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,5 +78,10 @@ public class Scan {
 
     public void setMonitoredDirectory(MonitoredDirectory monitoredDirectory) {
         this.monitoredDirectory = monitoredDirectory;
+    }
+
+    @Override
+    protected String getDBSection() {
+       return FIS;
     }
 }

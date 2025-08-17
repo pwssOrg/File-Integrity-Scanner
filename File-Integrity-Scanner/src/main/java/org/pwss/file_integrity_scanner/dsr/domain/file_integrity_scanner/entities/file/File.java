@@ -1,10 +1,8 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file;
 
-
-
-
-
 import java.time.OffsetDateTime;
+
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "file")
-public class File {
+public class File extends PWSSbaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -84,5 +82,10 @@ public class File {
 
     public void setMtime(OffsetDateTime mtime) {
         this.mtime = mtime;
+    }
+
+    @Override
+    protected String getDBSection() {
+        return FIS;
     }
 }

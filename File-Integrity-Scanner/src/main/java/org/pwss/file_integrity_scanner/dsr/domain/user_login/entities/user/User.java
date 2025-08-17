@@ -1,5 +1,6 @@
 package org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user;
 
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 
@@ -13,7 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 @Entity(name = "user_")
-public class User {
+public class User extends PWSSbaseEntity {
 
     public User() {
     }
@@ -63,5 +64,10 @@ public class User {
 
     public void setTime(Time time) {
         this.time = time;
+    }
+
+    @Override
+    protected String getDBSection() {
+      return USER_LOGIN;
     }
 }
