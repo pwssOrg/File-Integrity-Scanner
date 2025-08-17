@@ -6,7 +6,7 @@ import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepository,ScanSummary, Integer> implements ScanSummaryService {
+public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepository,ScanSummary, Long> implements ScanSummaryService {
 
     public ScanSummaryServiceImpl(ScanSummaryRepository repository) {
         super(repository);

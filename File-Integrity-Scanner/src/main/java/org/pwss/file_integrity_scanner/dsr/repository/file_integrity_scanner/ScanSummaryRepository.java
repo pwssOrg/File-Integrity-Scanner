@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * operations
  * to interact with the database table that stores scan summary information.
  */
-public interface ScanSummaryRepository extends JpaRepository<ScanSummary, Integer> {
+public interface ScanSummaryRepository extends JpaRepository<ScanSummary, Long> {
 }

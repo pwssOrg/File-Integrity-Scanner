@@ -13,61 +13,107 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
+/**
+ * Entity representing a user in the system.
+ */
 @Entity(name = "user_")
 public class User extends PWSSbaseEntity {
 
+    /**
+     * Default constructor for the User entity.
+     */
     public User() {
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer id;
+    private Integer id;
 
     @Column(name = "username", nullable = false, unique = true, updatable = false)
-    public String username;
+    private String username;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "auth_id")
-    public Auth auth;
+    private Auth auth;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_time")
-    public Time time;
+    private Time time;
 
+    /**
+     * Gets the unique identifier of the user.
+     *
+     * @return The ID of the user.
+     */
     public Integer getId() {
         return id;
     }
 
+    /**
+     * Sets the unique identifier of the user.
+     *
+     * @param id The ID to set for the user.
+     */
     public void setId(Integer id) {
         this.id = id;
     }
 
+    /**
+     * Gets the username of the user.
+     *
+     * @return The username.
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Sets the username of the user.
+     *
+     * @param username The username to set for the user.
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * Gets the authentication details of the user.
+     *
+     * @return The authentication object associated with the user.
+     */
     public Auth getAuth() {
         return auth;
     }
 
+    /**
+     * Sets the authentication details for the user.
+     *
+     * @param auth The authentication object to set for the user.
+     */
     public void setAuth(Auth auth) {
         this.auth = auth;
     }
 
+    /**
+     * Gets the time details of the user.
+     *
+     * @return The time object associated with the user.
+     */
     public Time getTime() {
         return time;
     }
 
+    /**
+     * Sets the time details for the user.
+     *
+     * @param time The time object to set for the user.
+     */
     public void setTime(Time time) {
         this.time = time;
     }
 
     @Override
     protected String getDBSection() {
-      return USER_LOGIN;
+        return USER_LOGIN;
     }
 }
