@@ -1,7 +1,6 @@
 package org.pwss.file_integrity_scanner.component;
 
 import org.pwss.io_file.FileTraverser;
-import org.pwss.io_file.FileTraverserImpl;
 import org.pwss.util.PWSSDirectoryNavUtil;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
