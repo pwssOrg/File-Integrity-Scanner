@@ -37,7 +37,7 @@ public class SecurityConfig {
 
     @Autowired
     private UserServiceImpl userService;
-  
+
     @Bean
     public AuthenticationManager authenticationManager(
             UserDetailsService userDetailsService,
@@ -47,8 +47,6 @@ public class SecurityConfig {
         return new ProviderManager(provider);
     }
 
-  
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -57,6 +55,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .requestMatchers(HttpMethod.POST).permitAll()
+                        .requestMatchers("/css/**").denyAll()
+                        .requestMatchers("/js/**").denyAll()
+                        .requestMatchers("/img/**").denyAll()
+                        .requestMatchers("/lib/**").denyAll()
+                        .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/file-integrity").hasRole("AUTHORIZED")
                         .anyRequest()
                         .permitAll())
@@ -66,12 +69,6 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.debug(false).ignoring().requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**",
-                "/favicon.ico");
     }
 
     @Bean
