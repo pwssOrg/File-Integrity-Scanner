@@ -7,7 +7,7 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>0.9</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
