@@ -2,7 +2,7 @@ package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
 import org.apache.tomcat.util.buf.HexUtils;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
-import org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException;
+import org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.crypto.SecretKeyFactory;
