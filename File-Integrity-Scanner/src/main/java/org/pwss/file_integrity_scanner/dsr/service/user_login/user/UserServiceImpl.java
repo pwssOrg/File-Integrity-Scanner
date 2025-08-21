@@ -135,10 +135,10 @@ public class UserServiceImpl
 
     @Override
     public boolean ValidatePassword(String inputWord, String username)
-            throws org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException {
+            throws org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException {
 
         final String storedPasswordHash = repository.findByUsername(username)
-                .orElseThrow(org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException::new).getAuth().getHash();
+                .orElseThrow(org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException::new).getAuth().getHash();
 
         if (CheckIfUsernameExists(username) && storedPasswordHash != null && storedPasswordHash.length() > 60 &&
                 storedPasswordHash.contains(":")) {

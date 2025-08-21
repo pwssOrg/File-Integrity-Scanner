@@ -17,6 +17,7 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.checks
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.FileService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,13 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
 @Service
-public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Integer> implements ScanService {
+public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integer> implements ScanService {
 
     @Autowired
     private final MonitoredDirectoryService monitoredDirectoryService;
@@ -71,7 +73,14 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
     /**
      * Flag to indicate if an ongoing scan should be stopped
      */
-    private volatile boolean stopRequested = false;
+    private volatile boolean stopRequested;
+
+    private volatile boolean isScanRunning;
+
+    /**
+     * Current Scan Object (if any)
+     */
+    private Scan currentScan;
 
     /**
      * Schedule rate in milliseconds for monitoring scan tasks.
@@ -103,13 +112,26 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
         this.timeAndDateStringForLogFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.activeScanTasks = new ConcurrentHashMap<>();
         this.taskScheduler = taskScheduler;
+
+        // Initialize volatile state booleans to false
+        this.stopRequested = false;
+        this.isScanRunning = false;
     }
 
     @Override
-    public void scanAllDirectories() {
+    public void scanAllDirectories() throws ScanAlreadyRunningException {
+        if (isScanRunning) {
+            if (currentScan != null)
+                throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
+            else
+                throw new ScanAlreadyRunningException("Could not found the current Scan object");
+
+        }
         log.info("Starting scan of all monitored directories at {}",
                 OffsetDateTime.now().format(timeAndDateStringForLogFormat));
 
+        this.isScanRunning = true;
+        log.debug("Scan is running - {}", isScanRunning);
         fileTraverser = new FileTraverserImpl();
         stopRequested = false; // Reset stop request at the start of a new scan.
 
@@ -153,12 +175,28 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
     }
 
     @Override
-    public void scanSingleDirectory(MonitoredDirectory dir) {
-        fileTraverser = new FileTraverserImpl();
+    public void scanSingleDirectory(MonitoredDirectory dir) throws ScanAlreadyRunningException {
+
+        if (isScanRunning) {
+
+            if (currentScan != null)
+                throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
+            else
+                throw new ScanAlreadyRunningException("Could not found the current Scan object");
+
+        }
 
         if (dir == null) {
             throw new NullPointerException("Monitored directory cannot be null");
         }
+
+        log.info("Starting scan of monitored directory - {} at time - {}",
+                dir.getPath(), OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+
+        this.isScanRunning = true;
+        log.debug("Scan is running - {}", isScanRunning);
+
+        fileTraverser = new FileTraverserImpl();
 
         if (!dir.getIsActive()) {
             log.warn("Monitored directory {} is not active. Skipping scan.", dir.getPath());
@@ -377,6 +415,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
 
                     // Shutdown the file traverser thread pool
                     fileTraverser.shutdownThreadPool();
+
+                    // Set state boolean to false so this method can be ran again
+                    this.isScanRunning = false;
                 }
 
             }

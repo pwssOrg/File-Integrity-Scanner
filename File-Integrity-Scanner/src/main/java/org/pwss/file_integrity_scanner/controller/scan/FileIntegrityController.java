@@ -7,6 +7,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.r
 
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -59,7 +60,11 @@ public class FileIntegrityController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Authorities: {} ", authentication.getAuthorities());
 
-        scanService.scanAllDirectories();
+        try {
+            scanService.scanAllDirectories();
+        } catch (ScanAlreadyRunningException sRunningException) {
+            return scanAlreadyRunningResponseEntity(sRunningException);
+        }
         return new ResponseEntity<>(
                 "Sit back and relax Sir while File Integrity Scanner scans the integrity of your important files :)\n\nStarted scan...",
                 HttpStatus.OK);
@@ -84,7 +89,11 @@ public class FileIntegrityController {
 
         if (oMonitoredDirectory.isPresent()) {
 
-            scanService.scanSingleDirectory(oMonitoredDirectory.get());
+            try {
+                scanService.scanSingleDirectory(oMonitoredDirectory.get());
+            } catch (ScanAlreadyRunningException sRunningException) {
+                return scanAlreadyRunningResponseEntity(sRunningException);
+            }
             return new ResponseEntity<>(
                     "Scanning 1 Monitored Directory\n\nStarted scan...",
                     HttpStatus.OK);
@@ -143,6 +152,25 @@ public class FileIntegrityController {
                     HttpStatus.NOT_FOUND);
         }
 
+    }
+
+    /**
+     * Creates a response entity when a scan is already running.
+     *
+     * This method logs an error message with the exception details and creates a
+     * ResponseEntity containing an appropriate HTTP status code (TOO_EARLY) and
+     * a user-friendly message indicating that a scan is currently in progress,
+     * preventing new scans from being started at this time.
+     *
+     * @param e the ScanAlreadyRunningException that was thrown
+     * @return a ResponseEntity with an HTTP TOO_EARLY status code and a message
+     *         explaining why the request cannot be processed
+     */
+    private ResponseEntity<String> scanAlreadyRunningResponseEntity(ScanAlreadyRunningException e) {
+        log.error("ScanAlreadyRunningException - {}", e.getMessage());
+        return new ResponseEntity<>(
+                "Scan is already running! Not possible to start a Scan at this time.\n\nTry again in a minute or two , maybe even seconds ;) :)",
+                HttpStatus.TOO_EARLY);
     }
 
 }

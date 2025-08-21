@@ -8,8 +8,8 @@ import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.Creat
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.LoginRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.response.LoginResponse;
 import org.pwss.file_integrity_scanner.dsr.service.user_login.user.UserServiceImpl;
-import org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException;
-import org.pwss.file_integrity_scanner.login.exception.WrongPasswordException;
+import org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException;
+import org.pwss.file_integrity_scanner.exception.user_login.WrongPasswordException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 
 /**
  * Service interface for managing directory scans.
@@ -13,8 +14,9 @@ public interface ScanService {
      * This method will start the scanning process for each directory that is being
      * monitored
      * within the system.
+     * @throws ScanAlreadyRunningException 
      */
-    void scanAllDirectories();
+    void scanAllDirectories() throws ScanAlreadyRunningException;
 
     /**
      * Initiates scanning of a single monitored directory.
@@ -23,8 +25,9 @@ public interface ScanService {
      * It ensures that only the provided directory is scanned, rather than all monitored directories.
      *
      * @param monitoredDirectory the monitored directory to be scanned
+     * @throws ScanAlreadyRunningException 
      */
-    void scanSingleDirectory(MonitoredDirectory monitoredDirectory);
+    void scanSingleDirectory(MonitoredDirectory monitoredDirectory) throws ScanAlreadyRunningException;
 
     /**
      * Stops any ongoing scans.
