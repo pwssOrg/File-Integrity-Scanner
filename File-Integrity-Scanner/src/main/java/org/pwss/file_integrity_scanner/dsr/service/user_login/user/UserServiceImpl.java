@@ -236,7 +236,7 @@ public class UserServiceImpl
 
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
-        authorities.add(new org.pwss.file_integrity_scanner.login.GrantedAuthorityImpl(AUTHORITY));
+        authorities.add(new org.pwss.file_integrity_scanner.security.GrantedAuthorityImpl(AUTHORITY));
 
         final org.springframework.security.core.userdetails.UserDetails springSecurityUser = org.springframework.security.core.userdetails.User
                 .builder()

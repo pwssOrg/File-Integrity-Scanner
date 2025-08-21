@@ -3,7 +3,6 @@ package org.pwss.file_integrity_scanner.controller.scan;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.MonitoredDirectoryRequest;
 
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
@@ -15,18 +14,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller for managing file integrity scans.
  */
 @RestController
-@RequestMapping("/api/file-integrity")
+@RequestMapping("/file-integrity")
 public class FileIntegrityController {
 
     private final ScanServiceImpl scanService;
@@ -54,8 +53,8 @@ public class FileIntegrityController {
      *
      * @return A response indicating the start of the scan
      */
-    @PostMapping("/start-scan")
-    @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
+    @GetMapping("/start-scan")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScan() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Authorities: {} ", authentication.getAuthorities());
@@ -66,7 +65,7 @@ public class FileIntegrityController {
             return scanAlreadyRunningResponseEntity(sRunningException);
         }
         return new ResponseEntity<>(
-                "Sit back and relax Sir while File Integrity Scanner scans the integrity of your important files :)\n\nStarted scan...",
+                "Sit back and relax friend :) ... while File Integrity Scanner scans the integrity your monitored files. \n\nStarted scan...",
                 HttpStatus.OK);
     }
 
@@ -79,13 +78,13 @@ public class FileIntegrityController {
      * @return A response indicating the start of the scan or an error if the
      *         directory is not found
      */
-    @PostMapping("/start-scan/monitored-directory")
+    @GetMapping("/start-scan/{id}")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScanMonitoredDirectory(
-            @RequestBody MonitoredDirectoryRequest scanMonitoredDirectoryRequest) {
+            @PathVariable("id") Integer id) {
 
         final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService
-                .findById(scanMonitoredDirectoryRequest.monitoredDirectoryId());
+                .findById(id);
 
         if (oMonitoredDirectory.isPresent()) {
 
@@ -108,51 +107,17 @@ public class FileIntegrityController {
      *
      * @return A response indicating the stop of the scan
      */
-    @PostMapping("/stop-scan")
-    @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
+    @GetMapping("/stop-scan")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> stopFileIntegrityScan() {
 
         scanService.stopScan();
         return new ResponseEntity<>(
                 "Stopped Scan",
-                HttpStatus.ACCEPTED);
+                HttpStatus.OK);
     }
 
-    /**
-     * Creates a new baseline for a specific monitored directory, requires
-     * AUTHORIZED role.
-     *
-     * @param scanMonitoredDirectoryRequest The request containing the ID of the
-     *                                      monitored directory
-     * @return A response indicating the creation of the new baseline or an error if
-     *         the directory is not found
-     */
-    @PostMapping("/new-baseline")
-    @PreAuthorize("hasAuthority('AUTHORIZED')") // Ensure the user has the required role
-    public ResponseEntity<String> newBaseline(@RequestBody MonitoredDirectoryRequest scanMonitoredDirectoryRequest) {
-
-        final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService
-                .findById(scanMonitoredDirectoryRequest.monitoredDirectoryId());
-
-        if (oMonitoredDirectory.isPresent()) {
-
-            if (monitoredDirectoryService.resetBaseline(oMonitoredDirectory.get())) {
-                return new ResponseEntity<>(
-                        "Your Baseline has been reset.\nA new Baseline will be created on your next scan! ",
-                        HttpStatus.OK);
-            }
-
-            else {
-                return new ResponseEntity<>("The baseline could not be reset.", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        else {
-            return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-    }
+  
 
     /**
      * Creates a response entity when a scan is already running.

@@ -12,7 +12,7 @@ public class ScanSummaryServiceTest {
     ScanSummaryService scanSummaryService;
 
     @Test
-     void testUserServiceInitialization() {
+     void testScanSummaryServiceInitialization() {
         assertNotNull(scanSummaryService, "ScanSummaryService should not be null");
     }
 

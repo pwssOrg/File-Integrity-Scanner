@@ -35,7 +35,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * REST controller for handling user-related operations.
  */
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 public class UserController {
 
     private final AuthenticationManager authenticationManager;

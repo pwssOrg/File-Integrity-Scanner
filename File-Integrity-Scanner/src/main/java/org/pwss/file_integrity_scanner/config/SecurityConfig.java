@@ -18,7 +18,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/lib/**").denyAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/file-integrity").hasRole("AUTHORIZED")
+                        .requestMatchers("/api/directory/").hasRole("AUTHORIZED")
                         .anyRequest()
                         .permitAll())
 
@@ -74,7 +75,7 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         var bcrypt = new BCryptPasswordEncoder();
-        var legacy = new org.pwss.file_integrity_scanner.login.Pbkdf2Sha1PasswordEncoder();
+        var legacy = new org.pwss.file_integrity_scanner.security.Pbkdf2Sha1PasswordEncoder();
 
         String idForEncode = "bcrypt";
         Map<String, PasswordEncoder> encoders = new HashMap<>();

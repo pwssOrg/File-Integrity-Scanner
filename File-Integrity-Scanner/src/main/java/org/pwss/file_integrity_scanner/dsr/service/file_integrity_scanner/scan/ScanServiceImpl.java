@@ -31,7 +31,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -492,14 +492,11 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
             List<Checksum> dbChecksums = checksumService.findByFile(fileEntity);
             if (!dbChecksums.isEmpty()) {
-                // TODO: Maybe not getFirst but let's discuss this later
                 Checksum oldChecksum = dbChecksums.getFirst();
                 if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
                     log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
                 } else {
                     log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
-                    // TODO: Figure out what to do with changed files, add some notes to scan
-                    // summary?
                 }
             } else {
                 log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());

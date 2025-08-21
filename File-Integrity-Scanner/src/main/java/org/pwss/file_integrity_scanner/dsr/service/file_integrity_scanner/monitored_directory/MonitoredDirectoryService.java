@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.CreateMonitoredDirectoryRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.CreateMonitoredDirectoryResponse;
 
 /**
  * Service interface for managing {@link MonitoredDirectory} entities.
@@ -57,7 +59,7 @@ public interface MonitoredDirectoryService {
      * @param mDirectory the {@link MonitoredDirectory} entity to be saved or
      *                   updated in the database
      */
-    void save(MonitoredDirectory mDirectory);
+    void save(MonitoredDirectory entity);
 
     /**
      * Resets a baseline for the specified monitored directory.
@@ -76,5 +78,28 @@ public interface MonitoredDirectoryService {
      * @return True if the baseline was successfully reset; false otherwise.
      */
     Boolean resetBaseline(MonitoredDirectory mDirectory);
+
+    /**
+     * Creates a monitored directory based on the provided request.
+     *
+     * This method validates the createRequest object. If validation passes, it
+     * attempts to save a new
+     * {@link MonitoredDirectory} instance with details from the createRequest
+     * (path, active
+     * status,
+     * and subdirectory inclusion). Any exceptions during this process are logged as
+     * errors,
+     * and the method throws exceptions in such cases. If the request fails
+     * validation,
+     * the method throws a Security Exception.
+     *
+     * @param createRequest The request containing information needed to create a
+     *                      monitored directory.
+     *                      It includes path, active status, and whether to include
+     *                      subdirectories.
+     * @return {@link CreateMonitoredDirectoryResponse}
+     */
+    CreateMonitoredDirectoryResponse createMonitoredDirectoryFromRequest(CreateMonitoredDirectoryRequest createRequest)
+            throws SecurityException, NullPointerException;
 
 }

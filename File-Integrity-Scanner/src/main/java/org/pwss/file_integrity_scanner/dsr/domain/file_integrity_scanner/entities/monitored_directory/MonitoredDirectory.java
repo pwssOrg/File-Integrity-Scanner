@@ -43,7 +43,34 @@ public class MonitoredDirectory extends PWSSbaseEntity {
     @Column(name = "include_subdirectories", nullable = false)
     private Boolean includeSubdirectories;
 
-    // Getters and setters
+    /**
+     * Default constructor.
+     */
+    public MonitoredDirectory() {
+    }
+
+    /**
+     * Constructs a new MonitoredDirectory with specified attributes.
+     * The baselineEstablished variable is initialized to false.
+     *
+     * @param path                  The path to be monitored.
+     * @param isActive              A boolean indicating whether the directory
+     *                              should be active (true) or inactive
+     *                              (false).
+     * @param includeSubdirectories A boolean indicating whether subdirectories
+     *                              should be included (true) or not
+     *                              (false).
+     * @param addedAt               The date and time when this MonitoredDirectory
+     *                              was created.
+     */
+    public MonitoredDirectory(String path, Boolean isActive, Boolean includeSubdirectories, OffsetDateTime addedAt) {
+        this.path = path;
+        this.isActive = isActive;
+        this.includeSubdirectories = includeSubdirectories;
+
+        this.baselineEstablished = false;
+        this.addedAt = addedAt;
+    }
 
     /**
      * The unique identifier for the monitored directory.

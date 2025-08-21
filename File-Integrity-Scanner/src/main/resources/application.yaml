@@ -19,4 +19,6 @@ spring:
 
 server:
   port: 15400
+  servlet:
+          context-path: /api
   connection-timeout: 240000 # milliseconds (4 minute)

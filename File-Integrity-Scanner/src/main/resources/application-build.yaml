@@ -1,6 +1,9 @@
 spring:
   main:
     show-banner: false
+  mvc:
+    servlet:
+      path: /api
   jpa:
     open-in-view: false
     database: postgresql

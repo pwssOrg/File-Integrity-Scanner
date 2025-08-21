@@ -17,7 +17,7 @@ public class FileServiceTest {
     FileServiceImpl fileServiceImpl;
 
     @Test
-    void testUserServiceInitialization() {
+    void testFileServiceInitialization() {
         assertNotNull(fileService, "FileService should not be null");
     }
 }

@@ -13,7 +13,7 @@ public class ChecksumServiceTest {
     ChecksumService checksumService;
 
     @Test
-     void testUserServiceInitialization() {
+     void testChecksumServiceInitialization() {
         assertNotNull(checksumService, "ChecksumService should not be null");
     }
 

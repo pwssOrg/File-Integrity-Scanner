@@ -39,7 +39,7 @@ public class MonitoredDirectoryServiceTest {
     }
 
     @Test
-     void testUserServiceInitialization() {
+     void tesMonitoredDirectoryServiceInitialization() {
         assertNotNull(monitoredDirectoryServiceMock, "monitoredDirectoryService should not be null");
     }
 
