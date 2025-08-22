@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request;
+package org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller;
 
 public final class CreateUser {
 

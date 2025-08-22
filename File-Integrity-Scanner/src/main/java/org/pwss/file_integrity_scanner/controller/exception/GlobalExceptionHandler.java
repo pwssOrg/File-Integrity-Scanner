@@ -8,9 +8,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    
+  org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
-        // Log the exception details if needed
-        return new ResponseEntity<>("An error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("Error message for endpoint calling error - {}", ex.getMessage());
+        return new ResponseEntity<>("An error occurred when calling an endpoint: ",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

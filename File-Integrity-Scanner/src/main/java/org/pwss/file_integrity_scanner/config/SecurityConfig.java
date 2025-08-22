@@ -55,15 +55,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .requestMatchers(HttpMethod.POST).permitAll()
+                        .requestMatchers(HttpMethod.PUT).permitAll()
                         .requestMatchers("/css/**").denyAll()
                         .requestMatchers("/js/**").denyAll()
                         .requestMatchers("/img/**").denyAll()
                         .requestMatchers("/lib/**").denyAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/file-integrity").hasRole("AUTHORIZED")
-                        .requestMatchers("/api/directory/").hasRole("AUTHORIZED")
-                        .anyRequest()
-                        .permitAll())
+                        .requestMatchers("/api/directory").hasRole("AUTHORIZED")
+                        .anyRequest().authenticated())
+                       
 
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))

@@ -1,8 +1,8 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.CreateMonitoredDirectoryRequest;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.CreateMonitoredDirectoryResponse;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.CreateMonitoredDirectoryRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.MonitoredDirectoryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;

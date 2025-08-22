@@ -3,17 +3,18 @@ package org.pwss.file_integrity_scanner.controller.monitored_directory;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.CreateMonitoredDirectoryRequest;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.CreateMonitoredDirectoryResponse;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.CreateMonitoredDirectoryRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.ResetBaseLineRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,10 @@ public class DirectoryController {
 
    private final MonitoredDirectoryServiceImpl mDirectoryServiceImpl;
 
+   private final org.slf4j.Logger log;
+
+   private final Long ENDPOINT_CODE = 4350345983458934l;
+
    /**
     * Constructs a new instance of the {@code DirectoryController} class,
     * initializing it with the provided {@link MonitoredDirectoryServiceImpl}.
@@ -38,6 +43,7 @@ public class DirectoryController {
    @Autowired
    public DirectoryController(MonitoredDirectoryServiceImpl mDirectoryServiceImpl) {
       this.mDirectoryServiceImpl = mDirectoryServiceImpl;
+      this.log = org.slf4j.LoggerFactory.getLogger(DirectoryController.class);
    }
 
    /**
@@ -62,8 +68,7 @@ public class DirectoryController {
    public ResponseEntity<CreateMonitoredDirectoryResponse> createNewMonitoredDirectory(
          @RequestBody CreateMonitoredDirectoryRequest request) {
 
-      CreateMonitoredDirectoryResponse monitoredDirectoryResponse = mDirectoryServiceImpl
-            .createMonitoredDirectoryFromRequest(request);
+      CreateMonitoredDirectoryResponse monitoredDirectoryResponse = mDirectoryServiceImpl.createMonitoredDirectoryFromRequest(request);
 
       if (monitoredDirectoryResponse == null)
          return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -72,38 +77,57 @@ public class DirectoryController {
    }
 
    /**
-    * Creates a new baseline for a specific monitored directory, requires
-    * AUTHORIZED role.
+    * Creates a new baseline for a specific monitored directory. This operation
+    * requires
+    * the 'AUTHORIZED' role.
     *
-    * @param scanMonitoredDirectoryRequest The request containing the ID of the
-    *                                      monitored directory
-    * @return A response indicating the creation of the new baseline or an error if
-    *         the directory is not found
+    * @param scanMonitoredDirectoryRequest The request object containing the ID of
+    *                                      the
+    *                                      monitored directory for which the new
+    *                                      baseline
+    *                                      will be created.
+    * @return A {@link ResponseEntity} with:
+    *         - Status 200 (OK) and a success message in the response body if the
+    *         baseline
+    *         is successfully created, or
+    *         - An appropriate HTTP error status (e.g., 404 Not Found) and an error
+    *         message
+    *         in the response body if the directory is not found.
     */
-   
-   @GetMapping("/newbaseline/{id}")
+   @PutMapping("new-baseline")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
-   public ResponseEntity<String> setNewBaseline(@PathVariable("id") Integer id) {
+   public ResponseEntity<String> setNewBaseline(@RequestBody ResetBaseLineRequest request) {
 
-      Optional<MonitoredDirectory> oMonitoredDirectory = mDirectoryServiceImpl
-            .findById(id);
+      log.debug("new-baseline endpoint");
 
-      if (oMonitoredDirectory.isPresent()) {
+      if (request.endpointCode().longValue() == ENDPOINT_CODE) {
 
-         if (mDirectoryServiceImpl.resetBaseline(oMonitoredDirectory.get())) {
-            return new ResponseEntity<>(
-                  "Your Baseline has been reset.\nA new Baseline will be created on your next scan! ",
-                  HttpStatus.OK);
+         Optional<MonitoredDirectory> oMonitoredDirectory = mDirectoryServiceImpl
+               .findById(request.directoryId());
+
+         if (oMonitoredDirectory.isPresent()) {
+
+            if (mDirectoryServiceImpl.resetBaseline(oMonitoredDirectory.get())) {
+               return new ResponseEntity<>(
+                     "Your Baseline has been reset.\nA new Baseline will be created on your next scan! ",
+                     HttpStatus.OK);
+            }
+
+            else {
+               return new ResponseEntity<>("The baseline could not be reset.", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
          }
 
          else {
-            return new ResponseEntity<>("The baseline could not be reset.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided.",
+                  HttpStatus.NOT_FOUND);
          }
-      }
 
-      else {
-         return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided.",
-               HttpStatus.NOT_FOUND);
+      } else {
+
+         return new ResponseEntity<>("The Provided code did not match",
+               HttpStatus.NON_AUTHORITATIVE_INFORMATION);
+
       }
 
    }
