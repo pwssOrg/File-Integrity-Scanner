@@ -100,7 +100,7 @@ public class DirectoryController {
       if (monitoredDirectoryResponse == null)
          return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
       else
-         return new ResponseEntity<>(HttpStatus.CREATED);
+         return new ResponseEntity<>(monitoredDirectoryResponse, HttpStatus.CREATED);
    }
 
    /**
