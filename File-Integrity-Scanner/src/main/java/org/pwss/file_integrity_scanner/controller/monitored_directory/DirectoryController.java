@@ -84,8 +84,8 @@ public class DirectoryController {
     *                for the new monitored
     *                directory
     * @return a {@code ResponseEntity} with HTTP status and optionally a body:
-    *         - {@code HttpStatus.CREATED} if the creation was successful, no
-    *         content in response body.
+    *         - {@code HttpStatus.CREATED} if the creation was successful
+    *         
     *         - {@code HttpStatus.UNPROCESSABLE_ENTITY} if the request could not be
     *         processed
     */
