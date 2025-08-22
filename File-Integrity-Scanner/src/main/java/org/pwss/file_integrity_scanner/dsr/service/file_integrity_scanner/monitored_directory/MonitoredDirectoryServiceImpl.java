@@ -2,6 +2,7 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monit
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.CreateMonitoredDirectoryRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.UpdateMonitoredDirectoryRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.MonitoredDirectoryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
@@ -106,5 +107,45 @@ public class MonitoredDirectoryServiceImpl
             throw new SecurityException("Could not validate the input request object");
         }
 
+    }
+
+    @Override
+    public Optional<List<MonitoredDirectory>> findAll() {
+        return Optional.of(repository.findAll());
+    }
+
+    @Transactional
+    @Override
+    public Boolean updateMonitoredDirectoryFromRequest(UpdateMonitoredDirectoryRequest request) {
+
+        if (validateRequest(request)) {
+
+            Optional<MonitoredDirectory> mOptional = repository.findById(request.id());
+
+            if (mOptional.isPresent()) {
+
+                MonitoredDirectory mDirectory = mOptional.get();
+
+                if (!request.notes().isEmpty())
+                    mDirectory.setNotes(request.notes());
+
+                mDirectory.setIncludeSubdirectories(request.includeSubDirs());
+                mDirectory.setIsActive(request.isActive());
+
+                repository.save(mDirectory);
+                return true;
+            } else {
+
+                log.error("NullPointerException");
+                return false;
+
+            }
+
+        }
+
+        else {
+            log.error("SecurityException");
+            throw new SecurityException("Could not validate the input request object");
+        }
     }
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.CreateMonitoredDirectoryRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.UpdateMonitoredDirectoryRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
 
 /**
@@ -101,5 +102,33 @@ public interface MonitoredDirectoryService {
      */
     CreateMonitoredDirectoryResponse createMonitoredDirectoryFromRequest(CreateMonitoredDirectoryRequest createRequest)
             throws SecurityException, NullPointerException;
+
+    /**
+     * Retrieves all monitored directories.
+     *
+     * @return an {@link Optional} containing a list of {@link MonitoredDirectory}
+     *         objects if found, otherwise an empty {@link Optional}.
+     */
+    Optional<List<MonitoredDirectory>> findAll();
+
+    /**
+     * Updates a monitored directory based on the information provided in the
+     * request.
+     *
+     * This method validates the request and updates an existing monitored directory
+     * with new details such as notes,
+     * active status, and whether subdirectories should be included. If validation
+     * fails or if the directory does not
+     * exist,
+     * appropriate errors are logged, and false is returned or a SecurityException
+     * is thrown.
+     *
+     * @param request The {@link UpdateMonitoredDirectoryRequest} object containing
+     *                update information for
+     *                the monitored directory.
+     * @return True if the update was successful, false otherwise.
+     * @throws SecurityException If validation of the input request fails.
+     */
+    Boolean updateMonitoredDirectoryFromRequest(UpdateMonitoredDirectoryRequest request) throws SecurityException;
 
 }
