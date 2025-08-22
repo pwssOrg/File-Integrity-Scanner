@@ -126,8 +126,7 @@ public class MonitoredDirectoryServiceImpl
 
                 MonitoredDirectory mDirectory = mOptional.get();
 
-                if (!request.notes().isEmpty())
-                    mDirectory.setNotes(request.notes());
+                mDirectory.setNotes(request.notes());
 
                 mDirectory.setIncludeSubdirectories(request.includeSubDirs());
                 mDirectory.setIsActive(request.isActive());
