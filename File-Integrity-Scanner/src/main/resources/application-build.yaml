@@ -23,3 +23,6 @@ server:
   port: 15400
   servlet:
       context-path: /api
+
+directory:
+      endpoint-code: 4350345983458934

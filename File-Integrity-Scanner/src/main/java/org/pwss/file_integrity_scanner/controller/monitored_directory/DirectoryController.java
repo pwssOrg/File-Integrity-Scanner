@@ -13,6 +13,7 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monito
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,7 +37,8 @@ public class DirectoryController {
 
    private final org.slf4j.Logger log;
 
-   private final Long ENDPOINT_CODE = 4350345983458934l;
+   @Value("${directory.endpoint-code}")
+   private Long ENDPOINT_CODE;
 
    /**
     * Constructs a new instance of the {@code DirectoryController} class,
@@ -50,6 +52,7 @@ public class DirectoryController {
    public DirectoryController(MonitoredDirectoryServiceImpl monitoredDirectoryService) {
       this.monitoredDirectoryService = monitoredDirectoryService;
       this.log = org.slf4j.LoggerFactory.getLogger(DirectoryController.class);
+      
    }
 
    @PostMapping("/id")
