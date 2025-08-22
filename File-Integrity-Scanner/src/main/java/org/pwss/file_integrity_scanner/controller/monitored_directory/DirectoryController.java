@@ -52,9 +52,17 @@ public class DirectoryController {
    public DirectoryController(MonitoredDirectoryServiceImpl monitoredDirectoryService) {
       this.monitoredDirectoryService = monitoredDirectoryService;
       this.log = org.slf4j.LoggerFactory.getLogger(DirectoryController.class);
-      
+
    }
 
+   /**
+    * Handles POST requests to retrieve a monitored directory by its ID.
+    *
+    * @param request an object containing the directory ID to be retrieved
+    * @return a ResponseEntity containing either:
+    *         - the MonitoredDirectory object if found, or
+    *         - a "NOT FOUND" message with HTTP status NOT_FOUND if not found
+    */
    @PostMapping("/id")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
    public ResponseEntity<?> getDirectoryById(@RequestBody GetDirectoryByIdRequest request) {
@@ -85,7 +93,7 @@ public class DirectoryController {
     *                directory
     * @return a {@code ResponseEntity} with HTTP status and optionally a body:
     *         - {@code HttpStatus.CREATED} if the creation was successful
-    *         
+    * 
     *         - {@code HttpStatus.UNPROCESSABLE_ENTITY} if the request could not be
     *         processed
     */
