@@ -65,7 +65,7 @@ public class UserServiceImpl
 
     @Override
     public boolean ValidateCreateUserRequest(
-            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request) {
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request) {
 
         boolean result;
 
@@ -88,7 +88,7 @@ public class UserServiceImpl
     @Override
     @Transactional
     public org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User CreateUser(
-            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request)
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         if (ValidateCreateUserRequest(request)) {
@@ -236,7 +236,7 @@ public class UserServiceImpl
 
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
-        authorities.add(new org.pwss.file_integrity_scanner.login.GrantedAuthorityImpl(AUTHORITY));
+        authorities.add(new org.pwss.file_integrity_scanner.security.GrantedAuthorityImpl(AUTHORITY));
 
         final org.springframework.security.core.userdetails.UserDetails springSecurityUser = org.springframework.security.core.userdetails.User
                 .builder()

@@ -42,7 +42,7 @@ public class ScanServiceTest {
     }
 
     @Test
-    void testUserServiceInitialization() {
+    void testScanServiceInitialization() {
         assertNotNull(scanServiceMock, "ScanService should not be null");
     }
 
