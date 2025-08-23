@@ -17,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,7 +52,7 @@ public class FileIntegrityController {
      *
      * @return A response indicating the start of the scan
      */
-    @GetMapping("/start-scan")
+    @GetMapping("/scan/start")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScan() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -78,7 +77,7 @@ public class FileIntegrityController {
      * @return A response indicating the start of the scan or an error if the
      *         directory is not found
      */
-    @GetMapping("/start-scan/{id}")
+    @GetMapping("/scan/start/{id}")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScanMonitoredDirectory(
             @PathVariable("id") Integer id) {
@@ -107,7 +106,7 @@ public class FileIntegrityController {
      *
      * @return A response indicating the stop of the scan
      */
-    @GetMapping("/stop-scan")
+    @GetMapping("/scan/stop")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> stopFileIntegrityScan() {
 
@@ -117,7 +116,19 @@ public class FileIntegrityController {
                 HttpStatus.OK);
     }
 
-  
+    /**
+     * Checks if a file integrity scan is currently running. Requires AUTHORIZED
+     * role.
+     *
+     * @return A response indicating whether the file integrity scan is running or
+     *         not
+     */
+    @GetMapping("/scan/status")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<Boolean> isFileIntegrityScanRunning() {
+        Boolean isRunning = scanService.isScanRunning();
+        return new ResponseEntity<>(isRunning, HttpStatus.OK);
+    }
 
     /**
      * Creates a response entity when a scan is already running.

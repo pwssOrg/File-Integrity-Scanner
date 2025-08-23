@@ -121,7 +121,7 @@ public class UserController {
      *                                  for password hashing.
      * @throws InvalidKeySpecException  if the key specification is invalid.
      */
-    @PostMapping("/create-user")
+    @PostMapping("/create")
     public ResponseEntity<User> CreateUser(@RequestBody CreateUser request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
 

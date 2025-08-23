@@ -14,18 +14,21 @@ public interface ScanService {
      * This method will start the scanning process for each directory that is being
      * monitored
      * within the system.
-     * @throws ScanAlreadyRunningException 
+     * 
+     * @throws ScanAlreadyRunningException
      */
     void scanAllDirectories() throws ScanAlreadyRunningException;
 
     /**
      * Initiates scanning of a single monitored directory.
      * <p>
-     * This method starts the scanning process for the specified monitored directory.
-     * It ensures that only the provided directory is scanned, rather than all monitored directories.
+     * This method starts the scanning process for the specified monitored
+     * directory.
+     * It ensures that only the provided directory is scanned, rather than all
+     * monitored directories.
      *
      * @param monitoredDirectory the monitored directory to be scanned
-     * @throws ScanAlreadyRunningException 
+     * @throws ScanAlreadyRunningException
      */
     void scanSingleDirectory(MonitoredDirectory monitoredDirectory) throws ScanAlreadyRunningException;
 
@@ -34,4 +37,16 @@ public interface ScanService {
      * This method will terminate the current scanning process if one is active.
      */
     void stopScan();
+
+    /**
+     * Checks if a scan is currently running.
+     *
+     * This method returns the status of whether any scanning process is active or
+     * not.
+     * It helps in determining if the system is busy with a scan operation at the
+     * moment.
+     *
+     * @return true if a scan is currently running, false otherwise
+     */
+    Boolean isScanRunning();
 }

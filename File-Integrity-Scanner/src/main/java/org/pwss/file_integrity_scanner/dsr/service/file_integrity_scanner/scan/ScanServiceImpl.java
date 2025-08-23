@@ -520,4 +520,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             log.info("Scan stop requested. Will stop after current file processing.");
         }
     }
+
+    @Override
+    public Boolean isScanRunning() {
+        return isScanRunning;
+    }
 }
