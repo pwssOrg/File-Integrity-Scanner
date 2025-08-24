@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller for managing file integrity scans.
  */
 @RestController
-@RequestMapping("/file-integrity")
+@RequestMapping("/scan")
 public class FileIntegrityController {
 
     private final ScanServiceImpl scanService;
@@ -63,7 +63,7 @@ public class FileIntegrityController {
      *         found using a Response Entity from
      *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
      */
-    @GetMapping("/scan/start")
+    @GetMapping("/start/all")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScan() {
 
@@ -105,9 +105,9 @@ public class FileIntegrityController {
      *         found using a Response Entity from
      *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
      */
-    @PostMapping("/scan/start/id")
+    @PostMapping("/start/id")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
-    public ResponseEntity<String> startFileIntegrityScanMonitoredDirectory(
+    public ResponseEntity<String> startFileIntegrityScanForMonitoredDirectoryById(
             @RequestBody StartScanByIdRequest request) {
 
         final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService
@@ -136,7 +136,7 @@ public class FileIntegrityController {
      *
      * @return A response indicating the stop of the scan
      */
-    @GetMapping("/scan/stop")
+    @GetMapping("/stop")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> stopFileIntegrityScan() {
 
@@ -153,7 +153,7 @@ public class FileIntegrityController {
      * @return A response indicating whether the file integrity scan is running or
      *         not
      */
-    @GetMapping("/scan/status")
+    @GetMapping("/status")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<Boolean> isFileIntegrityScanRunning() {
         Boolean isRunning = scanService.isScanRunning();
