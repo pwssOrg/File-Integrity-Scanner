@@ -28,6 +28,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -68,6 +73,12 @@ public class UserController {
      * @throws UsernameNotFoundException if the user is not found.
      * @throws WrongPasswordException    if the password is incorrect.
      */
+    @Operation(summary = "User login", description = "Handles user login operations.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> Login(@RequestBody LoginRequest request, HttpServletRequest httpRequest,
             HttpServletResponse httpResponse)
@@ -97,7 +108,7 @@ public class UserController {
                 log.debug("from returned UserDetails {} ",
                         ud.getAuthorities().stream().findFirst().get().getAuthority());
 
-                return new ResponseEntity<>(new LoginResponse(true), HttpStatus.ACCEPTED);
+                return new ResponseEntity<>(new LoginResponse(true), HttpStatus.OK);
 
             } else
                 throw new WrongPasswordException();
@@ -121,6 +132,12 @@ public class UserController {
      *                                  for password hashing.
      * @throws InvalidKeySpecException  if the key specification is invalid.
      */
+    @Operation(summary = "Create a new user", description = "Handles user creation operations.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "409", description = "A user is already present in the repository"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/create")
     public ResponseEntity<User> CreateUser(@RequestBody CreateUser request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -143,11 +160,15 @@ public class UserController {
      * Checks if a user exists in the system.
      *
      * @return A {@link ResponseEntity} containing a boolean indicating whether a
-     *         user exists or not,
-     *         with appropriate HTTP status codes:
+     *         user exists or not, with appropriate HTTP status codes:
      *         - {@code 200 OK} if a user exists
      *         - {@code 404 NOT_FOUND} if no user is found
      */
+    @Operation(summary = "Check if a user exists", description = "Checks if at least one user exists in the system.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User exists"),
+            @ApiResponse(responseCode = "404", description = "No user found")
+    })
     @GetMapping("/exists")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<Boolean> userExistsCheck() {

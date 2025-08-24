@@ -25,3 +25,4 @@ server:
 
 directory:
       endpoint-code: 4350345983458934 # It is possible to use an environment variable if required: ${ENDPOINT_CODE_1}
+  
