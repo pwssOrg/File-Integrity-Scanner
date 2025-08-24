@@ -2,7 +2,10 @@ package org.pwss.file_integrity_scanner.controller.user;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Optional;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.GetDirectoryByIdRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.LoginRequest;
@@ -13,7 +16,7 @@ import org.pwss.file_integrity_scanner.exception.user_login.WrongPasswordExcepti
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,7 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -139,4 +142,24 @@ public class UserController {
         }
     }
 
+    /**
+     * Checks if a user exists in the system.
+     *
+     * @return A {@link ResponseEntity} containing a boolean indicating whether a
+     *         user exists or not,
+     *         with appropriate HTTP status codes:
+     *         - {@code 200 OK} if a user exists
+     *         - {@code 404 NOT_FOUND} if no user is found
+     */
+    @GetMapping("/exists")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<Boolean> userExistsCheck() {
+
+        final Boolean isEmpty = service.isEmpty();
+        if (isEmpty) {
+            return new ResponseEntity<Boolean>(false, HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<Boolean>(true, HttpStatus.OK);
+        }
+    }
 }
