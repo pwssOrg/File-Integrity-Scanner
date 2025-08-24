@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 
 /**
@@ -16,8 +17,10 @@ public interface ScanService {
      * within the system.
      * 
      * @throws ScanAlreadyRunningException
+     * @throws NoActiveMonitoredDirectoriesException
      */
-    void scanAllDirectories() throws ScanAlreadyRunningException;
+    void scanAllDirectories()
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException;
 
     /**
      * Initiates scanning of a single monitored directory.
@@ -29,8 +32,10 @@ public interface ScanService {
      *
      * @param monitoredDirectory the monitored directory to be scanned
      * @throws ScanAlreadyRunningException
+     * @throws NoActiveMonitoredDirectoriesException
      */
-    void scanSingleDirectory(MonitoredDirectory monitoredDirectory) throws ScanAlreadyRunningException;
+    void scanSingleDirectory(MonitoredDirectory monitoredDirectory)
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException;
 
     /**
      * Stops any ongoing scans.

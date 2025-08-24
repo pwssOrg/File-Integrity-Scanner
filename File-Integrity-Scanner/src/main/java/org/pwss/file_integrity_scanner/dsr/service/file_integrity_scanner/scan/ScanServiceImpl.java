@@ -17,6 +17,7 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.checks
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.FileService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
@@ -119,7 +120,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     }
 
     @Override
-    public void scanAllDirectories() throws ScanAlreadyRunningException {
+    public void scanAllDirectories() throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
         if (isScanRunning) {
             if (currentScan != null)
                 throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
@@ -127,22 +128,26 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 throw new ScanAlreadyRunningException("Could not found the current Scan object");
 
         }
-        log.info("Starting scan of all monitored directories at {}",
-                OffsetDateTime.now().format(timeAndDateStringForLogFormat));
 
         this.isScanRunning = true;
-        log.debug("Scan is running - {}", isScanRunning);
-        fileTraverser = new FileTraverserImpl();
+
         stopRequested = false; // Reset stop request at the start of a new scan.
 
         try {
             List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
 
             if (activeDirs.isEmpty()) {
-                log.warn("No active monitored directories found.");
-                return;
-            }
+                log.warn("No active monitored directories found");
 
+                isScanRunning = false;
+
+                throw new NoActiveMonitoredDirectoriesException(
+                        "No active monitored directories found when scanning all directories");
+
+            }
+            log.info("Starting scan of all monitored directories at {}",
+                    OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+            log.debug("Scan is running - {}", isScanRunning);
             // Iterate over each monitored directory in database
             for (MonitoredDirectory dir : activeDirs) {
                 if (stopRequested) {
@@ -157,6 +162,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
                 repository.save(scan);
 
+                fileTraverser = new FileTraverserImpl();
                 Future<List<File>> futureFiles;
 
                 this.startMonitoring();
@@ -175,7 +181,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     }
 
     @Override
-    public void scanSingleDirectory(MonitoredDirectory dir) throws ScanAlreadyRunningException {
+    public void scanSingleDirectory(MonitoredDirectory dir)
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
 
         if (isScanRunning) {
 
@@ -190,6 +197,11 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             throw new NullPointerException("Monitored directory cannot be null");
         }
 
+        if (!dir.getIsActive()) {
+            log.warn("No active monitored directory found");
+            throw new NoActiveMonitoredDirectoriesException("monitored directory id: ", dir.getId());
+        }
+
         log.info("Starting scan of monitored directory - {} at time - {}",
                 dir.getPath(), OffsetDateTime.now().format(timeAndDateStringForLogFormat));
 
@@ -197,11 +209,6 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         log.debug("Scan is running - {}", isScanRunning);
 
         fileTraverser = new FileTraverserImpl();
-
-        if (!dir.getIsActive()) {
-            log.warn("Monitored directory {} is not active. Skipping scan.", dir.getPath());
-            return;
-        }
 
         Scan scan = new Scan();
         scan.setMonitoredDirectory(dir);
