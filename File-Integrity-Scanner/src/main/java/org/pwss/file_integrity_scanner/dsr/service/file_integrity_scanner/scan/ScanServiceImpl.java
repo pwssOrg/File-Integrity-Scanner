@@ -121,6 +121,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
     @Override
     public void scanAllDirectories() throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
+
         if (isScanRunning) {
             if (currentScan != null)
                 throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
@@ -133,18 +134,18 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         stopRequested = false; // Reset stop request at the start of a new scan.
 
+        List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
+
+        if (activeDirs.isEmpty()) {
+            log.warn("No active monitored directories found");
+            isScanRunning = false;
+        }
+
+        if (isScanRunning == false) {
+            throw new NoActiveMonitoredDirectoriesException(
+                    "No active monitored directories found when scanning all directories");
+        }
         try {
-            List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
-
-            if (activeDirs.isEmpty()) {
-                log.warn("No active monitored directories found");
-
-                isScanRunning = false;
-
-                throw new NoActiveMonitoredDirectoriesException(
-                        "No active monitored directories found when scanning all directories");
-
-            }
             log.info("Starting scan of all monitored directories at {}",
                     OffsetDateTime.now().format(timeAndDateStringForLogFormat));
             log.debug("Scan is running - {}", isScanRunning);
