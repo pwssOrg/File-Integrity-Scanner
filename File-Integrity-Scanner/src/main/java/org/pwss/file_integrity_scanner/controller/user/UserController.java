@@ -2,10 +2,7 @@ package org.pwss.file_integrity_scanner.controller.user;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Optional;
 
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.GetDirectoryByIdRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.LoginRequest;
