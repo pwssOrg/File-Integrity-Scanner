@@ -3,22 +3,23 @@ package org.pwss.file_integrity_scanner.controller.scan;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
-
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -51,40 +52,66 @@ public class FileIntegrityController {
     /**
      * Starts a file integrity scan for all directories, requires AUTHORIZED role.
      *
-     * @return A response indicating the start of the scan
+     * @return A {@link ResponseEntity} With:
+     *         - Status 200 (OK) and a success message in the response body if the
+     *         scan is successfully started or,
+     *         - Status 425 (TOO_EARLY) using a Response Entity from
+     *         {@link #scanAlreadyRunningResponseEntity(ScanAlreadyRunningException)}
+     *         or,
+     *         - Status 409 (CONFLICT) and an error message in the response body if
+     *         no monitored directories are
+     *         found using a Response Entity from
+     *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
      */
-    @GetMapping("/start-scan")
+    @GetMapping("/scan/start")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScan() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.debug("Authorities: {} ", authentication.getAuthorities());
 
         try {
             scanService.scanAllDirectories();
-        } catch (ScanAlreadyRunningException sRunningException) {
+        }
+
+        catch (NoActiveMonitoredDirectoriesException nMonitoredDirectoriesException) {
+            return noActiveMonitoredDirectoriesResponseEntity(nMonitoredDirectoriesException);
+        }
+
+        catch (ScanAlreadyRunningException sRunningException) {
             return scanAlreadyRunningResponseEntity(sRunningException);
         }
+
         return new ResponseEntity<>(
-                "Sit back and relax friend :) ... while File Integrity Scanner scans the integrity your monitored files. \n\nStarted scan...",
+                "Scan initiated successfully",
                 HttpStatus.OK);
+
     }
 
     /**
      * Starts a file integrity scan for a specific monitored directory, requires
      * AUTHORIZED role.
      *
-     * @param scanMonitoredDirectoryRequest The request containing the ID of the
-     *                                      monitored directory to scan
-     * @return A response indicating the start of the scan or an error if the
-     *         directory is not found
+     * @param request The {@link StartScanByIdRequest} containing the ID of the
+     *                monitored directory to scan
+     * @return A {@link ResponseEntity} With:
+     *         - Status 200 (OK) and a success message in the response body if the
+     *         scan is successfully started or,
+     *         - Status 404 (Not Found) and an error message in the response body if
+     *         no monitored directory is found
+     *         or,
+     *         - Status 425 (TOO_EARLY) using a Response Entity from
+     *         {@link #scanAlreadyRunningResponseEntity(ScanAlreadyRunningException)}
+     *         or,
+     *         - Status 409 (CONFLICT) and an error message in the response body if
+     *         no monitored directories are
+     *         found using a Response Entity from
+     *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
      */
-    @GetMapping("/start-scan/{id}")
+    @PostMapping("/scan/start/id")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> startFileIntegrityScanMonitoredDirectory(
-            @PathVariable("id") Integer id) {
+            @RequestBody StartScanByIdRequest request) {
 
         final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService
-                .findById(id);
+                .findById(request.id());
 
         if (oMonitoredDirectory.isPresent()) {
 
@@ -92,6 +119,8 @@ public class FileIntegrityController {
                 scanService.scanSingleDirectory(oMonitoredDirectory.get());
             } catch (ScanAlreadyRunningException sRunningException) {
                 return scanAlreadyRunningResponseEntity(sRunningException);
+            } catch (NoActiveMonitoredDirectoriesException nMonitoredDirectoriesException) {
+                return noActiveMonitoredDirectoriesResponseEntity(nMonitoredDirectoriesException);
             }
             return new ResponseEntity<>(
                     "Scanning 1 Monitored Directory\n\nStarted scan...",
@@ -107,7 +136,7 @@ public class FileIntegrityController {
      *
      * @return A response indicating the stop of the scan
      */
-    @GetMapping("/stop-scan")
+    @GetMapping("/scan/stop")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<String> stopFileIntegrityScan() {
 
@@ -117,7 +146,19 @@ public class FileIntegrityController {
                 HttpStatus.OK);
     }
 
-  
+    /**
+     * Checks if a file integrity scan is currently running. Requires AUTHORIZED
+     * role.
+     *
+     * @return A response indicating whether the file integrity scan is running or
+     *         not
+     */
+    @GetMapping("/scan/status")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<Boolean> isFileIntegrityScanRunning() {
+        Boolean isRunning = scanService.isScanRunning();
+        return new ResponseEntity<>(isRunning, HttpStatus.OK);
+    }
 
     /**
      * Creates a response entity when a scan is already running.
@@ -136,6 +177,22 @@ public class FileIntegrityController {
         return new ResponseEntity<>(
                 "Scan is already running! Not possible to start a Scan at this time.\n\nTry again in a minute or two , maybe even seconds ;) :)",
                 HttpStatus.TOO_EARLY);
+    }
+
+    /**
+     * Handles the NoActiveMonitoredDirectoriesException by logging an error message
+     * and returning a ResponseEntity with a conflict status.
+     *
+     * @param e The exception that was thrown when no active monitored directories
+     *          were found.
+     * @return A ResponseEntity containing an error message and a CONFLICT
+     *         HttpStatus.
+     */
+    private ResponseEntity<String> noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException e) {
+        log.error("NoActiveMonitoredDirectoriesException - {}", e.getMessage());
+        return new ResponseEntity<>(
+                "No active monitored directory found\nScan will not start!",
+                HttpStatus.CONFLICT);
     }
 
 }

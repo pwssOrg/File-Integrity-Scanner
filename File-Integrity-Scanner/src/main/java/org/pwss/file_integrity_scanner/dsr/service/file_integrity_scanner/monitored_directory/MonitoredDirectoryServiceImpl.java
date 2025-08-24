@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 
+import java.lang.reflect.Array;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +39,7 @@ public class MonitoredDirectoryServiceImpl
             return mOptional.get();
         } else {
             log.warn("No monitored directories found with active status: {}", isActive);
-            return null;
+            return new ArrayList<MonitoredDirectory>();
         }
 
     }
@@ -116,7 +118,7 @@ public class MonitoredDirectoryServiceImpl
 
     @Transactional
     @Override
-    public Boolean updateMonitoredDirectoryFromRequest(UpdateMonitoredDirectoryRequest request) {
+    public Boolean updateMonitoredDirectoryFromRequest(UpdateMonitoredDirectoryRequest request) throws SecurityException {
 
         if (validateRequest(request)) {
 

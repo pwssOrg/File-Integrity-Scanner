@@ -2,6 +2,7 @@ package org.pwss.file_integrity_scanner.controller.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,7 +15,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
-        log.error("Error message for endpoint calling error - {}", ex.getMessage());
+        log.error("Error message - {}", ex.getMessage());
         return new ResponseEntity<>("An error occurred when calling an endpoint: ",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
