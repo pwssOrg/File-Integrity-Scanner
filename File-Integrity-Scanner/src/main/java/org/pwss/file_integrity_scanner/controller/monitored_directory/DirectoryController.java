@@ -241,6 +241,7 @@ public class DirectoryController {
     *         - Status 422 (Unprocessable Entity) if the update could not be
     *         processed.
     */
+   @Operation(summary = "Update a monitored directory", description = "This operation requires the 'AUTHORIZED' role.", security = @SecurityRequirement(name = "JSession Token"))
    @ApiResponses(value = {
          @ApiResponse(responseCode = "200", description = "Successful Update!", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
          @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
