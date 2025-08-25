@@ -142,24 +142,26 @@ public class DirectoryController {
     * @return A {@link ResponseEntity} with:
     *         - Status 200 (OK) and a success message in the response body if the
     *         baseline is successfully reset, or
+    *         - Status 403 (Forbidden) and an error message in
+    *         the response body if the provided
+    *         endpointCode does not match.
     *         - Status 404 (Not Found) and an error message in the response body if
     *         no monitored directory is found
     *         at the given ID,
     *         - Status 500 (Internal Server Error) with an appropriate error
     *         message if the baseline could not be
     *         reset,
-    *         - Status 203 (Non-Authoritative Information) and an error message in
-    *         the response body if the provided
-    *         endpointCode does not match.
+    * 
     */
    @Operation(summary = "Creates a new baseline for a specific monitored directory", description = "This operation requires the 'AUTHORIZED' role.", security = {
          @SecurityRequirement(name = "JSession Token"), @SecurityRequirement(name = "Endpoint code") }, responses = {
                @ApiResponse(responseCode = "200", description = "Baseline successfully reset"),
                @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+               @ApiResponse(responseCode = "403 ", description = "Forbidden - Endpoint code does not match", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
                @ApiResponse(responseCode = "404", description = "No monitored directory found at the given ID", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
                @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
-               @ApiResponse(responseCode = "203", description = "Endpoint code does not match", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
-         })
+
+   })
    @PutMapping("new-baseline")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
    public ResponseEntity<String> setNewBaseline(@RequestBody ResetBaseLineRequest request) {
@@ -192,7 +194,7 @@ public class DirectoryController {
       } else {
 
          return new ResponseEntity<>("The Provided code did not match",
-               HttpStatus.NON_AUTHORITATIVE_INFORMATION);
+               HttpStatus.FORBIDDEN);
 
       }
 
