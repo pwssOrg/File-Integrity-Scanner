@@ -26,6 +26,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 /**
  * REST controller for various monitored directory actions.
  */
@@ -63,6 +70,12 @@ public class DirectoryController {
     *         - the MonitoredDirectory object if found, or
     *         - a "NOT FOUND" message with HTTP status NOT_FOUND if not found
     */
+   @Operation(summary = "Retrieve a monitored directory by ID", description = "Handles POST requests to retrieve a monitored directory by its ID.")
+   @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Monitored Directory found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MonitoredDirectory.class))),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+         @ApiResponse(responseCode = "404", description = "Monitored Directory not found", content = @Content(mediaType = "application/json", schema = @Schema(type = "string")))
+   })
    @PostMapping("/id")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
    public ResponseEntity<?> getDirectoryById(@RequestBody GetDirectoryByIdRequest request) {
@@ -97,6 +110,12 @@ public class DirectoryController {
     *         - {@code HttpStatus.UNPROCESSABLE_ENTITY} if the request could not be
     *         processed
     */
+   @Operation(summary = "Create a new monitored directory", description = "Handles HTTP POST requests to create a new monitored directory.")
+   @ApiResponses(value = {
+         @ApiResponse(responseCode = "201", description = "Monitored Directory created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateMonitoredDirectoryResponse.class))),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+         @ApiResponse(responseCode = "422", description = "Request could not be processed", content = @Content(mediaType = "application/json", schema = @Schema(type = "string")))
+   })
    @PostMapping("/new")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
    public ResponseEntity<CreateMonitoredDirectoryResponse> createNewMonitoredDirectory(
@@ -113,8 +132,7 @@ public class DirectoryController {
 
    /**
     * Creates a new baseline for a specific monitored directory. This operation
-    * requires
-    * the 'AUTHORIZED' role.
+    * requires the 'AUTHORIZED' role.
     *
     * @param request The request object containing:
     *                - endpointCode: A code that needs to match with the predefined
@@ -134,6 +152,14 @@ public class DirectoryController {
     *         the response body if the provided
     *         endpointCode does not match.
     */
+   @Operation(summary = "Creates a new baseline for a specific monitored directory", description = "This operation requires the 'AUTHORIZED' role.", security = {
+         @SecurityRequirement(name = "JSession Token"), @SecurityRequirement(name = "Endpoint code") }, responses = {
+               @ApiResponse(responseCode = "200", description = "Baseline successfully reset"),
+               @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+               @ApiResponse(responseCode = "404", description = "No monitored directory found at the given ID", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+               @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+               @ApiResponse(responseCode = "203", description = "Endpoint code does not match", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+         })
    @PutMapping("new-baseline")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
    public ResponseEntity<String> setNewBaseline(@RequestBody ResetBaseLineRequest request) {
@@ -184,6 +210,11 @@ public class DirectoryController {
     *         message if no monitored directories
     *         could be retrieved.
     */
+   @Operation(summary = "Retrieve a list of all monitored directories", description = "This operation requires the 'AUTHORIZED' role.", security = @SecurityRequirement(name = "JSession Token"))
+   @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "OK - A list of MonitoredDirectory objects was successfully retrieved"),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+         @ApiResponse(responseCode = "500", description = "Internal Server Error - No monitored directories could be retrieved") })
    @GetMapping("/all")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
    public ResponseEntity<List<MonitoredDirectory>> getAll() {
@@ -210,6 +241,11 @@ public class DirectoryController {
     *         - Status 422 (Unprocessable Entity) if the update could not be
     *         processed.
     */
+   @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Successful Update!", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+         @ApiResponse(responseCode = "422", description = "Unprocessable Entity", content = @Content)
+   })
    @PutMapping("/update")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
    public ResponseEntity<String> update(@RequestBody UpdateMonitoredDirectoryRequest request) {
