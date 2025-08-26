@@ -37,7 +37,7 @@ public class File extends PWSSbaseEntity {
     @Column(nullable = false)
     private OffsetDateTime mtime;
 
-    // Getters and setters
+    
 
     /**
      * The unique identifier for this file. This is an auto-generated primary key.

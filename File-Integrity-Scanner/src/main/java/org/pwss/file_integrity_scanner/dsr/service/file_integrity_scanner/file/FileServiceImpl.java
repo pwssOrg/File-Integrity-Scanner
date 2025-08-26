@@ -5,10 +5,11 @@ import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.Fil
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 
+
 import java.util.Optional;
 
 @Service
-public class FileServiceImpl extends PWSSbaseService<FileRepository,File, Long> implements FileService {
+public class FileServiceImpl extends PWSSbaseService<FileRepository, File, Long> implements FileService {
 
     private final org.slf4j.Logger log;
 
@@ -37,5 +38,14 @@ public class FileServiceImpl extends PWSSbaseService<FileRepository,File, Long> 
     @Override
     public void save(File file) {
         repository.save(file);
+    }
+
+    @Override
+    public Optional<File> findById(Long id) {
+
+        if (id != null)
+            return repository.findById(id);
+        else
+            return Optional.empty();
     }
 }
