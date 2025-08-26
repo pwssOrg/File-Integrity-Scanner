@@ -40,29 +40,23 @@ import java.util.concurrent.*;
 @Service
 public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integer> implements ScanService {
 
-    @Autowired
     private final MonitoredDirectoryService monitoredDirectoryService;
 
-    @Autowired
     private final FileService fileService;
 
-    @Autowired
     private final ScanSummaryService scanSummaryService;
 
-    @Autowired
     private final ChecksumService checksumService;
 
-    @Autowired
     private final DirectoryTraverser directoryTraverser;
 
-    @Autowired
     private final FileHashComputer fileHashComputer;
 
     private final org.slf4j.Logger log;
     private final DateTimeFormatter timeAndDateStringForLogFormat;
 
     @Qualifier("threadPoolTaskScheduler")
-    @Autowired
+
     private final TaskScheduler taskScheduler;
     private ScheduledFuture<?> monitorTaskFuture;
 
@@ -511,11 +505,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             }
         }
 
-        ScanSummary scanSummary = new ScanSummary();
-        scanSummary.setFile(fileEntity);
-        scanSummary.setScan(scanInstance);
-        scanSummary.setChecksum(checksum);
-        scanSummaryService.save(scanSummary);
+        scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
     }
 
     @Override
@@ -532,5 +522,19 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     @Override
     public Boolean isScanRunning() {
         return isScanRunning;
+    }
+
+    @Override
+    public Optional<Scan> getMostRecentScan() {
+        return this.repository.findMostRecentScan();
+    }
+
+    @Override
+    public Optional<Scan> findById(Integer id) {
+
+        if (id != null)
+            return repository.findById(id);
+        else
+            return Optional.empty();
     }
 }

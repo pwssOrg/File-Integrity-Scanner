@@ -38,7 +38,7 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
      *
      * @param repository The repository that will be managed by this service.
      */
-    @Autowired(required = false) // Optional if repository might not be injected in some cases
+    @Autowired() // Optional if repository might not be injected in some cases
     protected PWSSbaseService(Repository repository) {
         this.repository = repository;
         this.logForPWSSBaseClass = org.slf4j.LoggerFactory.getLogger(PWSSbaseService.class);

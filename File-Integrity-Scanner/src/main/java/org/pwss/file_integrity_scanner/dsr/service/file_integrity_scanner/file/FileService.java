@@ -1,5 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file;
 
+import java.util.Optional;
+
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 
 public interface FileService {
@@ -26,4 +28,7 @@ public interface FileService {
      * @param file the file entity to save
      */
     void save(File file);
+
+    // TODO: Add Java Docs
+    Optional<File> findById(Long id);
 }

@@ -51,7 +51,16 @@ public class ScanSummary extends PWSSbaseEntity {
     @JoinColumn(name = "checksum_id", nullable = false)
     private Checksum checksum;
 
-    // Getters and setters
+    // TODO: Add Java Docs
+    public ScanSummary() {
+    }
+
+    // TODO: Add Java Docs
+    public ScanSummary(Scan scan, File file, Checksum checksum) {
+        this.scan = scan;
+        this.file = file;
+        this.checksum = checksum;
+    }
 
     /**
      * Gets the unique identifier of this scan summary entry.
