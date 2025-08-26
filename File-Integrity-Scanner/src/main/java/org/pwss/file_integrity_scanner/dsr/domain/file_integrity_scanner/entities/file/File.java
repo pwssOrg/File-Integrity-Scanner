@@ -1,9 +1,15 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file;
 
-import jakarta.persistence.*;
+import java.time.OffsetDateTime;
+
 import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 
-import java.time.OffsetDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * Entity class representing a file in the File Integrity Scanner domain.
@@ -61,8 +67,6 @@ public class File extends PWSSbaseEntity {
         this.size = size;
         this.mtime = mtime;
     }
-
-    // Getters and setters
 
     /**
      * The unique identifier for this file. This is an auto-generated primary key.

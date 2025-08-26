@@ -40,29 +40,23 @@ import java.util.concurrent.*;
 @Service
 public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integer> implements ScanService {
 
-    @Autowired
     private final MonitoredDirectoryService monitoredDirectoryService;
 
-    @Autowired
     private final FileService fileService;
 
-    @Autowired
     private final ScanSummaryService scanSummaryService;
 
-    @Autowired
     private final ChecksumService checksumService;
 
-    @Autowired
     private final DirectoryTraverser directoryTraverser;
 
-    @Autowired
     private final FileHashComputer fileHashComputer;
 
     private final org.slf4j.Logger log;
     private final DateTimeFormatter timeAndDateStringForLogFormat;
 
     @Qualifier("threadPoolTaskScheduler")
-    @Autowired
+
     private final TaskScheduler taskScheduler;
     private ScheduledFuture<?> monitorTaskFuture;
 
@@ -156,10 +150,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     break;
                 }
 
-                Scan scan = new Scan();
-                scan.setMonitoredDirectory(dir);
-                scan.setScanTime(OffsetDateTime.now());
-                scan.setStatus(ScanStatus.IN_PROGRESS.toString());
+                Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+
+                currentScan = scan;
 
                 repository.save(scan);
 
@@ -211,10 +204,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         fileTraverser = new FileTraverserImpl();
 
-        Scan scan = new Scan();
-        scan.setMonitoredDirectory(dir);
-        scan.setScanTime(OffsetDateTime.now());
-        scan.setStatus(ScanStatus.IN_PROGRESS.toString());
+        Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+
+        currentScan = scan;
 
         repository.save(scan);
 
@@ -502,11 +494,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             }
         }
 
-        ScanSummary scanSummary = new ScanSummary();
-        scanSummary.setFile(fileEntity);
-        scanSummary.setScan(scanInstance);
-        scanSummary.setChecksum(checksum);
-        scanSummaryService.save(scanSummary);
+        scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
     }
 
     @Override
@@ -523,5 +511,19 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     @Override
     public Boolean isScanRunning() {
         return isScanRunning;
+    }
+
+    @Override
+    public Optional<Scan> getMostRecentScan() {
+        return this.repository.findMostRecentScan();
+    }
+
+    @Override
+    public Optional<Scan> findById(Integer id) {
+
+        if (id != null)
+            return repository.findById(id);
+        else
+            return Optional.empty();
     }
 }

@@ -24,5 +24,4 @@ public interface MonitoredDirectoryRepository extends JpaRepository<MonitoredDir
      */
     Optional<List<MonitoredDirectory>> findByIsActive(boolean isActive);
 
-   
 }
