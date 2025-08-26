@@ -16,11 +16,12 @@ public interface ScanService {
         /**
          * Initiates scanning of all monitored directories.
          * This method will start the scanning process for each directory that is being
-         * monitored
-         * within the system.
-         * 
-         * @throws ScanAlreadyRunningException
-         * @throws NoActiveMonitoredDirectoriesException
+         * monitored within the system.
+         *
+         * @throws ScanAlreadyRunningException           if there's already an active
+         *                                               scan running
+         * @throws NoActiveMonitoredDirectoriesException if no directories are currently
+         *                                               being monitored
          */
         void scanAllDirectories()
                         throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException;
@@ -29,13 +30,14 @@ public interface ScanService {
          * Initiates scanning of a single monitored directory.
          * <p>
          * This method starts the scanning process for the specified monitored
-         * directory.
-         * It ensures that only the provided directory is scanned, rather than all
-         * monitored directories.
+         * directory. It ensures that only the provided directory is scanned,
+         * rather than all monitored directories.
          *
          * @param monitoredDirectory the monitored directory to be scanned
-         * @throws ScanAlreadyRunningException
-         * @throws NoActiveMonitoredDirectoriesException
+         * @throws ScanAlreadyRunningException           if there's already an active
+         *                                               scan running
+         * @throws NoActiveMonitoredDirectoriesException if no directories are currently
+         *                                               being monitored
          */
         void scanSingleDirectory(MonitoredDirectory monitoredDirectory)
                         throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException;
@@ -58,10 +60,22 @@ public interface ScanService {
          */
         Boolean isScanRunning();
 
-        // TODO: Add Java Docs
+        /**
+         * Retrieves the most recent scan from the database.
+         *
+         * @return an {@code Optional} containing the most recent {@link Scan} if found,
+         *         or empty if no scans are available
+         */
         Optional<Scan> getMostRecentScan();
 
-        // TODO: Add Java Docs
-        public Optional<Scan> findById(Integer id);
+        /**
+         * Finds a scan by its ID in the database.
+         *
+         * @param id the unique identifier of the scan to find
+         * @return an {@code Optional} containing the {@link Scan} with the specified ID
+         *         if found,
+         *         or empty if no such scan exists
+         */
+        Optional<Scan> findById(Integer id);
 
 }

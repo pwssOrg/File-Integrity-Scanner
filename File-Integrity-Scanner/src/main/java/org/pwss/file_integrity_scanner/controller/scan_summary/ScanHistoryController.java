@@ -9,7 +9,6 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.r
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,17 +67,17 @@ public class ScanHistoryController {
     @PostMapping("/scan")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<List<ScanSummary>> getSummaryForScan(@RequestBody GetSummaryForScanRequest request) {
-         List<ScanSummary> scanSummaries = new LinkedList<>();
+        List<ScanSummary> scanSummaries = new LinkedList<>();
 
-         try{
-         scanSummaries = service.getScanSummaryForScan(request);
-         }
+        try {
+            scanSummaries = service.getScanSummaryForScan(request);
+        }
 
-         catch(SecurityException securityException){
+        catch (SecurityException securityException) {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-         }
-        
-         if (scanSummaries.isEmpty()) {
+        }
+
+        if (scanSummaries.isEmpty()) {
             log.debug("List of scanSummaries is empty");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else

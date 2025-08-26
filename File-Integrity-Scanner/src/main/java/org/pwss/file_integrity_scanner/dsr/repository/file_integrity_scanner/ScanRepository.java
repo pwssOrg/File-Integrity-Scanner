@@ -16,10 +16,20 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface ScanRepository extends JpaRepository<Scan, Integer> {
 
+    /**
+     * JPQL query to find the most recent scan by selecting the scan with the
+     * maximum ID. For more information, see {@link <a href=
+     * "https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html">docs.spring.io</a>}
+     */
+    final String findMostRecentScanQuery = "SELECT s FROM Scan s WHERE s.id = (SELECT MAX(s1.id) from Scan s1)";
 
-   //final String findMostRecentScanQuery = "SELECT s FROM Scan s WHERE s.scanTime = (SELECT MAX(s2.scanTime) FROM Scan s2)";
-   
-
-    @Query("SELECT s FROM Scan s WHERE s.scanTime = (SELECT MAX(s2.scanTime) FROM Scan s2)")
+    /**
+     * Retrieves the most recent scan from the database.
+     *
+     * @return an {@code Optional} containing the most recent {@link Scan} if found,
+     *         or empty if no scans are available
+     */
+    @Query(findMostRecentScanQuery)
     Optional<Scan> findMostRecentScan();
+
 }

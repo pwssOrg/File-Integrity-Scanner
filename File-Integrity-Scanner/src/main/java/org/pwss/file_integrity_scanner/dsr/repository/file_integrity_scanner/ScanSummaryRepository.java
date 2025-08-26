@@ -16,10 +16,25 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ScanSummaryRepository extends JpaRepository<ScanSummary, Long> {
 
-    //TODO: Add Java Docs
+    /**
+     * Finds all scan summaries associated with a specific file.
+     *
+     * @param file the {@link File} entity for which to retrieve scan summaries
+     * @return a list of {@link ScanSummary} entities associated with the given
+     *         file,
+     *         or an empty list if no scan summaries are found for the specified
+     *         file
+     */
     List<ScanSummary> findByFile(File file);
 
-    //TODO: Add Java Docs
+    /**
+     * Finds all scan summaries associated with a specific scan.
+     *
+     * @param scan the {@link Scan} entity for which to retrieve scan summaries
+     * @return a list of {@link ScanSummary} entities associated with the given
+     *         scan,
+     *         or an empty list if no scan summaries are found for the specified
+     *         scan
+     */
     List<ScanSummary> findByScan(Scan scan);
-    
 }

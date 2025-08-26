@@ -50,7 +50,32 @@ public class Scan extends PWSSbaseEntity {
     @JoinColumn(name = "monitored_directory_id", nullable = false)
     private MonitoredDirectory monitoredDirectory;
 
-    // Getters and setters
+    /**
+     * Default constructor for creating an empty {@link Scan}.
+     *
+     * This constructor initializes a new instance of {@link Scan} with default
+     * values
+     * (null or zero for all fields). It is used by persistence
+     * framework JPA.
+     */
+    public Scan() {
+    }
+
+    /**
+     * Constructs a new {@link Scan} instance with the specified scan time, status,
+     * and monitored directory.
+     *
+     * @param scanTime           the time when this scan was initiated or performed
+     * @param status             the current status of the scan (e.g.,
+     *                           "IN_PROGRESS", "COMPLETED", etc.)
+     * @param monitoredDirectory the {@link MonitoredDirectory} that was scanned
+     *                           during this scan
+     */
+    public Scan(OffsetDateTime scanTime, String status, MonitoredDirectory monitoredDirectory) {
+        this.scanTime = scanTime;
+        this.status = status;
+        this.monitoredDirectory = monitoredDirectory;
+    }
 
     /**
      * The unique identifier for this scan entity.

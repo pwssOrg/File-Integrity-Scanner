@@ -150,10 +150,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     break;
                 }
 
-                Scan scan = new Scan();
-                scan.setMonitoredDirectory(dir);
-                scan.setScanTime(OffsetDateTime.now());
-                scan.setStatus(ScanStatus.IN_PROGRESS.toString());
+                Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+
+                currentScan = scan;
 
                 repository.save(scan);
 
@@ -205,10 +204,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         fileTraverser = new FileTraverserImpl();
 
-        Scan scan = new Scan();
-        scan.setMonitoredDirectory(dir);
-        scan.setScanTime(OffsetDateTime.now());
-        scan.setStatus(ScanStatus.IN_PROGRESS.toString());
+        Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+
+        currentScan = scan;
 
         repository.save(scan);
 
