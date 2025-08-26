@@ -476,24 +476,15 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             log.debug("Updating existing file in DB: {}", fileEntity.getPath());
         } else {
             // Create new entity
-            fileEntity = new org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File();
-            fileEntity.setPath(file.getPath());
-            fileEntity.setBasename(file.getName());
-            fileEntity.setDirectory(file.getParent());
-            fileEntity.setSize(file.length());
-            OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
-                    .atOffset(ZoneOffset.UTC);
-            fileEntity.setMtime(lastModified);
+            fileEntity = new org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File(file.getPath(),
+                    file.getName(), file.getParent(), file.length(),
+                    Instant.ofEpochMilli(file.lastModified()).atOffset(ZoneOffset.UTC));
             log.debug("Adding new file to DB: {}", fileEntity.getPath());
         }
 
         fileService.save(fileEntity);
 
-        Checksum checksum = new Checksum();
-        checksum.setChecksumSha256(computedHashes.sha256());
-        checksum.setChecksumSha3(computedHashes.sha3());
-        checksum.setChecksumBlake2b(computedHashes.blake2());
-        checksum.setFile(fileEntity);
+        Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(), computedHashes.blake2());
         checksumService.save(checksum);
 
         // If the baseline is established, check if the file has changed

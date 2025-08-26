@@ -1,15 +1,9 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file;
 
-import java.time.OffsetDateTime;
-
+import jakarta.persistence.*;
 import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.time.OffsetDateTime;
 
 /**
  * Entity class representing a file in the File Integrity Scanner domain.
@@ -36,6 +30,37 @@ public class File extends PWSSbaseEntity {
 
     @Column(nullable = false)
     private OffsetDateTime mtime;
+
+    /**
+     * Default constructor for creating an empty {@link File}.
+     * <p>
+     * This constructor initializes a new instance of {@link File} with default
+     * values
+     * (null or zero for all fields). It is used by persistence
+     * framework JPA.
+     */
+    public File() {
+    }
+
+    /**
+     * Constructs a new {@link File} instance with the specified attributes.
+     * <p>
+     * This constructor initializes a {@link File} object with the provided path,
+     * basename, directory, size, and modification time.
+     *
+     * @param path      the full filesystem path of the file
+     * @param basename  the filename without the directory
+     * @param directory the directory containing the file
+     * @param size      the size of the file in bytes
+     * @param mtime     the modification time of the file
+     */
+    public File(String path, String basename, String directory, Long size, OffsetDateTime mtime) {
+        this.path = path;
+        this.basename = basename;
+        this.directory = directory;
+        this.size = size;
+        this.mtime = mtime;
+    }
 
     // Getters and setters
 
