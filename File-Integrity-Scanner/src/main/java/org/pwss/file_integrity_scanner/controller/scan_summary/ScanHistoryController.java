@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 /**
  * REST controller for various scan summary actions.
  */
@@ -33,6 +37,18 @@ public class ScanHistoryController {
         this.log = org.slf4j.LoggerFactory.getLogger(ScanHistoryController.class);
     }
 
+    /**
+     * Gets the most recent summaries of a scan .
+     *
+     * @return ResponseEntity containing a list of scan summaries or
+     *         HttpStatus.NOT_FOUND if none exist
+     */
+    @Operation(summary = "Get Most Recent Summaries of a Scan", description = "Retrieves the most recent scan summaries.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved scan summaries"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No scan summaries found")
+    })
     @GetMapping("/most-recent")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<List<ScanSummary>> getMostRecentScanSummaries() {
@@ -46,6 +62,20 @@ public class ScanHistoryController {
 
     }
 
+    /**
+     * Gets the scan summaries for a specific file.
+     *
+     * @param request The GetSummaryForFileRequest containing details about the file
+     * @return ResponseEntity containing a list of scan summaries or
+     *         HttpStatus.NOT_FOUND if none exist
+     */
+    @Operation(summary = "Get Scan Summaries for File", description = "Retrieves the scan summaries for a specific file.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved scan summaries"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No scan summaries found"),
+            @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+    })
     @PostMapping("/file")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<List<ScanSummary>> getSummaryForFile(@RequestBody GetSummaryForFileRequest request) {
@@ -64,6 +94,20 @@ public class ScanHistoryController {
 
     }
 
+    /**
+     * Gets the scan summaries for a specific scan.
+     *
+     * @param request The GetSummaryForScanRequest containing details about the scan
+     * @return ResponseEntity containing a list of scan summaries or
+     *         HttpStatus.NOT_FOUND if none exist
+     */
+    @Operation(summary = "Get Scan Summaries for Scan", description = "Retrieves the scan summaries for a specific scan.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved scan summaries"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No scan summaries found"),
+            @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+    })
     @PostMapping("/scan")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<List<ScanSummary>> getSummaryForScan(@RequestBody GetSummaryForScanRequest request) {
