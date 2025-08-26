@@ -20,6 +20,7 @@
     <logger name="org.pwss.util" level="DEBUG"/>
     <logger name="org.hibernate" level="ERROR"/>
     <logger name="org.postgresql" level="ERROR"/>
+    <logger name="io.swagger" level="ERROR"/>
      <!-- Configure specific packages from Spring -->
      <logger name="org.springframework" level="INFO"/>
 </configuration>
