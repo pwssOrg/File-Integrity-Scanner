@@ -53,32 +53,20 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <tomcat.embed.core.version>11.0.10</tomcat.embed.core.version>
-        <spring-boot.version>4.0.0-M1</spring-boot.version>
+        <spring-boot.version>4.0.0-M2</spring-boot.version>
         <postgresql.JDBC-Driver.version>42.7.7</postgresql.JDBC-Driver.version>
     </properties>
 
 
     <dependencies>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>${tomcat.embed.core.version}</version>
-        </dependency>
 
-
+       
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.tomcat.embed</groupId>
-                    <artifactId>tomcat-embed-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
 
@@ -93,18 +81,20 @@
 
         <!--
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.JDBC-Driver.version}</version>
         </dependency>
+
 
         <!--
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
@@ -115,12 +105,30 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.36</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.0.0-M1</version>
+        </dependency>
+
+
         <!-- https://github.com/pwssOrg/literate-octo-guacamole/packages/2589330 -->
         <dependency>
             <groupId>lib.pwss</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
             <version>1.2</version>
         </dependency>
+
+
         <!--https://github.com/pwssOrg/PWSS-DirectoryNav/packages/2588313-->
         <dependency>
             <groupId>lib.pwss</groupId>
@@ -130,6 +138,7 @@
 
 
     </dependencies>
+
 
     <build>
         <plugins>
