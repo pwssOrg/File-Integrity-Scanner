@@ -49,6 +49,35 @@ public class Checksum extends PWSSbaseEntity {
     @Column(name = "checksum_blake_2b", nullable = false)
     private String checksumBlake2b;
 
+    /**
+     * Default constructor for creating an empty {@link Checksum}.
+     *
+     * This constructor initializes a new instance of {@link Checksum} with default
+     * values
+     * (null or zero for all fields). It is used by persistence
+     * framework JPA.
+     */
+    public Checksum() {
+    }
+
+    /**
+     * Constructs a new {@link Checksum} instance with the specified file and checksum values.
+     *
+     * This constructor initializes a {@link Checksum} object with the provided file
+     * and its corresponding SHA-256, SHA-3, and Blake2b checksum values.
+     *
+     * @param file the {@link File} associated with this checksum
+     * @param checksumSha256 the SHA-256 checksum of the file
+     * @param checksumSha3 the SHA-3 checksum of the file
+     * @param checksumBlake2b the Blake2b checksum of the file
+     */
+    public Checksum(File file, String checksumSha256, String checksumSha3, String checksumBlake2b) {
+        this.file = file;
+        this.checksumSha256 = checksumSha256;
+        this.checksumSha3 = checksumSha3;
+        this.checksumBlake2b = checksumBlake2b;
+    }
+
     // Getters and setters
 
     /**

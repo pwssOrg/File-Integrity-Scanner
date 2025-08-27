@@ -37,7 +37,36 @@ public class File extends PWSSbaseEntity {
     @Column(nullable = false)
     private OffsetDateTime mtime;
 
-    
+    /**
+     * Default constructor for creating an empty {@link File}.
+     * <p>
+     * This constructor initializes a new instance of {@link File} with default
+     * values
+     * (null or zero for all fields). It is used by persistence
+     * framework JPA.
+     */
+    public File() {
+    }
+
+    /**
+     * Constructs a new {@link File} instance with the specified attributes.
+     * <p>
+     * This constructor initializes a {@link File} object with the provided path,
+     * basename, directory, size, and modification time.
+     *
+     * @param path      the full filesystem path of the file
+     * @param basename  the filename without the directory
+     * @param directory the directory containing the file
+     * @param size      the size of the file in bytes
+     * @param mtime     the modification time of the file
+     */
+    public File(String path, String basename, String directory, Long size, OffsetDateTime mtime) {
+        this.path = path;
+        this.basename = basename;
+        this.directory = directory;
+        this.size = size;
+        this.mtime = mtime;
+    }
 
     /**
      * The unique identifier for this file. This is an auto-generated primary key.
