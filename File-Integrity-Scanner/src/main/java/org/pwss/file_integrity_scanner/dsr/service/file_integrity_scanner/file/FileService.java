@@ -1,11 +1,17 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file;
 
-
+import java.util.List;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 
-
+/**
+ * Service interface for managing {@link File} entities.
+ *
+ * This service provides methods to interact with file information in a
+ * database,
+ * including finding files by their path and checking if they exist.
+ */
 public interface FileService {
 
     /**
@@ -40,5 +46,23 @@ public interface FileService {
      *         or empty if no such file exists
      */
     Optional<File> findById(Long id);
+
+    /**
+     * Finds up to a specified number of files whose basename matches the given
+     * search string using a case-insensitive
+     * LIKE query.
+     *
+     * @param searchString the search string to match against file basenames. Can
+     *                     contain wildcards like % and _.
+     * @param limit        the maximum number of results to return
+     * @param sortField    the field by which to sort results (e.g., "basename",
+     *                     "createdDate")
+     * @param ascending    true for ascending order, false for descending order
+     * @return a {@link List} of up to the specified number of file entities whose
+     *         basename matches the search string,
+     *         or an empty list if no files are found
+     */
+    List<File> findFilesByBasenameLikeIgnoreCase(String searchString, int limit, String sortField,
+            boolean ascending);
 
 }

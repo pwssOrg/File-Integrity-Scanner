@@ -9,6 +9,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.GetSummaryForFileRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.GetSummaryForScanRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.SearchForFileRequest;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ScanSummaryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.FileServiceImpl;
@@ -110,6 +111,26 @@ public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepositor
             }
         }
         return new LinkedList<>();
+    }
+
+    @Override
+    public List<File> findFilesByBasenameLikeIgnoreCase(SearchForFileRequest request) throws SecurityException {
+
+        if (validateRequest(request)) {
+
+            List<File> listOfFiles = fileService.findFilesByBasenameLikeIgnoreCase(
+                    request.searchQuery(),
+                    request.limit(),
+                    request.sortField(),
+                    request.ascending());
+
+            return listOfFiles;
+        }
+
+        else {
+            throw new SecurityException("Validation failed");
+        }
+
     }
 
 }
