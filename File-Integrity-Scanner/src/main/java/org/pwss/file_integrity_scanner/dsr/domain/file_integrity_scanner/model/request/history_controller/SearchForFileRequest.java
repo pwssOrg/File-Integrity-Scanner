@@ -1,5 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller;
 
+import jakarta.annotation.Nullable;
+
 /**
  * A record that encapsulates search criteria for file searches.
  *
@@ -7,7 +9,7 @@ package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.
  * including the search query, result limit, sort field, and sorting order
  * (ascending/descending).
  */
-public record SearchForFileRequest(String searchQuery, int limit, String sortField, boolean ascending) {
+public record SearchForFileRequest(String searchQuery, int limit, @Nullable String sortField, boolean ascending) {
 
     /**
      * Constructs a new {@code SearchForFileRequest} with the specified parameters.
