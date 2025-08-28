@@ -3,9 +3,11 @@ package org.pwss.file_integrity_scanner.controller.scan_summary;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.GetSummaryForFileRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.GetSummaryForScanRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.SearchForFileRequest;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * REST controller for various scan summary actions.
@@ -126,6 +130,46 @@ public class ScanHistoryController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else
             return new ResponseEntity<>(scanSummaries, HttpStatus.OK);
+
+    }
+
+    /**
+     * Searches for files based on the provided criteria.
+     *
+     * @param request the search criteria encapsulated in a
+     *                {@link SearchForFileRequest}
+     *                object, which includes parameters like search query, limit,
+     *                sort field,
+     *                and sorting order (ascending/descending)
+     * @return a ResponseEntity containing a list of matching files or appropriate
+     *         HTTP status codes
+     */
+    @Operation(summary = "Search for files by basename", description = "Searches for files based on the provided search criteria.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Files found successfully", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = File.class)) }),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User does not have the required authority"),
+            @ApiResponse(responseCode = "422", description = "Unprocessable Entity - Validation or security exception occurred"),
+            @ApiResponse(responseCode = "404", description = "Not Found - No files found matching the criteria")
+    })
+    @PostMapping("/file/search")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<List<File>> searchForFile(@RequestBody SearchForFileRequest request) {
+        List<File> listOfFiles = new LinkedList<>();
+
+        try {
+            listOfFiles = service.findFilesByBasenameLikeIgnoreCase(request);
+        }
+
+        catch (SecurityException securityException) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        if (listOfFiles.isEmpty()) {
+            log.debug("List of files is empty");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else
+            return new ResponseEntity<>(listOfFiles, HttpStatus.OK);
 
     }
 
