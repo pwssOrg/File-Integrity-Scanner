@@ -51,7 +51,30 @@ public class ScanSummary extends PWSSbaseEntity {
     @JoinColumn(name = "checksum_id", nullable = false)
     private Checksum checksum;
 
-    // Getters and setters
+    /**
+     * Default constructor for creating an empty {@link ScanSummary}.
+     *
+     * This constructor initializes a new instance of {@link ScanSummary} with
+     * default values
+     * (null for all fields). It is used by persistence
+     * framework JPA.
+     */
+    public ScanSummary() {
+    }
+
+    /**
+     * Constructs a new {@link ScanSummary} instance with the specified scan, file,
+     * and checksum.
+     *
+     * @param scan     the {@link Scan} entity associated with this summary
+     * @param file     the {@link File} entity being summarized in this scan
+     * @param checksum the {@link Checksum} generated for the file during the scan
+     */
+    public ScanSummary(Scan scan, File file, Checksum checksum) {
+        this.scan = scan;
+        this.file = file;
+        this.checksum = checksum;
+    }
 
     /**
      * Gets the unique identifier of this scan summary entry.

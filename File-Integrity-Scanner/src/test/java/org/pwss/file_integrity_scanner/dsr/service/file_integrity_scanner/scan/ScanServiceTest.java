@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -41,12 +43,12 @@ public class ScanServiceTest {
     }
 
     @Test
-    void testUserServiceInitialization() {
+    void testScanServiceInitialization() {
         assertNotNull(scanServiceMock, "ScanService should not be null");
     }
 
     @Test
-    void testScanSingleDirectoryWithValidMonitoredDirectory() {
+    void testScanSingleDirectoryWithValidMonitoredDirectory() throws ScanAlreadyRunningException,NoActiveMonitoredDirectoriesException {
         // Call the method with a valid MonitoredDirectory object
         scanServiceMock.scanSingleDirectory(monitoredDirectory);
         // Verify that scanSingleDirectory was called with the correct argument

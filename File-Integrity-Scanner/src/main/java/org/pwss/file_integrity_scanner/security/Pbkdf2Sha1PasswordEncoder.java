@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.login;
+package org.pwss.file_integrity_scanner.security;
 
 import java.security.SecureRandom;
 import java.util.HexFormat;

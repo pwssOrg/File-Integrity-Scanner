@@ -17,6 +17,8 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.checks
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.FileService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,36 +32,31 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
 @Service
-public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Integer> implements ScanService {
+public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integer> implements ScanService {
 
-    @Autowired
     private final MonitoredDirectoryService monitoredDirectoryService;
 
-    @Autowired
     private final FileService fileService;
 
-    @Autowired
     private final ScanSummaryService scanSummaryService;
 
-    @Autowired
     private final ChecksumService checksumService;
 
-    @Autowired
     private final DirectoryTraverser directoryTraverser;
 
-    @Autowired
     private final FileHashComputer fileHashComputer;
 
     private final org.slf4j.Logger log;
     private final DateTimeFormatter timeAndDateStringForLogFormat;
 
     @Qualifier("threadPoolTaskScheduler")
-    @Autowired
+
     private final TaskScheduler taskScheduler;
     private ScheduledFuture<?> monitorTaskFuture;
 
@@ -71,7 +68,14 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
     /**
      * Flag to indicate if an ongoing scan should be stopped
      */
-    private volatile boolean stopRequested = false;
+    private volatile boolean stopRequested;
+
+    private volatile boolean isScanRunning;
+
+    /**
+     * Current Scan Object (if any)
+     */
+    private Scan currentScan;
 
     /**
      * Schedule rate in milliseconds for monitoring scan tasks.
@@ -103,24 +107,42 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
         this.timeAndDateStringForLogFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.activeScanTasks = new ConcurrentHashMap<>();
         this.taskScheduler = taskScheduler;
+
+        // Initialize volatile state booleans to false
+        this.stopRequested = false;
+        this.isScanRunning = false;
     }
 
     @Override
-    public void scanAllDirectories() {
-        log.info("Starting scan of all monitored directories at {}",
-                OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+    public void scanAllDirectories() throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
 
-        fileTraverser = new FileTraverserImpl();
+        if (isScanRunning) {
+            if (currentScan != null)
+                throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
+            else
+                throw new ScanAlreadyRunningException("Could not found the current Scan object");
+
+        }
+
+        this.isScanRunning = true;
+
         stopRequested = false; // Reset stop request at the start of a new scan.
 
+        List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
+
+        if (activeDirs.isEmpty()) {
+            log.warn("No active monitored directories found");
+            isScanRunning = false;
+        }
+
+        if (isScanRunning == false) {
+            throw new NoActiveMonitoredDirectoriesException(
+                    "No active monitored directories found when scanning all directories");
+        }
         try {
-            List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
-
-            if (activeDirs.isEmpty()) {
-                log.warn("No active monitored directories found.");
-                return;
-            }
-
+            log.info("Starting scan of all monitored directories at {}",
+                    OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+            log.debug("Scan is running - {}", isScanRunning);
             // Iterate over each monitored directory in database
             for (MonitoredDirectory dir : activeDirs) {
                 if (stopRequested) {
@@ -128,13 +150,13 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
                     break;
                 }
 
-                Scan scan = new Scan();
-                scan.setMonitoredDirectory(dir);
-                scan.setScanTime(OffsetDateTime.now());
-                scan.setStatus(ScanStatus.IN_PROGRESS.toString());
+                Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+
+                currentScan = scan;
 
                 repository.save(scan);
 
+                fileTraverser = new FileTraverserImpl();
                 Future<List<File>> futureFiles;
 
                 this.startMonitoring();
@@ -153,22 +175,38 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
     }
 
     @Override
-    public void scanSingleDirectory(MonitoredDirectory dir) {
-        fileTraverser = new FileTraverserImpl();
+    public void scanSingleDirectory(MonitoredDirectory dir)
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
+
+        if (isScanRunning) {
+
+            if (currentScan != null)
+                throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
+            else
+                throw new ScanAlreadyRunningException("Could not found the current Scan object");
+
+        }
 
         if (dir == null) {
             throw new NullPointerException("Monitored directory cannot be null");
         }
 
         if (!dir.getIsActive()) {
-            log.warn("Monitored directory {} is not active. Skipping scan.", dir.getPath());
-            return;
+            log.warn("No active monitored directory found");
+            throw new NoActiveMonitoredDirectoriesException("monitored directory id: ", dir.getId());
         }
 
-        Scan scan = new Scan();
-        scan.setMonitoredDirectory(dir);
-        scan.setScanTime(OffsetDateTime.now());
-        scan.setStatus(ScanStatus.IN_PROGRESS.toString());
+        log.info("Starting scan of monitored directory - {} at time - {}",
+                dir.getPath(), OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+
+        this.isScanRunning = true;
+        log.debug("Scan is running - {}", isScanRunning);
+
+        fileTraverser = new FileTraverserImpl();
+
+        Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+
+        currentScan = scan;
 
         repository.save(scan);
 
@@ -377,6 +415,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
 
                     // Shutdown the file traverser thread pool
                     fileTraverser.shutdownThreadPool();
+
+                    // Set state boolean to false so this method can be ran again
+                    this.isScanRunning = false;
                 }
 
             }
@@ -427,49 +468,33 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
             log.debug("Updating existing file in DB: {}", fileEntity.getPath());
         } else {
             // Create new entity
-            fileEntity = new org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File();
-            fileEntity.setPath(file.getPath());
-            fileEntity.setBasename(file.getName());
-            fileEntity.setDirectory(file.getParent());
-            fileEntity.setSize(file.length());
-            OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
-                    .atOffset(ZoneOffset.UTC);
-            fileEntity.setMtime(lastModified);
+            fileEntity = new org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File(file.getPath(),
+                    file.getName(), file.getParent(), file.length(),
+                    Instant.ofEpochMilli(file.lastModified()).atOffset(ZoneOffset.UTC));
             log.debug("Adding new file to DB: {}", fileEntity.getPath());
         }
 
         fileService.save(fileEntity);
 
-        Checksum checksum = new Checksum();
-        checksum.setChecksumSha256(computedHashes.sha256());
-        checksum.setChecksumSha3(computedHashes.sha3());
-        checksum.setChecksumBlake2b(computedHashes.blake2());
-        checksum.setFile(fileEntity);
+        Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(), computedHashes.blake2());
         checksumService.save(checksum);
 
         // If the baseline is established, check if the file has changed
         if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
             List<Checksum> dbChecksums = checksumService.findByFile(fileEntity);
             if (!dbChecksums.isEmpty()) {
-                // TODO: Maybe not getFirst but let's discuss this later
                 Checksum oldChecksum = dbChecksums.getFirst();
                 if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
                     log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
                 } else {
                     log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
-                    // TODO: Figure out what to do with changed files, add some notes to scan
-                    // summary?
                 }
             } else {
                 log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
             }
         }
 
-        ScanSummary scanSummary = new ScanSummary();
-        scanSummary.setFile(fileEntity);
-        scanSummary.setScan(scanInstance);
-        scanSummary.setChecksum(checksum);
-        scanSummaryService.save(scanSummary);
+        scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
     }
 
     @Override
@@ -481,5 +506,24 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository,Scan, Intege
             stopRequested = true;
             log.info("Scan stop requested. Will stop after current file processing.");
         }
+    }
+
+    @Override
+    public Boolean isScanRunning() {
+        return isScanRunning;
+    }
+
+    @Override
+    public Optional<Scan> getMostRecentScan() {
+        return this.repository.findMostRecentScan();
+    }
+
+    @Override
+    public Optional<Scan> findById(Integer id) {
+
+        if (id != null)
+            return repository.findById(id);
+        else
+            return Optional.empty();
     }
 }

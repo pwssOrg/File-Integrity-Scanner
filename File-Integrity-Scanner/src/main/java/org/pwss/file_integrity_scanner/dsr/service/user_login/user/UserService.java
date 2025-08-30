@@ -2,7 +2,7 @@ package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
 import org.apache.tomcat.util.buf.HexUtils;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
-import org.pwss.file_integrity_scanner.login.exception.UsernameNotFoundException;
+import org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.crypto.SecretKeyFactory;
@@ -103,7 +103,7 @@ public interface UserService extends UserDetailsService {
      *                                  hash
      * @throws InvalidKeySpecException  if the key specification is invalid
      */
-    User CreateUser(org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request)
+    User CreateUser(org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request)
             throws NoSuchAlgorithmException, InvalidKeySpecException;
 
     /**
@@ -147,6 +147,6 @@ public interface UserService extends UserDetailsService {
      * @return True if validation passes; False otherwise
      */
     boolean ValidateCreateUserRequest(
-            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.CreateUser request);
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request);
 
 }

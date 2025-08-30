@@ -1,42 +1,36 @@
-package org.pwss.file_integrity_scanner.login.exception;
+package org.pwss.file_integrity_scanner.exception.file_integrity_scanner;
+
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 
 /**
- * <p>
- * Exception thrown to indicate that a provided password is incorrect.
- * </p>
- *
- * <p>
- * This exception is typically used in authentication scenarios where a username
- * (or other identifier)
- * is recognized, but the corresponding password does not match what's stored
- * for that user.
- * </p>
- *
- * @see UsernameNotFoundException
+ * Exception thrown when a Scan is already ongoing when starting a new Scan
  */
-
-public final class WrongPasswordException extends Exception {
+public final class ScanAlreadyRunningException extends Exception  {
 
     /**
-     * Default constructor for WrongPasswordException. No message or cause
+     * Default constructor for ScanAlreadyRunningException. No message or cause
      * specified.
      */
-    public WrongPasswordException() {
+    public ScanAlreadyRunningException() {
         super();
     }
 
     /**
-     * Constructs a new WrongPasswordException with the specified detail message.
+     * Constructs a new ScanAlreadyRunningException with the specified detail message.
      *
      * @param message The detail message (which is saved for later retrieval by the
      *                getMessage method).
      */
-    public WrongPasswordException(String message) {
-        super(message);
+    public ScanAlreadyRunningException(String message) {
+        super(message + " \nPWSS @Exception");
+    }
+
+    public ScanAlreadyRunningException(String message,Scan scan) {
+        super(message + " \nPWSS @Exception\n"+scan.getScanTime());
     }
 
     /**
-     * Constructs a new WrongPasswordException with the specified cause and a
+     * Constructs a new ScanAlreadyRunningException with the specified cause and a
      * detail message of
      * <tt>(cause==null ? null : cause.toString())</tt> (which typically contains
      * the class and detail message
@@ -47,12 +41,12 @@ public final class WrongPasswordException extends Exception {
      *              permitted,
      *              and indicates that the cause is nonexistent or unknown.
      */
-    public WrongPasswordException(Throwable cause) {
+    public ScanAlreadyRunningException(Throwable cause) {
         super(cause);
     }
 
     /**
-     * Constructs a new WrongPasswordException with the specified detail message
+     * Constructs a new ScanAlreadyRunningException with the specified detail message
      * and cause.
      *
      * @param message The detail message (which is saved for later retrieval by the
@@ -62,7 +56,11 @@ public final class WrongPasswordException extends Exception {
      *                permitted,
      *                and indicates that the cause is nonexistent or unknown.
      */
-    public WrongPasswordException(String message, Throwable cause) {
+    public ScanAlreadyRunningException(String message, Throwable cause) {
         super(message, cause);
     }
+
 }
+
+    
+

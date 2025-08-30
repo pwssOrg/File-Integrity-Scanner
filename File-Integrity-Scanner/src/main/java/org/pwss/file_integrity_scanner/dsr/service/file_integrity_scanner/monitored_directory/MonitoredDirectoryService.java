@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.CreateMonitoredDirectoryRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.UpdateMonitoredDirectoryRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
 
 /**
  * Service interface for managing {@link MonitoredDirectory} entities.
@@ -57,7 +60,7 @@ public interface MonitoredDirectoryService {
      * @param mDirectory the {@link MonitoredDirectory} entity to be saved or
      *                   updated in the database
      */
-    void save(MonitoredDirectory mDirectory);
+    void save(MonitoredDirectory entity);
 
     /**
      * Resets a baseline for the specified monitored directory.
@@ -76,5 +79,56 @@ public interface MonitoredDirectoryService {
      * @return True if the baseline was successfully reset; false otherwise.
      */
     Boolean resetBaseline(MonitoredDirectory mDirectory);
+
+    /**
+     * Creates a monitored directory based on the provided request.
+     *
+     * This method validates the createRequest object. If validation passes, it
+     * attempts to save a new
+     * {@link MonitoredDirectory} instance with details from the createRequest
+     * (path, active
+     * status,
+     * and subdirectory inclusion). Any exceptions during this process are logged as
+     * errors,
+     * and the method throws exceptions in such cases. If the request fails
+     * validation,
+     * the method throws a Security Exception.
+     *
+     * @param createRequest The request containing information needed to create a
+     *                      monitored directory.
+     *                      It includes path, active status, and whether to include
+     *                      subdirectories.
+     * @return {@link CreateMonitoredDirectoryResponse}
+     */
+    CreateMonitoredDirectoryResponse createMonitoredDirectoryFromRequest(CreateMonitoredDirectoryRequest createRequest)
+            throws SecurityException, NullPointerException;
+
+    /**
+     * Retrieves all monitored directories.
+     *
+     * @return an {@link Optional} containing a list of {@link MonitoredDirectory}
+     *         objects if found, otherwise an empty {@link Optional}.
+     */
+    Optional<List<MonitoredDirectory>> findAll();
+
+    /**
+     * Updates a monitored directory based on the information provided in the
+     * request.
+     *
+     * This method validates the request and updates an existing monitored directory
+     * with new details such as notes,
+     * active status, and whether subdirectories should be included. If validation
+     * fails or if the directory does not
+     * exist,
+     * appropriate errors are logged, and false is returned or a SecurityException
+     * is thrown.
+     *
+     * @param request The {@link UpdateMonitoredDirectoryRequest} object containing
+     *                update information for
+     *                the monitored directory.
+     * @return True if the update was successful, false otherwise.
+     * @throws SecurityException If validation of the input request fails.
+     */
+    Boolean updateMonitoredDirectoryFromRequest(UpdateMonitoredDirectoryRequest request) throws SecurityException;
 
 }

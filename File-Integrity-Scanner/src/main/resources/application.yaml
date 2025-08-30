@@ -19,4 +19,10 @@ spring:
 
 server:
   port: 15400
+  servlet:
+          context-path: /api
   connection-timeout: 240000 # milliseconds (4 minute)
+
+directory:
+      endpoint-code: 4350345983458934 # It is possible to use an environment variable if required: ${ENDPOINT_CODE_1}
+  
