@@ -1,6 +1,6 @@
 package org.pwss.file_integrity_scanner.dsr.service.user_login.time;
 
-import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 
 public interface TimeService {
 

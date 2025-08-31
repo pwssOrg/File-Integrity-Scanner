@@ -11,6 +11,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ScanRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.checksum.ChecksumService;
@@ -150,7 +151,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     break;
                 }
 
-                Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+                Scan scan = new Scan(new Time(OffsetDateTime.now(),OffsetDateTime.now()), ScanStatus.IN_PROGRESS.toString(), dir);
 
                 currentScan = scan;
 
@@ -204,7 +205,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         fileTraverser = new FileTraverserImpl();
 
-        Scan scan = new Scan(OffsetDateTime.now(), ScanStatus.IN_PROGRESS.toString(), dir);
+        Scan scan = new Scan(new Time(OffsetDateTime.now(),OffsetDateTime.now()), ScanStatus.IN_PROGRESS.toString(), dir);
 
         currentScan = scan;
 

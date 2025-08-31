@@ -1,9 +1,11 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.CreateMonitoredDirectoryRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.UpdateMonitoredDirectoryRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.MonitoredDirectoryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
@@ -86,7 +88,7 @@ public class MonitoredDirectoryServiceImpl
             try {
                 Optional<MonitoredDirectory> oMonitoredDirectory = Optional
                         .of(repository.save(new MonitoredDirectory(createRequest.path(), createRequest.isActive(),
-                                createRequest.includeSubdirectories(), OffsetDateTime.now())));
+                                createRequest.includeSubdirectories(),new Time(OffsetDateTime.now(),OffsetDateTime.now()))));
 
                 if (oMonitoredDirectory.isPresent()) {
                     MonitoredDirectory monitoredDirectory = oMonitoredDirectory.get();
@@ -128,7 +130,7 @@ public class MonitoredDirectoryServiceImpl
 
                 MonitoredDirectory mDirectory = mOptional.get();
 
-                mDirectory.setNotes(request.notes());
+                mDirectory.setNotes(new Note(request.notes(),new Time(OffsetDateTime.now(),OffsetDateTime.now())));
 
                 mDirectory.setIncludeSubdirectories(request.includeSubDirs());
                 mDirectory.setIsActive(request.isActive());

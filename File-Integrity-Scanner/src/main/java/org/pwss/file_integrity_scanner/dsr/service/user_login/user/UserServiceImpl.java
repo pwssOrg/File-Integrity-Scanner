@@ -1,7 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
-import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 

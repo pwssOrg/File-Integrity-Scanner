@@ -3,12 +3,16 @@ package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entiti
 import java.time.OffsetDateTime;
 
 import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 /**
@@ -28,14 +32,16 @@ public class MonitoredDirectory extends PWSSbaseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "added_at", nullable = false)
-    private OffsetDateTime addedAt;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "time_id", nullable = false)
+    private Time addedAt;
 
     @Column(name = "last_scanned")
     private OffsetDateTime lastScanned;
 
-    @Column
-    private String notes;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "note_id", nullable = true)
+    private Note notes;
 
     @Column(name = "baseline_established", nullable = false)
     private Boolean baselineEstablished;
@@ -63,7 +69,7 @@ public class MonitoredDirectory extends PWSSbaseEntity {
      * @param addedAt               The date and time when this MonitoredDirectory
      *                              was created.
      */
-    public MonitoredDirectory(String path, Boolean isActive, Boolean includeSubdirectories, OffsetDateTime addedAt) {
+    public MonitoredDirectory(String path, Boolean isActive, Boolean includeSubdirectories, Time addedAt) {
         this.path = path;
         this.isActive = isActive;
         this.includeSubdirectories = includeSubdirectories;
@@ -117,10 +123,10 @@ public class MonitoredDirectory extends PWSSbaseEntity {
      * @return the timestamp of when this directory was added
      */
     public OffsetDateTime getAddedAt() {
-        return addedAt;
+        return addedAt.getCreated();
     }
 
-    public void setAddedAt(OffsetDateTime addedAt) {
+    public void setAddedAt(Time addedAt) {
         this.addedAt = addedAt;
     }
 
@@ -143,10 +149,10 @@ public class MonitoredDirectory extends PWSSbaseEntity {
      * @return any notes associated with this directory
      */
     public String getNotes() {
-        return notes;
+        return notes.getNotes();
     }
 
-    public void setNotes(String notes) {
+    public void setNotes(Note notes) {
         this.notes = notes;
     }
 

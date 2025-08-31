@@ -1,5 +1,12 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan;
 
+import java.time.OffsetDateTime;
+
+import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,12 +14,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
-import java.time.OffsetDateTime;
-
-import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 
 /**
  * Entity class representing a scan in the file integrity scanner.
@@ -28,8 +31,9 @@ public class Scan extends PWSSbaseEntity {
     /**
      * The time when the scan was performed.
      */
-    @Column(name = "scan_time", nullable = false)
-    private OffsetDateTime scanTime;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "scan_time_id", nullable = false)
+    private Time scanTime;
 
     /**
      * The status of the scan (e.g., completed, failed).
@@ -40,8 +44,9 @@ public class Scan extends PWSSbaseEntity {
     /**
      * Additional notes about the scan.
      */
-    @Column
-    private String notes;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "note_id", nullable = true)
+    private Note notes;
 
     /**
      * The monitored directory associated with this scan.
@@ -49,6 +54,11 @@ public class Scan extends PWSSbaseEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "monitored_directory_id", nullable = false)
     private MonitoredDirectory monitoredDirectory;
+
+    //TODO: Add Java Docs
+    @Column(name = "is_baseline_scan", nullable = false)
+    private Boolean isBaselineScan;
+    
 
     /**
      * Default constructor for creating an empty {@link Scan}.
@@ -61,6 +71,7 @@ public class Scan extends PWSSbaseEntity {
     public Scan() {
     }
 
+
     /**
      * Constructs a new {@link Scan} instance with the specified scan time, status,
      * and monitored directory.
@@ -71,7 +82,7 @@ public class Scan extends PWSSbaseEntity {
      * @param monitoredDirectory the {@link MonitoredDirectory} that was scanned
      *                           during this scan
      */
-    public Scan(OffsetDateTime scanTime, String status, MonitoredDirectory monitoredDirectory) {
+    public Scan(Time scanTime, String status, MonitoredDirectory monitoredDirectory) {
         this.scanTime = scanTime;
         this.status = status;
         this.monitoredDirectory = monitoredDirectory;
@@ -101,7 +112,7 @@ public class Scan extends PWSSbaseEntity {
      * @return the scan time
      */
     public OffsetDateTime getScanTime() {
-        return scanTime;
+        return scanTime.getCreated();
     }
 
     /**
@@ -109,7 +120,7 @@ public class Scan extends PWSSbaseEntity {
      *
      * @param scanTime the scan time to set
      */
-    public void setScanTime(OffsetDateTime scanTime) {
+    public void setScanTime(Time scanTime) {
         this.scanTime = scanTime;
     }
 
@@ -137,7 +148,7 @@ public class Scan extends PWSSbaseEntity {
      * @return the notes
      */
     public String getNotes() {
-        return notes;
+        return notes.getNotes();
     }
 
     /**
@@ -145,7 +156,7 @@ public class Scan extends PWSSbaseEntity {
      *
      * @param notes the notes to set
      */
-    public void setNotes(String notes) {
+    public void setNotes(Note notes) {
         this.notes = notes;
     }
 
@@ -165,6 +176,17 @@ public class Scan extends PWSSbaseEntity {
      */
     public void setMonitoredDirectory(MonitoredDirectory monitoredDirectory) {
         this.monitoredDirectory = monitoredDirectory;
+    }
+
+    
+    //TODO: Add Java Docs
+    public Boolean getIsBaselineScan() {
+        return isBaselineScan;
+    }
+
+    //TODO Add Java Docs
+    public void setIsBaselineScan(Boolean isBaselineScan) {
+        this.isBaselineScan = isBaselineScan;
     }
 
     @Override

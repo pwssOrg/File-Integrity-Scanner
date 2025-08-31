@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time;
+package org.pwss.file_integrity_scanner.dsr.domain.mixed.time;
 
 import java.time.OffsetDateTime;
 
@@ -36,7 +36,7 @@ public class Time extends PWSSbaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @Column(name = "created", nullable = false)
     private OffsetDateTime created;
 
@@ -48,7 +48,7 @@ public class Time extends PWSSbaseEntity {
      *
      * @return The ID of this time record
      */
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
@@ -57,7 +57,7 @@ public class Time extends PWSSbaseEntity {
      *
      * @param id The ID to set
      */
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -99,7 +99,7 @@ public class Time extends PWSSbaseEntity {
 
     @Override
     protected String getDBSection() {
-        return USER_LOGIN;
+        return MIXED;
     }
 
 }

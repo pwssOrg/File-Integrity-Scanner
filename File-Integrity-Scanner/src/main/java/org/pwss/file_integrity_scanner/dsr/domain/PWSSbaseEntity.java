@@ -58,6 +58,9 @@ public abstract class PWSSbaseEntity {
      */
     protected final String USER_LOGIN = "User-Login";
 
+    //TODO: Add Java Docs
+    protected final String MIXED="Mixed";
+
     /**
      * Abstract method that must be implemented by any subclass of PWSSBaseEntity.
      * This method returns a string indicating which section of the application
