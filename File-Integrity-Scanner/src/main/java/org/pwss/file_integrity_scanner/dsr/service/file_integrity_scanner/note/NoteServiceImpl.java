@@ -1,12 +1,9 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
-
-import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.NoteRepository;
-
+import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.note.NoteRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
-
-import org.pwss.file_integrity_scanner.dsr.service.user_login.time.TimeServiceImpl;
+import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl;
 import org.springframework.stereotype.Service;
 
 @Service

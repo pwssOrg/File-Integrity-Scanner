@@ -1,7 +1,7 @@
-package org.pwss.file_integrity_scanner.dsr.service.user_login.time;
+package org.pwss.file_integrity_scanner.dsr.service.mixed.time;
 
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
-import org.pwss.file_integrity_scanner.dsr.repository.user_login.time.TimeRepository;
+import org.pwss.file_integrity_scanner.dsr.repository.mixed.time.TimeRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 

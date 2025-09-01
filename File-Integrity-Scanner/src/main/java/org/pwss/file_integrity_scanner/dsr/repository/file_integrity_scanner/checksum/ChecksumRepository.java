@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner;
+package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.checksum;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;

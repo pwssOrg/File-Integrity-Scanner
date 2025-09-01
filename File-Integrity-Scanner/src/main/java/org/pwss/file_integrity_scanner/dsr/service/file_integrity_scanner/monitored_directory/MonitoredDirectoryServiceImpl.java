@@ -11,10 +11,10 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.r
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.UpdateMonitoredDirectoryRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
-import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.MonitoredDirectoryRepository;
+import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.monitored_directory.MonitoredDirectoryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
-import org.pwss.file_integrity_scanner.dsr.service.user_login.time.TimeService;
+import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,9 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
@@ -10,7 +12,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.GetSummaryForFileRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.GetSummaryForScanRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.SearchForFileRequest;
-import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ScanSummaryRepository;
+import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.scan_summary.ScanSummaryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.FileServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
@@ -131,6 +133,22 @@ public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepositor
             throw new SecurityException("Validation failed");
         }
 
+    }
+
+    @Override
+    public Optional<ScanSummary> findScanSummmaryWithLatestIdAndWhereScanBaselineIsSetToTrue(File file)
+            throws SecurityException {
+
+        final List<ScanSummary> baseLineScanSummaries = repository.findByFileAndScan_isBaselineScanTrue(file);
+
+        if (!baseLineScanSummaries.isEmpty()) {
+            log.debug("There exists - {} baseline scan summaries");
+
+            return Optional.of(baseLineScanSummaries.stream().max(Comparator.comparing(ScanSummary::getId)).get());
+        }
+
+        else
+            return Optional.empty();
     }
 
 }

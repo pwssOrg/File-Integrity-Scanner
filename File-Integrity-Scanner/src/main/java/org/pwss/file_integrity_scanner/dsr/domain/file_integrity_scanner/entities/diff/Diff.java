@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+  // TODO: Add Java Docs For The Entire Class
+
 /**
  * Entity class representing a integrity check fail in the File Integrity
  * Scanner domain.
@@ -19,8 +21,6 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "diff")
 public class Diff extends PWSSbaseEntity {
-
-    // TODO: Add Java Docs For The Entire Class
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +37,55 @@ public class Diff extends PWSSbaseEntity {
     @OneToOne(optional = false)
     @JoinColumn(name = "time_id", nullable = false)
     private Time time;
+
+
+    public Diff() {
+    }
+
+
+    public Diff(ScanSummary baselineScan, ScanSummary integrityFailScan, Time time) {
+        this.baselineId = baselineScan;
+        this.integrityFailId = integrityFailScan;
+        this.time = time;
+    }
+
+
+
+    public ScanSummary getBaselineId() {
+        return baselineId;
+    }
+
+
+
+    public void setBaselineId(ScanSummary baselineId) {
+        this.baselineId = baselineId;
+    }
+
+
+
+    public ScanSummary getIntegrityFailId() {
+        return integrityFailId;
+    }
+
+
+
+    public void setIntegrityFailId(ScanSummary integrityFailId) {
+        this.integrityFailId = integrityFailId;
+    }
+
+
+
+    public Time getTime() {
+        return time;
+    }
+
+
+
+    public void setTime(Time time) {
+        this.time = time;
+    }
+
+
 
     @Override
     protected String getDBSection() {

@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.repository.user_login.time;
+package org.pwss.file_integrity_scanner.dsr.repository.mixed.time;
 
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.springframework.data.jpa.repository.JpaRepository;

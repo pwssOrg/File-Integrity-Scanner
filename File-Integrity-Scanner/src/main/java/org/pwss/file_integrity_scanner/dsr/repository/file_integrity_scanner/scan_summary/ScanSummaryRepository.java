@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner;
+package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.scan_summary;
 
 import java.util.List;
 
@@ -37,4 +37,7 @@ public interface ScanSummaryRepository extends JpaRepository<ScanSummary, Long> 
      *         scan
      */
     List<ScanSummary> findByScan(Scan scan);
+
+    //TODO: Add Java Docs
+    List<ScanSummary> findByFileAndScan_isBaselineScanTrue(File file);
 }

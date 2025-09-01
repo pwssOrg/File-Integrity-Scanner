@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
@@ -62,5 +63,10 @@ public interface ScanSummaryService {
      * @throws SecurityException if validation of the request fails
      */
     List<File> findFilesByBasenameLikeIgnoreCase(SearchForFileRequest request) throws SecurityException;
+
+    //TODO: Add Java Docs
+    Optional<ScanSummary> findScanSummmaryWithLatestIdAndWhereScanBaselineIsSetToTrue(File file) throws SecurityException;
+
+
 
 }

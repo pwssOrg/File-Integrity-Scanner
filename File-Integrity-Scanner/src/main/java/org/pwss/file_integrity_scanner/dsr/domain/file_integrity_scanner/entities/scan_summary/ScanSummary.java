@@ -74,6 +74,7 @@ public class ScanSummary extends PWSSbaseEntity {
         this.scan = scan;
         this.file = file;
         this.checksum = checksum;
+
     }
 
     /**
@@ -152,4 +153,5 @@ public class ScanSummary extends PWSSbaseEntity {
     protected String getDBSection() {
         return FIS;
     }
+
 }

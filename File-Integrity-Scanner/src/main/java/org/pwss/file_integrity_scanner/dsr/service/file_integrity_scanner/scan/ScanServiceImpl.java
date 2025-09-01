@@ -17,6 +17,7 @@ import java.util.concurrent.ScheduledFuture;
 import org.pwss.file_integrity_scanner.component.DirectoryTraverser;
 import org.pwss.file_integrity_scanner.component.FileHashComputer;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
@@ -24,14 +25,15 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
-import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ScanRepository;
+import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.scan.ScanRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.checksum.ChecksumService;
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.FileService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
-import org.pwss.file_integrity_scanner.dsr.service.user_login.time.TimeService;
+import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeService;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 import org.pwss.io_file.FileTraverser;
@@ -59,6 +61,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
     private final NoteService noteService;
 
+    private final IntegrityService integrityService;
+
     private final DirectoryTraverser directoryTraverser;
 
     private final FileHashComputer fileHashComputer;
@@ -81,12 +85,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
      */
     private volatile boolean stopRequested;
 
+    // TODO: Add Java Docs
     private volatile boolean isScanRunning;
-
-    /**
-     * Current Scan Object (if any)
-     */
-    private Scan currentScan;
 
     /**
      * Schedule rate in milliseconds for monitoring scan tasks.
@@ -106,6 +106,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             ChecksumService checksumService,
             TimeService timeService,
             NoteService noteService,
+            IntegrityService integrityService,
             DirectoryTraverser directoryTraverser,
             FileHashComputer fileHashComputer,
             TaskScheduler taskScheduler) {
@@ -116,6 +117,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         this.checksumService = checksumService;
         this.timeService = timeService;
         this.noteService = noteService;
+        this.integrityService = integrityService;
         this.directoryTraverser = directoryTraverser;
         this.fileHashComputer = fileHashComputer;
         this.log = org.slf4j.LoggerFactory.getLogger(ScanServiceImpl.class);
@@ -133,11 +135,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     public void scanAllDirectories() throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
 
         if (isScanRunning) {
-            if (currentScan != null)
-                throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
-            else
-                throw new ScanAlreadyRunningException("Could not found the current Scan object");
-
+            throw new ScanAlreadyRunningException();
         }
 
         this.isScanRunning = true;
@@ -173,9 +171,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 noteService.save(note);
 
                 final Boolean isBaseLineScan = !dir.getBaselineEstablished();
-                Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(), dir, note,isBaseLineScan);
-
-                currentScan = scan;
+                Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(), dir, note, isBaseLineScan);
 
                 repository.save(scan);
 
@@ -203,12 +199,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
 
         if (isScanRunning) {
-
-            if (currentScan != null)
-                throw new ScanAlreadyRunningException("Current Scan -> ", currentScan);
-            else
-                throw new ScanAlreadyRunningException("Could not found the current Scan object");
-
+            throw new ScanAlreadyRunningException();
         }
 
         if (dir == null) {
@@ -238,8 +229,6 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(),
                 dir, note, isBaseLineScan);
-
-        currentScan = scan;
 
         repository.save(scan);
 
@@ -490,6 +479,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
+        boolean isNewfile;
+
         org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File fileEntity;
         if (fileInDatabase) {
             // Fetch existing entity and update fields
@@ -498,16 +489,20 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                     .atOffset(ZoneOffset.UTC);
             fileEntity.setMtime(lastModified);
-            log.debug("Updating existing file in DB: {}", fileEntity.getPath());
+            isNewfile = false;
         } else {
             // Create new entity
             fileEntity = new org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File(
                     file.getPath(),
                     file.getName(), file.getParent(), file.length(),
                     Instant.ofEpochMilli(file.lastModified()).atOffset(ZoneOffset.UTC));
-            log.debug("Adding new file to DB: {}", fileEntity.getPath());
+            isNewfile = true;
         }
 
+        if (isNewfile)
+            log.debug("Adding new file to DB: {}", fileEntity.getPath());
+        else
+            log.debug("Updating existing file in DB: {}", fileEntity.getPath());
         fileService.save(fileEntity);
 
         Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(),
@@ -516,20 +511,35 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         // If the baseline is established, check if the file has changed
         if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
-            List<Checksum> dbChecksums = checksumService.findByFile(fileEntity);
-            if (!dbChecksums.isEmpty()) {
-                Checksum oldChecksum = dbChecksums.getFirst();
+
+            final Optional<ScanSummary> oBaselineScanSummaryFromRepository = scanSummaryService
+                    .findScanSummmaryWithLatestIdAndWhereScanBaselineIsSetToTrue(fileEntity);
+
+            if (oBaselineScanSummaryFromRepository.isPresent()) {
+                ScanSummary baselineScanSummaryFromRepository = oBaselineScanSummaryFromRepository.get();
+                Checksum oldChecksum = baselineScanSummaryFromRepository.getChecksum();
                 if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
                     log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
+
+                    final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
+                    scanSummaryService.save(currentScanSummary);
+
                 } else {
                     log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
-                }
-            } else {
-                log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
-            }
-        }
 
-        scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
+                    final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
+                    scanSummaryService.save(currentScanSummary);
+
+                    final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
+                    timeService.save(time);
+                    integrityService.save(new Diff(baselineScanSummaryFromRepository, currentScanSummary, time));
+
+                }
+            }
+        } else {
+            log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
+            scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
+        }
     }
 
     @Override

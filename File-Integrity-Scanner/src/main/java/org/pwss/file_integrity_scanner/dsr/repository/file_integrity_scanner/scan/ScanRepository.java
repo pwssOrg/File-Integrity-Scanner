@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner;
+package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.scan;
 
 import java.util.Optional;
 

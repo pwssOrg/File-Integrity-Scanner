@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner;
+package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.monitored_directory;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.springframework.data.jpa.repository.JpaRepository;
