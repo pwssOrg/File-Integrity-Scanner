@@ -64,9 +64,27 @@ public interface ScanSummaryService {
      */
     List<File> findFilesByBasenameLikeIgnoreCase(SearchForFileRequest request) throws SecurityException;
 
-    //TODO: Add Java Docs
-    Optional<ScanSummary> findScanSummmaryWithLatestIdAndWhereScanBaselineIsSetToTrue(File file) throws SecurityException;
-
-
+    /**
+     * Finds the scan summary with the highest ID among those where the scan is
+     * marked as baseline and associated with
+     * a specific file.
+     *
+     * This method retrieves all scan summaries that match the given file and have
+     * their scan's `isBaselineScan`
+     * property set to true,
+     * then returns the one with the highest ID if any are found. If no such scan
+     * summaries exist, it returns an empty
+     * optional.
+     *
+     * @param file the {@link File} entity for which to retrieve the baseline scan
+     *             summary
+     * @return an {@link Optional} containing the {@link ScanSummary} with the
+     *         highest ID among those that match the
+     *         criteria,
+     *         or an empty {@link Optional} if no such scan summaries are found
+     * @throws SecurityException if there is a security violation while accessing
+     *                           the repository
+     */
+    Optional<ScanSummary> findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(File file) throws SecurityException;
 
 }

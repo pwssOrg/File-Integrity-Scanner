@@ -38,6 +38,15 @@ public interface ScanSummaryRepository extends JpaRepository<ScanSummary, Long> 
      */
     List<ScanSummary> findByScan(Scan scan);
 
-    //TODO: Add Java Docs
+    /**
+     * Finds all scan summaries associated with a specific file and where the scan
+     * is marked as baseline.
+     *
+     * @param file the {@link File} entity for which to retrieve scan summaries
+     * @return a list of {@link ScanSummary} entities that match both the specified
+     *         file
+     *         and have their scan's `isBaselineScan` property set to true,
+     *         or an empty list if no such scan summaries are found.
+     */
     List<ScanSummary> findByFileAndScan_isBaselineScanTrue(File file);
 }
