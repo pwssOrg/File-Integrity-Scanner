@@ -13,9 +13,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 /**
- * Entity class representing a integrity check fail in the File Integrity
- * Scanner domain.
- *
  * This entity captures information about integrity failures detected during
  * scans,
  * including references to baseline and failed scan summaries, as well as the
