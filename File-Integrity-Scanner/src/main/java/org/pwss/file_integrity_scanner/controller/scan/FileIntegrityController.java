@@ -141,6 +141,7 @@ public class FileIntegrityController {
 
         if (oMonitoredDirectory.isPresent()) {
 
+            log.debug("Monitored Directory found with id - {}",oMonitoredDirectory.get().getId());
             try {
                 scanService.scanSingleDirectory(oMonitoredDirectory.get());
             } catch (ScanAlreadyRunningException sRunningException) {

@@ -38,6 +38,8 @@ public class Note extends PWSSbaseEntity {
     @JoinColumn(name = "time_id", nullable = false)
     private Time time;
 
+    public Note(){}
+
     public Note(String notes, Time time) {
         this.notes = notes;
         this.time = time;

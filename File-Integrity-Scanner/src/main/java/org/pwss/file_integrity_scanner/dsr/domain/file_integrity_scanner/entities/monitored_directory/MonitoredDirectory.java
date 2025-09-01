@@ -36,7 +36,7 @@ public class MonitoredDirectory extends PWSSbaseEntity {
     @JoinColumn(name = "time_id", nullable = false)
     private Time addedAt;
 
-    @Column(name = "last_scanned")
+    @Column(name = "last_scanned", nullable = true)
     private OffsetDateTime lastScanned;
 
     @OneToOne(optional = false)
@@ -69,13 +69,14 @@ public class MonitoredDirectory extends PWSSbaseEntity {
      * @param addedAt               The date and time when this MonitoredDirectory
      *                              was created.
      */
-    public MonitoredDirectory(String path, Boolean isActive, Boolean includeSubdirectories, Time addedAt) {
+    public MonitoredDirectory(String path, Boolean isActive, Boolean includeSubdirectories, Time addedAt, Note note) {
         this.path = path;
         this.isActive = isActive;
         this.includeSubdirectories = includeSubdirectories;
 
         this.baselineEstablished = false;
         this.addedAt = addedAt;
+        this.notes = note;
     }
 
     /**
@@ -122,8 +123,8 @@ public class MonitoredDirectory extends PWSSbaseEntity {
      *
      * @return the timestamp of when this directory was added
      */
-    public OffsetDateTime getAddedAt() {
-        return addedAt.getCreated();
+    public Time getAddedAt() {
+        return addedAt;
     }
 
     public void setAddedAt(Time addedAt) {
@@ -148,8 +149,8 @@ public class MonitoredDirectory extends PWSSbaseEntity {
      *
      * @return any notes associated with this directory
      */
-    public String getNotes() {
-        return notes.getNotes();
+    public Note getNotes() {
+        return notes;
     }
 
     public void setNotes(Note notes) {

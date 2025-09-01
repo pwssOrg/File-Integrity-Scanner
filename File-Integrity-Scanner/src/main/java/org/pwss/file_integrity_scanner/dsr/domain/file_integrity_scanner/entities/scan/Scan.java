@@ -1,7 +1,5 @@
 package org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan;
 
-import java.time.OffsetDateTime;
-
 import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
@@ -55,10 +53,9 @@ public class Scan extends PWSSbaseEntity {
     @JoinColumn(name = "monitored_directory_id", nullable = false)
     private MonitoredDirectory monitoredDirectory;
 
-    //TODO: Add Java Docs
+    // TODO: Add Java Docs
     @Column(name = "is_baseline_scan", nullable = false)
     private Boolean isBaselineScan;
-    
 
     /**
      * Default constructor for creating an empty {@link Scan}.
@@ -72,6 +69,8 @@ public class Scan extends PWSSbaseEntity {
     }
 
 
+    //TODO: Add Java Docs that reflects the new constructor parameter
+
     /**
      * Constructs a new {@link Scan} instance with the specified scan time, status,
      * and monitored directory.
@@ -82,10 +81,15 @@ public class Scan extends PWSSbaseEntity {
      * @param monitoredDirectory the {@link MonitoredDirectory} that was scanned
      *                           during this scan
      */
-    public Scan(Time scanTime, String status, MonitoredDirectory monitoredDirectory) {
+    public Scan(Time scanTime, String status, 
+    MonitoredDirectory monitoredDirectory,
+    Note notes,
+    Boolean isBaseLineScan) {
         this.scanTime = scanTime;
         this.status = status;
         this.monitoredDirectory = monitoredDirectory;
+        this.notes = notes;
+        this.isBaselineScan = isBaseLineScan;
     }
 
     /**
@@ -111,8 +115,8 @@ public class Scan extends PWSSbaseEntity {
      *
      * @return the scan time
      */
-    public OffsetDateTime getScanTime() {
-        return scanTime.getCreated();
+    public Time getScanTime() {
+        return scanTime;
     }
 
     /**
@@ -147,8 +151,8 @@ public class Scan extends PWSSbaseEntity {
      *
      * @return the notes
      */
-    public String getNotes() {
-        return notes.getNotes();
+    public Note getNotes() {
+        return notes;
     }
 
     /**
@@ -178,13 +182,12 @@ public class Scan extends PWSSbaseEntity {
         this.monitoredDirectory = monitoredDirectory;
     }
 
-    
-    //TODO: Add Java Docs
+    // TODO: Add Java Docs
     public Boolean getIsBaselineScan() {
         return isBaselineScan;
     }
 
-    //TODO Add Java Docs
+    // TODO Add Java Docs
     public void setIsBaselineScan(Boolean isBaselineScan) {
         this.isBaselineScan = isBaselineScan;
     }

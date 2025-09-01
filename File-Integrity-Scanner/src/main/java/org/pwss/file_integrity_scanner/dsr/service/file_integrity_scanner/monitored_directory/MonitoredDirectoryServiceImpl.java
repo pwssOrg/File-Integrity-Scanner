@@ -1,5 +1,10 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory;
 
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.CreateMonitoredDirectoryRequest;
@@ -8,15 +13,12 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.r
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.MonitoredDirectoryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
+import org.pwss.file_integrity_scanner.dsr.service.user_login.time.TimeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-
-
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Implementation of the {@link MonitoredDirectoryService} interface.
@@ -28,9 +30,18 @@ public class MonitoredDirectoryServiceImpl
 
     private final org.slf4j.Logger log;
 
-    public MonitoredDirectoryServiceImpl(MonitoredDirectoryRepository repository) {
+    private final TimeService timeService;
+
+    private final NoteService noteService;
+
+    @Autowired
+    public MonitoredDirectoryServiceImpl(MonitoredDirectoryRepository repository,
+            TimeService timeService,
+            NoteService noteService) {
         super(repository);
         this.log = org.slf4j.LoggerFactory.getLogger(MonitoredDirectoryServiceImpl.class);
+        this.timeService = timeService;
+        this.noteService = noteService;
     }
 
     @Override
@@ -58,7 +69,11 @@ public class MonitoredDirectoryServiceImpl
 
     @Override
     public Optional<MonitoredDirectory> findById(Integer id) {
-        return repository.findById(id);
+
+        Optional<MonitoredDirectory> optional = repository.findById(id);
+        log.debug("Request ID - {}", id);
+        log.debug("Monitored Directory Optional has value? - {}", optional.isPresent());
+        return optional;
     }
 
     @Transactional
@@ -79,16 +94,23 @@ public class MonitoredDirectoryServiceImpl
         }
     }
 
+    @Transactional
     @Override
     public CreateMonitoredDirectoryResponse createMonitoredDirectoryFromRequest(
             CreateMonitoredDirectoryRequest createRequest) throws SecurityException, NullPointerException {
 
         if (validateRequest(createRequest)) {
 
+            final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
+            timeService.save(time);
+
+            final Note note = new Note("No notes", time);
+            noteService.save(note);
+
             try {
                 Optional<MonitoredDirectory> oMonitoredDirectory = Optional
                         .of(repository.save(new MonitoredDirectory(createRequest.path(), createRequest.isActive(),
-                                createRequest.includeSubdirectories(),new Time(OffsetDateTime.now(),OffsetDateTime.now()))));
+                                createRequest.includeSubdirectories(), time, note)));
 
                 if (oMonitoredDirectory.isPresent()) {
                     MonitoredDirectory monitoredDirectory = oMonitoredDirectory.get();
@@ -120,7 +142,8 @@ public class MonitoredDirectoryServiceImpl
 
     @Transactional
     @Override
-    public Boolean updateMonitoredDirectoryFromRequest(UpdateMonitoredDirectoryRequest request) throws SecurityException {
+    public Boolean updateMonitoredDirectoryFromRequest(UpdateMonitoredDirectoryRequest request)
+            throws SecurityException {
 
         if (validateRequest(request)) {
 
@@ -130,7 +153,15 @@ public class MonitoredDirectoryServiceImpl
 
                 MonitoredDirectory mDirectory = mOptional.get();
 
-                mDirectory.setNotes(new Note(request.notes(),new Time(OffsetDateTime.now(),OffsetDateTime.now())));
+                final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
+
+                timeService.save(time);
+
+                final Note note = new Note(request.notes(), time);
+
+                noteService.save(note);
+
+                mDirectory.setNotes(note);
 
                 mDirectory.setIncludeSubdirectories(request.includeSubDirs());
                 mDirectory.setIsActive(request.isActive());
