@@ -475,7 +475,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         } else {
 
             log.error(
-                    "Could not compute hash for file - {}\nProbably due to a file access issue. Try runnning File-Integrity-Admin as an administrator and see if it resolves this issue",
+                    "Could not compute hash for file - {}\nProbably due to a file access issue. Try runnning File Integrity Scanner as an administrator and see if it resolves this issue",
                     file.getName());
             return;
         }
