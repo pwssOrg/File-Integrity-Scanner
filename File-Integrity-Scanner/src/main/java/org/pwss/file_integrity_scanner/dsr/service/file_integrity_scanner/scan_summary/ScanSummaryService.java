@@ -82,9 +82,7 @@ public interface ScanSummaryService {
      *         highest ID among those that match the
      *         criteria,
      *         or an empty {@link Optional} if no such scan summaries are found
-     * @throws SecurityException if there is a security violation while accessing
-     *                           the repository
      */
-    Optional<ScanSummary> findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(File file) throws SecurityException;
+    Optional<ScanSummary> findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(File file);
 
 }

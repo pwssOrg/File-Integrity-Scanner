@@ -464,6 +464,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             return;
         }
 
+        boolean exitMethodWithoutBreakingTransactional = false;
+
         boolean fileInDatabase = fileService.existsByPath(file.getPath());
 
         final HashForFilesOutput computedHashes;
@@ -474,12 +476,15 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             computedHashes = computedHashesOpt.get();
         } else {
 
+            log.error(
+                    "Could not compute hash for file - {}\nProbably due to a file access issue. Try runnning File-Integrity-Admin as an administrator and see if it resolves this issue",
+                    file.getName());
             return;
         }
 
         MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
-        boolean isNewfile;
+        boolean isNewfile = false;
 
         org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File fileEntity;
         if (fileInDatabase) {
@@ -489,9 +494,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             OffsetDateTime lastModified = Instant.ofEpochMilli(file.lastModified())
                     .atOffset(ZoneOffset.UTC);
             fileEntity.setMtime(lastModified);
-            isNewfile = false;
-        } else {
-            // Create new entity
+        } else if (scanInstance.getIsBaselineScan()) {
+            // Create new entity if it is a baseline scan
             fileEntity = new org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File(
                     file.getPath(),
                     file.getName(), file.getParent(), file.length(),
@@ -499,46 +503,92 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             isNewfile = true;
         }
 
-        if (isNewfile)
-            log.debug("Adding new file to DB: {}", fileEntity.getPath());
-        else
-            log.debug("Updating existing file in DB: {}", fileEntity.getPath());
-        fileService.save(fileEntity);
+        else {
+            // If file is not in the repository layer and the scan is not a baseline scan
 
-        Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(),
-                computedHashes.blake2());
-        checksumService.save(checksum);
+            exitMethodWithoutBreakingTransactional = true;
 
-        // If the baseline is established, check if the file has changed
-        if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
+            final String fileNotIncludedInBaseScanText = "There are files in your monitored directory which is not included in the baseline scan\\n"
+                    + //
+                    "In order to include those scan in the File Integrity Scan you need to reset your baseline";
 
-            final Optional<ScanSummary> oBaselineScanSummaryFromRepository = scanSummaryService
-                    .findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(fileEntity);
+            try {
 
-            if (oBaselineScanSummaryFromRepository.isPresent()) {
-                ScanSummary baselineScanSummaryFromRepository = oBaselineScanSummaryFromRepository.get();
-                Checksum oldChecksum = baselineScanSummaryFromRepository.getChecksum();
-                if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
-                    log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
+                Note note = scanInstance.getNotes();
 
-                    final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
-                    scanSummaryService.save(currentScanSummary);
+                if (!noteService.anyNoteContains(note, fileNotIncludedInBaseScanText)) {
+                    noteService.updateNote(note,
+                            fileNotIncludedInBaseScanText);
 
-                } else {
-                    log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
-
-                    final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
-                    scanSummaryService.save(currentScanSummary);
-
-                    final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
-                    timeService.save(time);
-                    integrityService.save(new Diff(baselineScanSummaryFromRepository, currentScanSummary, time));
-
+                    scanInstance.setNotes(note);
+                    this.repository.save(scanInstance);
                 }
             }
-        } else {
-            log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
-            scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
+
+            catch (NullPointerException nullPointerException) {
+                log.debug(
+                        "No notes with value where present in the scaninstance with ID - {}\nWill Create a new Note Instance",
+                        scanInstance.getId());
+
+                final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
+                timeService.save(time);
+
+                final Note note = new Note(fileNotIncludedInBaseScanText, time);
+
+                noteService.save(note);
+
+                scanInstance.setNotes(note);
+
+                this.repository.save(scanInstance);
+
+            }
+
+            return;
+        }
+
+        if (!exitMethodWithoutBreakingTransactional) {
+            if (isNewfile)
+                log.debug("Adding new file to the repository layer: {}", fileEntity.getPath());
+            else
+                log.debug("Updating existing file in the repository layer: {}", fileEntity.getPath());
+            fileService.save(fileEntity);
+
+            Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(),
+                    computedHashes.blake2());
+            checksumService.save(checksum);
+
+            // If the baseline is established, check if the file has changed
+            if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
+
+                final Optional<ScanSummary> oBaselineScanSummaryFromRepository = scanSummaryService
+                        .findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(fileEntity);
+
+                if (oBaselineScanSummaryFromRepository.isPresent()) {
+                    ScanSummary baselineScanSummaryFromRepository = oBaselineScanSummaryFromRepository.get();
+                    Checksum oldChecksum = baselineScanSummaryFromRepository.getChecksum();
+                    if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
+                        log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
+
+                        final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
+                        scanSummaryService.save(currentScanSummary);
+
+                    } else {
+                        log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
+
+                        final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
+                        scanSummaryService.save(currentScanSummary);
+
+                        final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
+                        timeService.save(time);
+                        integrityService.save(new Diff(baselineScanSummaryFromRepository, currentScanSummary, time));
+
+                    }
+                }
+            } else {
+                log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
+                scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
+            }
+
         }
     }
 

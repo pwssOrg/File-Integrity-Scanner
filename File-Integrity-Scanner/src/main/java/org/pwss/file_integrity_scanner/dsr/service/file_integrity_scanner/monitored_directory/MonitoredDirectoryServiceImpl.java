@@ -71,8 +71,6 @@ public class MonitoredDirectoryServiceImpl
     public Optional<MonitoredDirectory> findById(Integer id) {
 
         Optional<MonitoredDirectory> optional = repository.findById(id);
-        log.debug("Request ID - {}", id);
-        log.debug("Monitored Directory Optional has value? - {}", optional.isPresent());
         return optional;
     }
 

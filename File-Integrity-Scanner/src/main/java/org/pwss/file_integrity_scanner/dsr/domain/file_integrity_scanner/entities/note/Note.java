@@ -38,7 +38,8 @@ public class Note extends PWSSbaseEntity {
     @JoinColumn(name = "time_id", nullable = false)
     private Time time;
 
-    public Note(){}
+    public Note() {
+    }
 
     public Note(String notes, Time time) {
         this.notes = notes;
@@ -77,8 +78,13 @@ public class Note extends PWSSbaseEntity {
         this.time = time;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     @Override
     protected String getDBSection() {
         return FIS;
     }
+
 }

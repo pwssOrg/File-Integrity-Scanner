@@ -12,4 +12,10 @@ public interface NoteService {
      */
     void save(Note note);
 
+    //TODO: Add Java Docs
+    Boolean updateNote(Note note, String noteText);
+
+    //TODO: Add Java Docs
+    Boolean anyNoteContains(Note note, String text);
+
 }

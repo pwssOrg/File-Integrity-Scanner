@@ -106,7 +106,6 @@ public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepositor
                     .of(this.repository.findByScan(oMostRecentScan.get()));
 
             if (oScanSummaries.isPresent()) {
-                log.debug("List of Scan Summaries is found with size - {}", oScanSummaries.get().size());
                 return oScanSummaries.get();
             } else {
                 return new LinkedList<>();
@@ -136,16 +135,12 @@ public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepositor
     }
 
     @Override
-    public Optional<ScanSummary> findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(File file)
-            throws SecurityException {
-
-        // The plan is to use a request object that will be added. Thus the Security Exception will be throw if the validation fails.
-        // This is not finished work , but work in progress. 
+    public Optional<ScanSummary> findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(File file) {
 
         final List<ScanSummary> baseLineScanSummaries = repository.findByFileAndScan_isBaselineScanTrue(file);
 
         if (!baseLineScanSummaries.isEmpty()) {
-            log.debug("There exists - {} baseline scan summaries",baseLineScanSummaries.size());
+            log.debug("There exists - {} baseline scan summaries", baseLineScanSummaries.size());
 
             return Optional.of(baseLineScanSummaries.stream().max(Comparator.comparing(ScanSummary::getId)).get());
         }
