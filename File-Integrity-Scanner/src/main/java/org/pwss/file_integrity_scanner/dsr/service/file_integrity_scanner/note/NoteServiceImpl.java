@@ -94,7 +94,6 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
                     }
 
                     if (thirdNote != null && !thirdNote.isEmpty()) {
-                        // Either bump all and remove 3th or
                         log.debug("All notes have content!");
                         log.debug(
                                 "Will now move all notes one step down (3th note will be removed) and set the update text to the firstNote variable");
@@ -178,7 +177,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         catch (NullPointerException nullPointerException) {
 
-            log.debug("Theird note is null");
+            log.debug("Third Note is null");
         }
 
         if (firstNote.contains(text) || secondNote.contains(text) || thirddNote.contains(text))
