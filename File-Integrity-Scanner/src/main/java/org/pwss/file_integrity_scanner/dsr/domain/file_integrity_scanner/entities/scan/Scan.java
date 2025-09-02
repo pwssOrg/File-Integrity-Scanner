@@ -102,15 +102,6 @@ public class Scan extends PWSSbaseEntity {
     }
 
     /**
-     * Sets the unique identifier for this scan entity.
-     *
-     * @param id the ID to set
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
      * Gets the time when the scan was performed.
      *
      * @return the scan time

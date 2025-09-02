@@ -22,6 +22,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.FindXmostRecentScansRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
@@ -40,6 +41,9 @@ import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -605,6 +609,24 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     @Override
     public Optional<Scan> getMostRecentScan() {
         return this.repository.findMostRecentScan();
+    }
+
+    @Override
+    public List<Scan> getMostRecentScans(FindXmostRecentScansRequest request) throws SecurityException {
+
+        if (validateRequest(request)) {
+
+            final Sort.Direction direction = request.getAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
+            final Sort sort = Sort.by(direction, request.getSortField());
+
+            final Pageable pageable = PageRequest.of(0, request.nrOfScans(), sort);
+
+            return this.repository.findAll(pageable).toList();
+
+        }
+
+        else
+            throw new SecurityException();
     }
 
     @Override

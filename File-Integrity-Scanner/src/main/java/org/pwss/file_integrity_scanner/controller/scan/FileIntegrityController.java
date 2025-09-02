@@ -1,10 +1,16 @@
 package org.pwss.file_integrity_scanner.controller.scan;
 
-
+import java.util.List;
 import java.util.Optional;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.FindXmostRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.IntegrityDiffByScanRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
@@ -20,7 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +47,8 @@ public class FileIntegrityController {
 
     private final MonitoredDirectoryServiceImpl monitoredDirectoryService;
 
+    private final IntegrityService integrityService;
+
     private final org.slf4j.Logger log;
 
     /**
@@ -51,9 +59,11 @@ public class FileIntegrityController {
      */
     @Autowired
     public FileIntegrityController(ScanServiceImpl scanService,
-            MonitoredDirectoryServiceImpl monitoredDirectoryService) {
+            MonitoredDirectoryServiceImpl monitoredDirectoryService,
+            IntegrityService integrityService) {
         this.scanService = scanService;
         this.monitoredDirectoryService = monitoredDirectoryService;
+        this.integrityService = integrityService;
         this.log = org.slf4j.LoggerFactory.getLogger(FileIntegrityController.class);
     }
 
@@ -141,7 +151,7 @@ public class FileIntegrityController {
 
         if (oMonitoredDirectory.isPresent()) {
 
-            log.debug("Monitored Directory found with id - {}",oMonitoredDirectory.get().getId());
+            log.debug("Monitored Directory found with id - {}", oMonitoredDirectory.get().getId());
             try {
                 scanService.scanSingleDirectory(oMonitoredDirectory.get());
             } catch (ScanAlreadyRunningException sRunningException) {
@@ -198,6 +208,54 @@ public class FileIntegrityController {
         Boolean isRunning = scanService.isScanRunning();
         return new ResponseEntity<>(isRunning, HttpStatus.OK);
     }
+
+    /**
+     * Get the X most recent scans.
+     *
+     * @return ResponseEntity containing a list of scan objects or
+     *         HttpStatus.NOT_FOUND if none exist
+     */
+    @Operation(summary = "Get the X most recent scans", description = "Retrieves the most recent scans.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved (X) Scans"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No scans found")
+    })
+    @PostMapping("/most-recent")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    
+    public ResponseEntity<List<Scan>> getMostRecentScans(@RequestBody FindXmostRecentScansRequest request) {
+
+        List<Scan> scans = scanService.getMostRecentScans(request);
+        if (scans.isEmpty()) {
+            log.debug("List of scans is empty");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else
+            return new ResponseEntity<>(scans, HttpStatus.OK);
+
+    }
+
+    //TODO: Add Java Docs below and validate that the Java Docs above are good enough
+    @Operation(summary = "add info here", description = "add info here")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "add info here"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No diffs found")
+    })
+    @PostMapping("/diff")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<List<Diff>> getFileIntegrityFailsFromScan(@RequestBody IntegrityDiffByScanRequest request) {
+
+        List<Diff> dList = integrityService.retreiveDiffListFromScan(request);
+        if (dList.isEmpty()) {
+            log.debug("List of diffs is empty");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else
+            return new ResponseEntity<>(dList, HttpStatus.OK);
+
+    }
+
+
 
     /**
      * Creates a response entity when a scan is already running.

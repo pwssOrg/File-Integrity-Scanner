@@ -32,13 +32,13 @@ public interface FileRepository extends JpaRepository<File, Long> {
      *
      * @param searchString the search string to match against file basenames. Can
      *                     contain wildcards like % and _.
-     * @param limit        the maximum number of results to return
+     * @param information  pagination information
      * @return a {@link List} of up to the specified number of file entities whose
      *         basename matches the search
      *         string,
      *         or an empty list if no files are found
      */
-    List<File> findByBasenameLikeIgnoreCase(String searchString, Pageable limit);
+    List<File> findByBasenameLikeIgnoreCase(String searchString, Pageable information);
 
     /**
      * Checks if a file entity exists with the given path.
