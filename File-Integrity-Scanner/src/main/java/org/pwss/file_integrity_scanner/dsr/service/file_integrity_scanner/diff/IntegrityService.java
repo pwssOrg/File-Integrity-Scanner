@@ -3,9 +3,14 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff;
 import java.util.List;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.IntegrityDiffByScanRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 
-//TODO: Add Java Docs
+/**
+ * Service interface for managing integrity diff entities.
+ * This interface provides methods for persisting and retrieving {@link Diff}
+ * entities,
+ * as well as other operations related to integrity checks and scan results.
+ */
 public interface IntegrityService {
 
   /**
@@ -15,12 +20,23 @@ public interface IntegrityService {
    * entity, ensuring its state is recorded persistently. It handles all
    * necessary operations to make the entity available for future queries.
    *
-   * @param entity the {@link Diff} entity to be saved or
-   *               updated in the database
+   * @param entity the {@link Diff} entity to be saved or updated in the database
    */
   void save(Diff entity);
 
-  // TODO: Add Java Docs and Check the request object name and possibly better up :)
-  List<Diff> retreiveDiffListFromScan(IntegrityDiffByScanRequest request) throws SecurityException;
+  /**
+   * Retrieves a list of diff entities from the provided scan request.
+   * <p>
+   * This method queries the database based on the parameters specified in the
+   * ScanIntegrityDiffRequest, and returns a list of matching Diff entities.
+   *
+   * @param request The {@link ScanIntegrityDiffRequest} containing criteria to
+   *                filter diffs by scan.
+   * @return A list of {@link Diff} entities that match the criteria specified in
+   *         the request.
+   * @throws SecurityException If there is an issue accessing the requested data
+   *                           due to security restrictions.
+   */
+  List<Diff> retreiveDiffListFromScan(ScanIntegrityDiffRequest request) throws SecurityException;
 
 }

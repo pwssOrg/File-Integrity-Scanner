@@ -90,7 +90,13 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
      */
     private volatile boolean stopRequested;
 
-    // TODO: Add Java Docs
+    /**
+     * Indicates whether a scanning operation is currently running.
+     *
+     * This flag is used to track the state of a scanning process, ensuring that
+     * multiple scans do not run concurrently. It is marked as volatile to guarantee
+     * visibility of changes across threads.
+     */
     private volatile boolean isScanRunning;
 
     /**

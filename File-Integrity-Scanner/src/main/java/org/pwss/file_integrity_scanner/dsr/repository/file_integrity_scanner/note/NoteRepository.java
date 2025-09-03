@@ -4,7 +4,11 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-//TODO: Add Java Docs :P e :)
+/**
+ * Repository interface for managing {@link Note} entities.
+ * This interface provides methods to perform CRUD operations on Note entities,
+ * as well as custom query methods if needed in the future.
+ */
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
 

@@ -53,7 +53,11 @@ public class Scan extends PWSSbaseEntity {
     @JoinColumn(name = "monitored_directory_id", nullable = false)
     private MonitoredDirectory monitoredDirectory;
 
-    // TODO: Add Java Docs
+    /**
+     * Indicates whether this scan is a baseline scan or not.
+     * A baseline scan serves as the reference point for future scans to detect
+     * changes.
+     */
     @Column(name = "is_baseline_scan", nullable = false)
     private Boolean isBaselineScan;
 
@@ -68,23 +72,24 @@ public class Scan extends PWSSbaseEntity {
     public Scan() {
     }
 
-
-    //TODO: Add Java Docs that reflects the new constructor parameter
-
     /**
      * Constructs a new {@link Scan} instance with the specified scan time, status,
-     * and monitored directory.
+     * monitored directory, notes, and baseline indicator.
      *
      * @param scanTime           the time when this scan was initiated or performed
      * @param status             the current status of the scan (e.g.,
      *                           "IN_PROGRESS", "COMPLETED", etc.)
      * @param monitoredDirectory the {@link MonitoredDirectory} that was scanned
      *                           during this scan
+     * @param notes              a {@link Note} object associated with this scan,
+     *                           providing additional information or context
+     * @param isBaseLineScan     a boolean indicating whether this scan is a
+     *                           baseline scan
      */
-    public Scan(Time scanTime, String status, 
-    MonitoredDirectory monitoredDirectory,
-    Note notes,
-    Boolean isBaseLineScan) {
+    public Scan(Time scanTime, String status,
+            MonitoredDirectory monitoredDirectory,
+            Note notes,
+            Boolean isBaseLineScan) {
         this.scanTime = scanTime;
         this.status = status;
         this.monitoredDirectory = monitoredDirectory;
@@ -173,14 +178,16 @@ public class Scan extends PWSSbaseEntity {
         this.monitoredDirectory = monitoredDirectory;
     }
 
-    // TODO: Add Java Docs
+    /**
+     * Retrieves whether this scan is a baseline scan or not.
+     *
+     * A baseline scan serves as the reference point for future scans to detect
+     * changes.
+     *
+     * @return True if this scan is a baseline scan, false otherwise
+     */
     public Boolean getIsBaselineScan() {
         return isBaselineScan;
-    }
-
-    // TODO Add Java Docs
-    public void setIsBaselineScan(Boolean isBaselineScan) {
-        this.isBaselineScan = isBaselineScan;
     }
 
     @Override

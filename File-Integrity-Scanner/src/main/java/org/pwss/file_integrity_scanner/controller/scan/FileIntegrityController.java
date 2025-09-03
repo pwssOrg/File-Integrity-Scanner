@@ -8,7 +8,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.IntegrityDiffByScanRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
@@ -305,7 +305,7 @@ public class FileIntegrityController {
     })
     @PostMapping("/diff")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
-    public ResponseEntity<List<Diff>> getFileIntegrityFailsFromScan(@RequestBody IntegrityDiffByScanRequest request) {
+    public ResponseEntity<List<Diff>> getFileIntegrityFailsFromScan(@RequestBody ScanIntegrityDiffRequest request) {
 
         List<Diff> dList = integrityService.retreiveDiffListFromScan(request);
         if (dList.isEmpty()) {

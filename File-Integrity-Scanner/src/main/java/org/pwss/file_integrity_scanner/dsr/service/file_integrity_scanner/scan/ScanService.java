@@ -63,17 +63,44 @@ public interface ScanService {
         Boolean isScanRunning();
 
         /**
-         * Retrieves the most recent scan from the database.
+         * Retrieves the most recent scan from the repository layer.
          *
          * @return an {@code Optional} containing the most recent {@link Scan} if found,
          *         or empty if no scans are available
          */
         Optional<Scan> getMostRecentScan();
 
-        //TODO: Add java Docs and find a better name for the requet object
+        /**
+         * Retrieves a list of the most recent scans based on the parameters provided in
+         * the request object.
+         * This method fetches multiple scan records from the database according to the
+         * filtering criteria
+         * specified in the {@link RetrieveRecentScansRequest} object. It may throw a
+         * SecurityException if
+         * the validation fails.
+         *
+         * @param request an object containing parameters that define which scans should
+         *                be retrieved
+         * @return a list of {@link Scan} objects representing the most recent scans
+         * @throws SecurityException if the validation fails
+         */
         List<Scan> getMostRecentScans(RetrieveRecentScansRequest request) throws SecurityException;
 
-        //TODO: Add Java Docs
+        /**
+         * Retrieves a list of the most recent scans based on the number of active
+         * directories.
+         *
+         * This method fetches scan records from the database that are relevant to the
+         * current state of active
+         * directories,
+         * and returns them in a list. The criteria for determining "most recent" can
+         * vary, but it generally
+         * means
+         * scans performed closest to the present time.
+         *
+         * @return a list of {@link Scan} objects representing the most recent scans
+         *         based on active directory count
+         */
         List<Scan> getMostRecentScansBasedOnNrOfActiveDirectories();
 
         /**
