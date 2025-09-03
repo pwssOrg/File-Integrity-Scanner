@@ -63,7 +63,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
             // Check if the note already exists in the repository layer by verifying its ID
             doesExistsInRepositoryLayer = note.getId() > 0;
         } catch (NullPointerException nullPointerException) {
-            log.error(
+            log.debug(
                     "No ID exists for the note that you are trying to update. It is most likely not present in the repository layer!");
             doesExistsInRepositoryLayer = false;
         }
