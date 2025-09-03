@@ -87,15 +87,6 @@ public class ScanSummary extends PWSSbaseEntity {
     }
 
     /**
-     * Sets the unique identifier for this scan summary entry.
-     *
-     * @param id the id to set
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * Gets the Scan entity associated with this scan summary.
      *
      * @return the scan

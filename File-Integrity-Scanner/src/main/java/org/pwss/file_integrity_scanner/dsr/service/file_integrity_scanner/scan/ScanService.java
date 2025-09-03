@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.FindXmostRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 
@@ -71,7 +71,10 @@ public interface ScanService {
         Optional<Scan> getMostRecentScan();
 
         //TODO: Add java Docs and find a better name for the requet object
-        List<Scan> getMostRecentScans(FindXmostRecentScansRequest request) throws SecurityException;
+        List<Scan> getMostRecentScans(RetrieveRecentScansRequest request) throws SecurityException;
+
+        //TODO: Add Java Docs
+        List<Scan> getMostRecentScansBasedOnNrOfActiveDirectories();
 
         /**
          * Finds a scan by its ID in the database.

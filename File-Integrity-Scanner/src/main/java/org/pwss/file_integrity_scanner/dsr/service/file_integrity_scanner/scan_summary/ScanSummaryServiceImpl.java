@@ -3,7 +3,6 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;

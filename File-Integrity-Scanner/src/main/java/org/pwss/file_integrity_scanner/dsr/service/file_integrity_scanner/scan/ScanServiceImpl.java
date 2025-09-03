@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +23,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.FindXmostRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
@@ -468,7 +469,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             return;
         }
 
-        boolean fileInDatabase = fileService.existsByPath(file.getPath());
+        boolean fileInRepository = fileService.existsByPath(file.getPath());
 
         final HashForFilesOutput computedHashes;
 
@@ -477,7 +478,6 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         if (computedHashesOpt.isPresent()) {
             computedHashes = computedHashesOpt.get();
         } else {
-
             log.error(
                     "Could not compute hash for file - {}\nProbably due to a file access issue. Try runnning File Integrity Scanner as an administrator and see if it resolves this issue",
                     file.getName());
@@ -489,7 +489,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         boolean isNewfile = false;
 
         org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File fileEntity;
-        if (fileInDatabase) {
+        if (fileInRepository) {
             // Fetch existing entity and update fields
             fileEntity = fileService.findByPath(file.getPath());
             fileEntity.setSize(file.length());
@@ -508,8 +508,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         else {
             // If file is not in the repository layer and the scan is not a baseline scan
 
-            final String fileNotIncludedInBaseScanText = "There are files in your monitored directory which is not included in the baseline scan\\n"
-                    + //
+            final String fileNotIncludedInBaseScanText = "There are files in your monitored directory which is not included in the baseline scan\n"
+                    +
                     "In order to include those scan in the File Integrity Scan you need to reset your baseline";
 
             try {
@@ -552,7 +552,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             log.debug("Updating existing file in the repository layer: {}", fileEntity.getPath());
         fileService.save(fileEntity);
 
-        Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(),
+        final Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(),
                 computedHashes.blake2());
         checksumService.save(checksum);
 
@@ -612,12 +612,14 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     }
 
     @Override
-    public List<Scan> getMostRecentScans(FindXmostRecentScansRequest request) throws SecurityException {
+    public List<Scan> getMostRecentScans(RetrieveRecentScansRequest request) throws SecurityException {
 
         if (validateRequest(request)) {
 
-            final Sort.Direction direction = request.getAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
-            final Sort sort = Sort.by(direction, request.getSortField());
+            final String SORT_FIELD = "id";
+
+            final Sort.Direction direction = Sort.Direction.DESC;
+            final Sort sort = Sort.by(direction, SORT_FIELD);
 
             final Pageable pageable = PageRequest.of(0, request.nrOfScans(), sort);
 
@@ -637,4 +639,24 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         else
             return Optional.empty();
     }
+
+    @Override
+    public List<Scan> getMostRecentScansBasedOnNrOfActiveDirectories() {
+
+        Optional<Integer> oNrOfActiveDirecttories = Optional.of(monitoredDirectoryService.findByIsActive(true).size());
+
+        if (oNrOfActiveDirecttories.isPresent()) {
+
+            final List<Scan> scans = getMostRecentScans(new RetrieveRecentScansRequest(oNrOfActiveDirecttories.get()));
+
+            return scans;
+
+        }
+
+        else {
+            return new LinkedList<>();
+        }
+
+    }
+
 }

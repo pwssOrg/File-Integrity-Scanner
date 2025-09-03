@@ -88,9 +88,6 @@ public class MonitoredDirectory extends PWSSbaseEntity {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     /**
      * The path to the monitored directory.
