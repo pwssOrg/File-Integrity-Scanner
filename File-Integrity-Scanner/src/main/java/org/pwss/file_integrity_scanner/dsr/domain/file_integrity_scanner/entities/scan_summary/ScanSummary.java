@@ -74,6 +74,7 @@ public class ScanSummary extends PWSSbaseEntity {
         this.scan = scan;
         this.file = file;
         this.checksum = checksum;
+
     }
 
     /**
@@ -83,15 +84,6 @@ public class ScanSummary extends PWSSbaseEntity {
      */
     public Long getId() {
         return id;
-    }
-
-    /**
-     * Sets the unique identifier for this scan summary entry.
-     *
-     * @param id the id to set
-     */
-    public void setId(Long id) {
-        this.id = id;
     }
 
     /**
@@ -152,4 +144,5 @@ public class ScanSummary extends PWSSbaseEntity {
     protected String getDBSection() {
         return FIS;
     }
+
 }

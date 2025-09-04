@@ -90,15 +90,6 @@ public class Checksum extends PWSSbaseEntity {
     }
 
     /**
-     * Sets the unique identifier of this checksum record.
-     *
-     * @param id The new ID
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * Gets the associated file.
      *
      * @return The file

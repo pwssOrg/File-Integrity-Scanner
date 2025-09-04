@@ -1,10 +1,16 @@
 package org.pwss.file_integrity_scanner.controller.scan;
 
-
+import java.util.List;
 import java.util.Optional;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
@@ -20,7 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +47,8 @@ public class FileIntegrityController {
 
     private final MonitoredDirectoryServiceImpl monitoredDirectoryService;
 
+    private final IntegrityService integrityService;
+
     private final org.slf4j.Logger log;
 
     /**
@@ -51,9 +59,11 @@ public class FileIntegrityController {
      */
     @Autowired
     public FileIntegrityController(ScanServiceImpl scanService,
-            MonitoredDirectoryServiceImpl monitoredDirectoryService) {
+            MonitoredDirectoryServiceImpl monitoredDirectoryService,
+            IntegrityService integrityService) {
         this.scanService = scanService;
         this.monitoredDirectoryService = monitoredDirectoryService;
+        this.integrityService = integrityService;
         this.log = org.slf4j.LoggerFactory.getLogger(FileIntegrityController.class);
     }
 
@@ -141,6 +151,7 @@ public class FileIntegrityController {
 
         if (oMonitoredDirectory.isPresent()) {
 
+            log.debug("Monitored Directory found with id - {}", oMonitoredDirectory.get().getId());
             try {
                 scanService.scanSingleDirectory(oMonitoredDirectory.get());
             } catch (ScanAlreadyRunningException sRunningException) {
@@ -196,6 +207,113 @@ public class FileIntegrityController {
     public ResponseEntity<Boolean> isFileIntegrityScanRunning() {
         Boolean isRunning = scanService.isScanRunning();
         return new ResponseEntity<>(isRunning, HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint to retrieve the most recent scans based on a specified count.
+     *
+     * This endpoint returns a list of scan objects that were performed most
+     * recently,
+     * limited by the number provided in the RetrieveRecentScansRequest. It requires
+     * the caller to have 'AUTHORIZED' authority.
+     *
+     * @param request The request object containing the number of scans to retrieve.
+     * @return A ResponseEntity with:
+     *         - 200 OK: A list of Scan objects if scans are found
+     *         - 401 Unauthorized: If the user does not have AUTHORIZED role
+     *         - 404 Not Found: If no scans exist for the given request criteria
+     */
+    @Operation(summary = "Get the X most recent scans", description = "This endpoint retrieves a list of scan objects that were performed most recently, "
+            +
+            "limited by the number provided in the RetrieveRecentScansRequest.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved (X) scans"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No scans found for the given criteria")
+    })
+    @PostMapping("/most-recent")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+
+    public ResponseEntity<List<Scan>> getMostRecentScans(@RequestBody RetrieveRecentScansRequest request) {
+
+        List<Scan> scans = scanService.getMostRecentScans(request);
+        if (scans.isEmpty()) {
+            log.debug("List of scans is empty");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else
+            return new ResponseEntity<>(scans, HttpStatus.OK);
+
+    }
+
+    /**
+     * Endpoint to retrieve the most recent scans based on active monitored
+     * directories.
+     *
+     * This endpoint returns a list of scan objects that were performed in the most
+     * recently active
+     * monitored directories, limited by the number of currently active monitored
+     * directories. For example,
+     * if there are 3 active monitored directories in the system, this method will
+     * return the 3 most recent scans.
+     * It requires the caller to have 'AUTHORIZED' authority.
+     *
+     * @return A ResponseEntity with:
+     *         - 200 OK: A list of Scan objects if scans are found
+     *         - 401 Unauthorized: If the user does not have AUTHORIZED role
+     *         - 404 Not Found: If no scans exist for active directories
+     */
+    @Operation(summary = "Get most recent scans based on active monitored directories", description = "This endpoint retrieves a list of scan objects that were performed in the most recently active monitored directories, limited by the number of currently active monitored directories. For example, if there are 3 active monitored directories in the system, this method will return the 3 most recent scans.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved scans"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No scans found for active directories")
+    })
+    @GetMapping("/active-directory/most-recent")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+
+    public ResponseEntity<List<Scan>> getMostRecentScansBasedOnNrOfActiveDirectories() {
+
+        List<Scan> scans = scanService.getMostRecentScansBasedOnNrOfActiveDirectories();
+        if (scans.isEmpty()) {
+            log.debug("List of scans is empty");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else
+            return new ResponseEntity<>(scans, HttpStatus.OK);
+
+    }
+
+    /**
+     * Endpoint to get file integrity failures from a scan.
+     *
+     * This endpoint retrieves a list of differences (diffs) between expected and
+     * actual file states based on a
+     * provided scan request.
+     * It requires the caller to have 'AUTHORIZED' authority.
+     *
+     * @param request The IntegrityDiffByScanRequest containing details about which
+     *                scan's diffs should be retrieved
+     * @return A ResponseEntity with:
+     *         - 200 OK: A list of Diff objects if differences are found
+     *         - 401 Unauthorized: If the user does not have the AUTHORIZED role
+     *         - 404 Not Found: If no diffs are found for the provided scan request
+     */
+    @Operation(summary = "Retrieve file integrity failures from a scan", description = "This endpoint returns differences between expected and actual file states based on a given scan request.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "A list of Diff objects is returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "No diffs found for the provided scan request")
+    })
+    @PostMapping("/diff")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<List<Diff>> getFileIntegrityFailsFromScan(@RequestBody ScanIntegrityDiffRequest request) {
+
+        List<Diff> dList = integrityService.retrieveDiffListFromScan(request);
+        if (dList.isEmpty()) {
+            log.debug("List of diffs is empty");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else
+            return new ResponseEntity<>(dList, HttpStatus.OK);
+
     }
 
     /**

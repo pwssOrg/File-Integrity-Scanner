@@ -1,8 +1,8 @@
 package org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user;
 
 import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
-import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

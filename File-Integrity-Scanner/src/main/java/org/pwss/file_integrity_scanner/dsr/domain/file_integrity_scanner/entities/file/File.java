@@ -78,15 +78,6 @@ public class File extends PWSSbaseEntity {
     }
 
     /**
-     * Sets the unique identifier for this file.
-     *
-     * @param id the ID to set
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * Gets the path of the file. This is a unique value representing the full
      * filesystem path.
      *

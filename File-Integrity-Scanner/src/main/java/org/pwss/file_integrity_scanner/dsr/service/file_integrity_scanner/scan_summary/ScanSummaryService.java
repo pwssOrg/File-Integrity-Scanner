@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
@@ -62,5 +63,26 @@ public interface ScanSummaryService {
      * @throws SecurityException if validation of the request fails
      */
     List<File> findFilesByBasenameLikeIgnoreCase(SearchForFileRequest request) throws SecurityException;
+
+    /**
+     * Finds the scan summary with the highest ID among those where the scan is
+     * marked as baseline and associated with
+     * a specific file.
+     *
+     * This method retrieves all scan summaries that match the given file and have
+     * their scan's `isBaselineScan`
+     * property set to true,
+     * then returns the one with the highest ID if any are found. If no such scan
+     * summaries exist, it returns an empty
+     * optional.
+     *
+     * @param file the {@link File} entity for which to retrieve the baseline scan
+     *             summary
+     * @return an {@link Optional} containing the {@link ScanSummary} with the
+     *         highest ID among those that match the
+     *         criteria,
+     *         or an empty {@link Optional} if no such scan summaries are found
+     */
+    Optional<ScanSummary> findScanSummaryWithHighestIdWhereScanBaselineIsSetToTrue(File file);
 
 }
