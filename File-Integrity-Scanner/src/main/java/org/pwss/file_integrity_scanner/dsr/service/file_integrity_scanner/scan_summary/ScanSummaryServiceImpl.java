@@ -134,7 +134,7 @@ public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepositor
     }
 
     @Override
-    public Optional<ScanSummary> findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(File file) {
+    public Optional<ScanSummary> findScanSummaryWithHighestIdWhereScanBaselineIsSetToTrue(File file) {
 
         final List<ScanSummary> baseLineScanSummaries = repository.findByFileAndScan_isBaselineScanTrue(file);
 
