@@ -57,7 +57,7 @@ public class IntegrityServiceImpl extends PWSSbaseService<IntegrityRepository, D
     }
 
     @Override
-    public List<Diff> retreiveDiffListFromScan(ScanIntegrityDiffRequest request) throws SecurityException {
+    public List<Diff> retrieveDiffListFromScan(ScanIntegrityDiffRequest request) throws SecurityException {
 
         if (validateRequest(request)) {
 
