@@ -307,7 +307,7 @@ public class FileIntegrityController {
     @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<List<Diff>> getFileIntegrityFailsFromScan(@RequestBody ScanIntegrityDiffRequest request) {
 
-        List<Diff> dList = integrityService.retreiveDiffListFromScan(request);
+        List<Diff> dList = integrityService.retrieveDiffListFromScan(request);
         if (dList.isEmpty()) {
             log.debug("List of diffs is empty");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
