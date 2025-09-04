@@ -82,8 +82,6 @@ public class NoteServiceTest {
 
         Boolean result = noteService.updateNote(note, "New note text");
 
-        System.out.println(note.getNotes());
-
         assertTrue(result);
     }
 
