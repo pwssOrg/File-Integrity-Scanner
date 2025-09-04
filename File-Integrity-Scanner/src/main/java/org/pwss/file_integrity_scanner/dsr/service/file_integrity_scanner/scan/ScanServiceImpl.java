@@ -566,7 +566,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         if (monitoredDirectoryService.isBaseLineEstablished(mDirectory)) {
 
             final Optional<ScanSummary> oBaselineScanSummaryFromRepository = scanSummaryService
-                    .findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(fileEntity);
+                    .findScanSummaryWithHighestIdWhereScanBaselineIsSetToTrue(fileEntity);
 
             if (oBaselineScanSummaryFromRepository.isPresent()) {
                 ScanSummary baselineScanSummaryFromRepository = oBaselineScanSummaryFromRepository.get();

@@ -172,7 +172,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         String firstNote = "";
         String secondNote = "";
-        String thirddNote = "";
+        String thirdNote = "";
 
         try {
 
@@ -196,7 +196,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         try {
 
-            thirddNote = note.getPrevPrevNotes();
+            thirdNote = note.getPrevPrevNotes();
         }
 
         catch (NullPointerException nullPointerException) {
@@ -204,7 +204,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
             log.debug("Third Note is null");
         }
 
-        if (firstNote.contains(text) || secondNote.contains(text) || thirddNote.contains(text))
+        if (firstNote.contains(text) || secondNote.contains(text) || thirdNote.contains(text))
             return true;
         else
             return false;
