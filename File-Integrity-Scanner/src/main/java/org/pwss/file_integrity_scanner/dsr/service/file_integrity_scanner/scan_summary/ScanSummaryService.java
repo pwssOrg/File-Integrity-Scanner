@@ -83,6 +83,6 @@ public interface ScanSummaryService {
      *         criteria,
      *         or an empty {@link Optional} if no such scan summaries are found
      */
-    Optional<ScanSummary> findScanSummmarWithHighestIdWhereScanBaselineIsSetToTrue(File file);
+    Optional<ScanSummary> findScanSummaryWithHighestIdWhereScanBaselineIsSetToTrue(File file);
 
 }
