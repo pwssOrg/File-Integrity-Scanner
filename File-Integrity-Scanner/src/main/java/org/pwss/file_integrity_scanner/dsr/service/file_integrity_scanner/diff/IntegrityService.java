@@ -37,6 +37,6 @@ public interface IntegrityService {
    * @throws SecurityException If there is an issue accessing the requested data
    *                           due to security restrictions.
    */
-  List<Diff> retreiveDiffListFromScan(ScanIntegrityDiffRequest request) throws SecurityException;
+  List<Diff> retrieveDiffListFromScan(ScanIntegrityDiffRequest request) throws SecurityException;
 
 }
