@@ -233,8 +233,10 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
         timeService.save(time);
 
-        final Note note = new Note("No notes", time);
+        final Note note = new Note("Initial notes", time);
         noteService.save(note);
+
+        
 
         final Boolean isBaseLineScan = !dir.getBaselineEstablished();
 

@@ -9,18 +9,18 @@
             </Pattern>
         </layout>
     </appender>
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>
     <!-- File-Integrity-Scanner -->
-    <logger name="org.pwss.file_integrity_scanner" level="DEBUG"/>
+    <logger name="org.pwss.file_integrity_scanner" level="INFO"/>
     <!-- Configure specific packages from dependencies -->
-    <logger name="org.pwss.io_file" level="DEBUG"/>
+    <logger name="org.pwss.io_file" level="INFO"/>
     <logger name="lib.pwss.hash.file_hash_handler" level="ERROR"/>
-    <logger name="org.pwss.util" level="DEBUG"/>
-    <logger name="org.hibernate" level="ERROR"/>
-    <logger name="org.postgresql" level="ERROR"/>
-    <logger name="io.swagger" level="ERROR"/>
+    <logger name="org.pwss.util" level="INFO"/>
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.postgresql" level="INFO"/>
+    <logger name="io.swagger" level="INFO"/>
      <!-- Configure specific packages from Spring -->
      <logger name="org.springframework" level="INFO"/>
 </configuration>
