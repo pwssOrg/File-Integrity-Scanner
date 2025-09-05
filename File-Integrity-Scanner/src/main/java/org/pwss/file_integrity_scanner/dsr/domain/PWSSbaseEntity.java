@@ -22,10 +22,12 @@ import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
  * <p>
  * Implementing this class also allows entities to participate in the
  * application's service layer,
- * where the {@link PWSSbaseService} can leverage these constants and methods for
+ * where the {@link PWSSbaseService} can leverage these constants and methods
+ * for
  * better organization
  * and functionality management.
  * </p>
+ * 
  * @author PWSS ORG
  */
 public abstract class PWSSbaseEntity {
@@ -59,19 +61,37 @@ public abstract class PWSSbaseEntity {
     protected final String USER_LOGIN = "User-Login";
 
     /**
+     * Constant representing a mixed section of the application that doesn't fit
+     * into
+     * the File-Integrity-Scanner or User-Login categories, or if it spans across
+     * both those sections.
+     *
+     * <p>
+     * When implementing this base class, if your entity table belongs to
+     * functionality
+     * that is not specific to either the File Integrity Scanner or User Login
+     * sections,
+     * you should return this value in the {@link #getDBSection()} method.
+     * </p>
+     */
+    protected final String MIXED = "Mixed";
+
+    /**
      * Abstract method that must be implemented by any subclass of PWSSBaseEntity.
      * This method returns a string indicating which section of the application
-     * the entity belongs to, either {@link #FIS} or {@link #USER_LOGIN}.
+     * the entity belongs to, either {@link #FIS}, {@link #USER_LOGIN}, or
+     * {@link #MIXED}.
      *
      * <p>
      * This method is used to inform clients (e.g., methods in implementing classes
-     * or service invokers)
-     * about the functional section that the database table this entity represents
+     * or service invokers) about the functional section that the database table
+     * this entity represents
      * belongs to.
      * </p>
      *
      * @return The section of the application this entity belongs to. Either
-     *         {@link #FIS} or {@link #USER_LOGIN}.
+     *         {@link #FIS},
+     *         {@link #USER_LOGIN}, or {@link #MIXED}.
      */
     protected abstract String getDBSection();
 

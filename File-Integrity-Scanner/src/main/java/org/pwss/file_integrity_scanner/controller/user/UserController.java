@@ -167,11 +167,9 @@ public class UserController {
     @Operation(summary = "Check if a user exists", description = "Checks if at least one user exists in the system.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User exists"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authorized to perform this action"),
             @ApiResponse(responseCode = "404", description = "No user found"),
     })
     @GetMapping("/exists")
-    @PreAuthorize("hasAuthority('AUTHORIZED')")
     public ResponseEntity<Boolean> userExistsCheck() {
 
         final Boolean isEmpty = service.isEmpty();

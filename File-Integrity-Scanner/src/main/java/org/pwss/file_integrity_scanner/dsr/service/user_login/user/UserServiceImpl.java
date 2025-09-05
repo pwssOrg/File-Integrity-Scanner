@@ -1,7 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
-import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 
@@ -44,7 +44,7 @@ public class UserServiceImpl
 
     private final org.pwss.file_integrity_scanner.dsr.service.user_login.auth.AuthServiceImpl authService;
 
-    private final org.pwss.file_integrity_scanner.dsr.service.user_login.time.TimeServiceImpl timeService;
+    private final org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl timeService;
 
     private final org.slf4j.Logger log;
 
@@ -53,7 +53,7 @@ public class UserServiceImpl
     @Autowired
     public UserServiceImpl(org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository repository,
             org.pwss.file_integrity_scanner.dsr.service.user_login.auth.AuthServiceImpl authService,
-            org.pwss.file_integrity_scanner.dsr.service.user_login.time.TimeServiceImpl timeService) {
+            org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl timeService) {
 
         super(repository);
 

@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner;
+package org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.scan_summary;
 
 import java.util.List;
 
@@ -37,4 +37,16 @@ public interface ScanSummaryRepository extends JpaRepository<ScanSummary, Long> 
      *         scan
      */
     List<ScanSummary> findByScan(Scan scan);
+
+    /**
+     * Finds all scan summaries associated with a specific file and where the scan
+     * is marked as baseline.
+     *
+     * @param file the {@link File} entity for which to retrieve scan summaries
+     * @return a list of {@link ScanSummary} entities that match both the specified
+     *         file
+     *         and have their scan's `isBaselineScan` property set to true,
+     *         or an empty list if no such scan summaries are found.
+     */
+    List<ScanSummary> findByFileAndScan_isBaselineScanTrue(File file);
 }

@@ -2,7 +2,7 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.check
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
-import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.ChecksumRepository;
+import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.checksum.ChecksumRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
 

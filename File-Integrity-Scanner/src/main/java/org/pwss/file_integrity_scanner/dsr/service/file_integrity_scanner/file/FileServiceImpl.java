@@ -1,8 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.history_controller.SearchForFileRequest;
-import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.FileRepository;
+import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.file.FileRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

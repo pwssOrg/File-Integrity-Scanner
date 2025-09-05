@@ -60,7 +60,7 @@ public interface MonitoredDirectoryService {
      * @param mDirectory the {@link MonitoredDirectory} entity to be saved or
      *                   updated in the database
      */
-    void save(MonitoredDirectory entity);
+    void save(MonitoredDirectory mDirectory);
 
     /**
      * Resets a baseline for the specified monitored directory.
