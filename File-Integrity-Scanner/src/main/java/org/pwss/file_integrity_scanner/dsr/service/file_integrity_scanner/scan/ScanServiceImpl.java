@@ -126,10 +126,10 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     private final String FILE_HAS_CHANGED = " has changed since last scan ⚠️";
 
     /**
-     * Flag to indicate whether to attempt retrieval of live feed text only once
+     * Flag indicating whether a retrieval of live feed text has been attempted once
      * after the scan is completed.
      */
-    private boolean attemptRetrieveLiveFeedOnceAfterScan;
+    private boolean hasAttemptedRetrieveLiveFeedAfterScan;
 
     /**
      * Flag indicating if the file list is too large for live feed display.
@@ -173,7 +173,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         this.isScanRunning = false;
 
         this.liveFeed = new StringBuilder();
-        attemptRetrieveLiveFeedOnceAfterScan = false;
+        hasAttemptedRetrieveLiveFeedAfterScan = false;
 
     }
 
@@ -207,7 +207,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             log.debug("Initializing Stringbuilder");
             this.liveFeed = new StringBuilder();
 
-            this.attemptRetrieveLiveFeedOnceAfterScan = false;
+            this.hasAttemptedRetrieveLiveFeedAfterScan = false;
 
             log.debug("Scan is running - {}", isScanRunning);
             // Iterate over each monitored directory in database
@@ -270,7 +270,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         log.debug("Initializing Stringbuilder");
         this.liveFeed = new StringBuilder();
 
-        this.attemptRetrieveLiveFeedOnceAfterScan = false;
+        this.hasAttemptedRetrieveLiveFeedAfterScan = false;
 
         this.isScanRunning = true;
         log.debug("Scan is running - {}", isScanRunning);
@@ -743,8 +743,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         if (!this.activeScanTasks.isEmpty())
             this.liveFeed = new StringBuilder();
-        else if (!attemptRetrieveLiveFeedOnceAfterScan) {
-            attemptRetrieveLiveFeedOnceAfterScan = true;
+        else if (!hasAttemptedRetrieveLiveFeedAfterScan) {
+            hasAttemptedRetrieveLiveFeedAfterScan = true;
             this.liveFeed = new StringBuilder();
         }
 
