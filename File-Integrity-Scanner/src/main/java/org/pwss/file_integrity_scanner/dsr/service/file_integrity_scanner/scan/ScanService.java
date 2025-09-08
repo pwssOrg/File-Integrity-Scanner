@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
 
@@ -112,5 +113,16 @@ public interface ScanService {
          *         or empty if no such scan exists
          */
         Optional<Scan> findById(Integer id);
+
+        /**
+         * Retrieves the live feed response containing information about whether a scan
+         * is running
+         * and the current live feed text.
+         *
+         * @return LiveFeedResponse object containing:
+         *         - A boolean indicating if a scan is currently running
+         *         - The string representation of the current live feed data
+         */
+        LiveFeedResponse getLiveFeed();
 
 }
