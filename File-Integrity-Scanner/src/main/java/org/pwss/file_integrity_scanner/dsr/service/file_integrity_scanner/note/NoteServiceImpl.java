@@ -2,7 +2,9 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 
 import java.time.OffsetDateTime;
 
+import org.apache.el.stream.Optional;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.UpdateNoteRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.note.NoteRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
@@ -53,6 +55,26 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
     }
 
+    @Override
+    public Boolean updateNote(UpdateNoteRequest request) throws SecurityException {
+
+        if (validateRequest(request)) {
+            java.util.Optional<Note> oNote = this.repository.findById(request.noteId());
+
+            if (oNote.isPresent()) {
+
+                return updateNote(oNote.get(), request.text());
+            }
+
+        }
+
+        else {
+            throw new SecurityException("Validation of the request object failed");
+        }
+
+        return false;
+    }
+
     @Transactional
     @Override
     public Boolean updateNote(Note note, String noteText) {
@@ -99,7 +121,8 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
         }
 
         if (secondNote == null || secondNote.isEmpty()) {
-            note.setPrevNotes(noteText);
+            note.setPrevNotes(note.getNotes());
+            note.setNotes(noteText);
             updateAndSaveTime(note);
             this.repository.save(note);
             return true;
@@ -115,7 +138,10 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
         }
 
         if (thirdNote == null || thirdNote.isEmpty()) {
-            note.setPrevPrevNotes(noteText);
+
+            note.setPrevPrevNotes(note.getPrevNotes());
+            note.setPrevNotes(note.getNotes());
+            note.setNotes(noteText);
             updateAndSaveTime(note);
             this.repository.save(note);
             return true;
