@@ -94,5 +94,4 @@ public abstract class PWSSbaseEntity {
      *         {@link #USER_LOGIN}, or {@link #MIXED}.
      */
     protected abstract String getDBSection();
-
 }

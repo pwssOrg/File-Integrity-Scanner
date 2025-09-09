@@ -88,7 +88,6 @@ public class MonitoredDirectory extends PWSSbaseEntity {
         return id;
     }
 
-
     /**
      * The path to the monitored directory.
      *
@@ -184,5 +183,4 @@ public class MonitoredDirectory extends PWSSbaseEntity {
     protected String getDBSection() {
         return FIS;
     }
-
 }
