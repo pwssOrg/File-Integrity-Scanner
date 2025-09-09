@@ -137,6 +137,4 @@ public class Diff extends PWSSbaseEntity {
     protected String getDBSection() {
         return FIS;
     }
-
- 
 }

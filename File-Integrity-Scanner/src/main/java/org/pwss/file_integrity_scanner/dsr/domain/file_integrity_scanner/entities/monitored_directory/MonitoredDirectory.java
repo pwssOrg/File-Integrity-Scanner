@@ -88,7 +88,6 @@ public class MonitoredDirectory extends PWSSbaseEntity {
         return id;
     }
 
-
     /**
      * The path to the monitored directory.
      *
@@ -179,11 +178,9 @@ public class MonitoredDirectory extends PWSSbaseEntity {
     public void setIncludeSubdirectories(Boolean includeSubdirectories) {
         this.includeSubdirectories = includeSubdirectories;
     }
-    
-  
+
     @Override
     protected String getDBSection() {
         return FIS;
     }
-
 }
