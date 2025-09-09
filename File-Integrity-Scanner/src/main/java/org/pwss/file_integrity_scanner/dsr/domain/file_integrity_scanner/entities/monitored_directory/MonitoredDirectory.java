@@ -180,11 +180,7 @@ public class MonitoredDirectory extends PWSSbaseEntity {
         this.includeSubdirectories = includeSubdirectories;
     }
     
-    public boolean areNotesPresent(){
-
-        return this.notes == null ? false: true; 
-    }
-
+  
     @Override
     protected String getDBSection() {
         return FIS;
