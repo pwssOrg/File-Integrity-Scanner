@@ -95,4 +95,6 @@ public abstract class PWSSbaseEntity {
      */
     protected abstract String getDBSection();
 
+   
+
 }

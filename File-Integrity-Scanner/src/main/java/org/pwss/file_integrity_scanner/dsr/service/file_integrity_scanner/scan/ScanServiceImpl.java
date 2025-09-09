@@ -178,7 +178,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
                 timeService.save(time);
 
-                final Note note = new Note("No notes", time);
+                final Note note = new Note("Started scan of all monitored directories at "+  OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
                 noteService.save(note);
 
                 final Boolean isBaseLineScan = !dir.getBaselineEstablished();
@@ -233,7 +233,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
         timeService.save(time);
 
-        final Note note = new Note("Initial notes", time);
+        final Note note = new Note("Started scan of monitored directory "+dir.getPath() +"at time: "+ OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
         noteService.save(note);
 
         

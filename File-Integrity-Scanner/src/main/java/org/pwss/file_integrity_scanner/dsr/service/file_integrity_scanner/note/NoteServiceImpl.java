@@ -2,14 +2,16 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 
 import java.time.OffsetDateTime;
 
-import org.apache.el.stream.Optional;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.UpdateNoteRequest;
+
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.UpdateNoteRequest;
+
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.note.NoteRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 
 import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -42,10 +44,12 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
      * @param timeService the service for handling time-related operations
      *                    associated with notes
      */
-    public NoteServiceImpl(NoteRepository repository, TimeServiceImpl timeService) {
+    public NoteServiceImpl(NoteRepository repository,
+            TimeServiceImpl timeService) {
         super(repository);
         this.log = org.slf4j.LoggerFactory.getLogger(NoteServiceImpl.class);
         this.timeService = timeService;
+
     }
 
     @Override

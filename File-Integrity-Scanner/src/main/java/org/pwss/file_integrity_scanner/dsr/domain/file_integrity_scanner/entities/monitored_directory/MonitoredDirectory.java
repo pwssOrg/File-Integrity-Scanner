@@ -179,6 +179,11 @@ public class MonitoredDirectory extends PWSSbaseEntity {
     public void setIncludeSubdirectories(Boolean includeSubdirectories) {
         this.includeSubdirectories = includeSubdirectories;
     }
+    
+    public boolean areNotesPresent(){
+
+        return this.notes == null ? false: true; 
+    }
 
     @Override
     protected String getDBSection() {
