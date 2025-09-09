@@ -24,6 +24,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
@@ -109,6 +110,37 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
      */
     private FileTraverser fileTraverser;
 
+    /**
+     * StringBuilder to hold live feed data during the scanning process.
+     */
+    private StringBuilder liveFeed;
+
+    /**
+     * Text displayed when a file has not changed since the last scan.
+     */
+    private final String FILE_HAS_NOT_CHANGED_TEXT = " has not changed since last scan ✅";
+
+    /**
+     * Text displayed when a file has changed since the last scan.
+     */
+    private final String FILE_HAS_CHANGED = " has changed since last scan ⚠️";
+
+    /**
+     * Flag indicating whether a retrieval of live feed text has been attempted once
+     * after the scan is completed.
+     */
+    private boolean hasAttemptedRetrieveLiveFeedAfterScan;
+
+    /**
+     * Flag indicating if the file list is too large for live feed display.
+     */
+    private boolean isFileListToBigForLiveFeed;
+
+    /**
+     * Maximum number of files allowed for live feed display.
+     */
+    private final int MAX_NUMBER_OF_FILE_FOR_LIVE_FEED = 10000;
+
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
             MonitoredDirectoryService monitoredDirectoryService,
@@ -139,6 +171,10 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         // Initialize volatile state booleans to false
         this.stopRequested = false;
         this.isScanRunning = false;
+
+        this.liveFeed = new StringBuilder();
+        hasAttemptedRetrieveLiveFeedAfterScan = false;
+
     }
 
     @Transactional
@@ -167,6 +203,12 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         try {
             log.info("Starting scan of all monitored directories at {}",
                     OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+
+            log.debug("Initializing Stringbuilder");
+            this.liveFeed = new StringBuilder();
+
+            this.hasAttemptedRetrieveLiveFeedAfterScan = false;
+
             log.debug("Scan is running - {}", isScanRunning);
             // Iterate over each monitored directory in database
             for (MonitoredDirectory dir : activeDirs) {
@@ -225,6 +267,11 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         log.info("Starting scan of monitored directory - {} at time - {}",
                 dir.getPath(), OffsetDateTime.now().format(timeAndDateStringForLogFormat));
 
+        log.debug("Initializing Stringbuilder");
+        this.liveFeed = new StringBuilder();
+
+        this.hasAttemptedRetrieveLiveFeedAfterScan = false;
+
         this.isScanRunning = true;
         log.debug("Scan is running - {}", isScanRunning);
 
@@ -235,8 +282,6 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         final Note note = new Note("Initial notes", time);
         noteService.save(note);
-
-        
 
         final Boolean isBaseLineScan = !dir.getBaselineEstablished();
 
@@ -393,6 +438,13 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         log.debug("Finalizing Scan Task for MonitoredDirectory {}", dirPath);
 
+        if (files.size() > MAX_NUMBER_OF_FILE_FOR_LIVE_FEED) {
+
+            isFileListToBigForLiveFeed = true;
+
+            liveFeed.append("This scan includes more than 10 000 files so no live preview is possible");
+        }
+
         try {
             // Retrieve the list of files from the completed scan
             for (File file : files) {
@@ -401,6 +453,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 }
                 // Process each file found in the directory and its subdirectories
                 processFile(file, scanInstance);
+
             }
 
             if (stopRequested) {
@@ -416,11 +469,15 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 if (!dir.getBaselineEstablished()) {
                     log.info("Establishing baseline for directory: {}", dirPath);
                     dir.setBaselineEstablished(true);
-                    monitoredDirectoryService.save(dir);
+
                 } else {
                     log.info("Baseline already established for directory: {}", dirPath);
                 }
                 log.info("Completed scan for directory {}", dirPath);
+
+                dir.setLastScanned(OffsetDateTime.now());
+                monitoredDirectoryService.save(dir);
+
                 repository.save(scanInstance);
 
                 return true; // Successful Scan
@@ -571,16 +628,28 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     .findScanSummaryWithHighestIdWhereScanBaselineIsSetToTrue(fileEntity);
 
             if (oBaselineScanSummaryFromRepository.isPresent()) {
+
                 ScanSummary baselineScanSummaryFromRepository = oBaselineScanSummaryFromRepository.get();
                 Checksum oldChecksum = baselineScanSummaryFromRepository.getChecksum();
+
                 if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
-                    log.info("File {} has not changed since last scan ✅", fileEntity.getPath());
+                    log.debug("File {} has not changed since last scan ✅", fileEntity.getPath());
+
+                    if (!isFileListToBigForLiveFeed) {
+                        this.liveFeed.append(fileEntity.getBasename());
+                        this.liveFeed.append(FILE_HAS_NOT_CHANGED_TEXT);
+                    }
 
                     final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
                     scanSummaryService.save(currentScanSummary);
 
                 } else {
                     log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
+
+                    if (!isFileListToBigForLiveFeed) {
+                        this.liveFeed.append(fileEntity.getBasename());
+                        this.liveFeed.append(FILE_HAS_CHANGED);
+                    }
 
                     final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
                     scanSummaryService.save(currentScanSummary);
@@ -664,6 +733,22 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         else {
             return new LinkedList<>();
         }
+
+    }
+
+    @Override
+    public LiveFeedResponse getLiveFeed() {
+
+        String liveFeedText = this.liveFeed.toString();
+
+        if (!this.activeScanTasks.isEmpty())
+            this.liveFeed = new StringBuilder();
+        else if (!hasAttemptedRetrieveLiveFeedAfterScan) {
+            hasAttemptedRetrieveLiveFeedAfterScan = true;
+            this.liveFeed = new StringBuilder();
+        }
+
+        return new LiveFeedResponse(isScanRunning, liveFeedText);
 
     }
 
