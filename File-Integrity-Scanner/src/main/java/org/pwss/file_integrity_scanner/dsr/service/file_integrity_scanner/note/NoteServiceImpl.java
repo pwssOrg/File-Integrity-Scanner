@@ -3,11 +3,15 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 import java.time.OffsetDateTime;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
+
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.UpdateNoteRequest;
+
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.note.NoteRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 
 import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -40,10 +44,12 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
      * @param timeService the service for handling time-related operations
      *                    associated with notes
      */
-    public NoteServiceImpl(NoteRepository repository, TimeServiceImpl timeService) {
+    public NoteServiceImpl(NoteRepository repository,
+            TimeServiceImpl timeService) {
         super(repository);
         this.log = org.slf4j.LoggerFactory.getLogger(NoteServiceImpl.class);
         this.timeService = timeService;
+
     }
 
     @Override
@@ -51,6 +57,26 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         this.repository.save(note);
 
+    }
+
+    @Override
+    public Boolean updateNote(UpdateNoteRequest request) throws SecurityException {
+
+        if (validateRequest(request)) {
+            java.util.Optional<Note> oNote = this.repository.findById(request.noteId());
+
+            if (oNote.isPresent()) {
+
+                return updateNote(oNote.get(), request.text());
+            }
+
+        }
+
+        else {
+            throw new SecurityException("Validation of the request object failed");
+        }
+
+        return false;
     }
 
     @Transactional
@@ -99,7 +125,8 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
         }
 
         if (secondNote == null || secondNote.isEmpty()) {
-            note.setPrevNotes(noteText);
+            note.setPrevNotes(note.getNotes());
+            note.setNotes(noteText);
             updateAndSaveTime(note);
             this.repository.save(note);
             return true;
@@ -115,7 +142,10 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
         }
 
         if (thirdNote == null || thirdNote.isEmpty()) {
-            note.setPrevPrevNotes(noteText);
+
+            note.setPrevPrevNotes(note.getPrevNotes());
+            note.setPrevNotes(note.getNotes());
+            note.setNotes(noteText);
             updateAndSaveTime(note);
             this.repository.save(note);
             return true;

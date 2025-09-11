@@ -2,6 +2,8 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.UpdateNoteRequest;
+
 /**
  * Service interface for managing Note entities.
  * This interface provides methods for saving, updating,
@@ -33,6 +35,17 @@ public interface NoteService {
      * @return a Boolean indicating whether the update was successful
      */
     Boolean updateNote(Note note, String noteText);
+
+    /**
+     * Updates a note with new information provided in the request.
+     *
+     * @param request The UpdateNoteRequest object containing data for updating the
+     *                note.
+     * @return True if the note was successfully updated, false otherwise.
+     * @throws SecurityException If validation of the request fails or any
+     *                           security-related issue occurs.
+     */
+    Boolean updateNote(UpdateNoteRequest request) throws SecurityException;
 
     /**
      * Checks if any of the three notes contained within the Note entity contains

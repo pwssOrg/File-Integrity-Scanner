@@ -6,10 +6,11 @@ import java.util.Optional;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
+
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -187,6 +188,25 @@ public class FileIntegrityController {
         return new ResponseEntity<>(
                 "Stopped Scan",
                 HttpStatus.OK);
+    }
+
+    /**
+     * Retrieves the live feed from a current scan and gets the status if a scan is
+     * running.
+     *
+     * @return the {@code ResponseEntity} containing the {@code LiveFeedResponse}
+     */
+    @Operation(summary = "Retrieve the live feed from a current scan", description = "This endpoint attempts to retrieve a live feed from a current scan and also gets the status if a scan is running.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation. Returns the live feed response with whether the scan is running and the live feed text.", content = @Content(schema = @Schema(implementation = LiveFeedResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authorized to perform this action", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+    })
+    @GetMapping("/live-feed")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<LiveFeedResponse> getLiveFeed() {
+        final LiveFeedResponse response = scanService.getLiveFeed();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
