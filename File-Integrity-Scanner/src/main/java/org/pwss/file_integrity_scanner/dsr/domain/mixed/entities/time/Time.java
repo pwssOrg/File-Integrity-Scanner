@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.dsr.domain.mixed.time;
+package org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time;
 
 import java.time.OffsetDateTime;
 

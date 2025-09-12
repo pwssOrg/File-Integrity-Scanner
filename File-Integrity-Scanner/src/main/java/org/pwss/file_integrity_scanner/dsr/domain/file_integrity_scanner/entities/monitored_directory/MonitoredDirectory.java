@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 
 import org.pwss.file_integrity_scanner.dsr.domain.PWSSbaseEntity;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
-import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,19 +1,38 @@
 package org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
- * 
- * @param username
- * @param password
+ * A data class representing a request to log in a user.
  */
-public record LoginRequest(String username,String password) {
+@Schema(description = "Represents a request to authenticate a user.")
+public record LoginRequest(
 
-    public final String getUsername(){
+        /**
+         * The username for the user attempting to log in.
+         */
+        @Schema(description = "The username of the user", example = "john_doe") String username,
 
+        /**
+         * The password for the user attempting to log in.
+         */
+        @Schema(description = "The password of the user", example = "securePassword123") String password) {
+
+    /**
+     * Returns the username for the user attempting to log in.
+     *
+     * @return The username
+     */
+    public final String getUsername() {
         return this.username;
     }
 
-    public final String getPassword(){
-
+    /**
+     * Returns the password for the user attempting to log in.
+     *
+     * @return The password
+     */
+    public final String getPassword() {
         return this.password;
     }
 }
