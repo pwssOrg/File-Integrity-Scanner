@@ -16,7 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
-import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.note.NoteRepository;
 import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl;
 

@@ -11,8 +11,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.r
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.directory_controller.UpdateMonitoredDirectoryRequest;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.directory_controller.CreateMonitoredDirectoryResponse;
-
-import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.monitored_directory.MonitoredDirectoryRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;

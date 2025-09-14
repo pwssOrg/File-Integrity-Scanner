@@ -1,6 +1,6 @@
 package org.pwss.file_integrity_scanner.dsr.service.mixed.time;
 
-import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.mixed.time.TimeRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.springframework.stereotype.Service;
