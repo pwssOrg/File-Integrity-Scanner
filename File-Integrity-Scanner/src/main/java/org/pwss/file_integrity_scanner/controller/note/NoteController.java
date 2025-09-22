@@ -1,5 +1,6 @@
 package org.pwss.file_integrity_scanner.controller.note;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.RestoreNoteRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.UpdateNoteRequest;
 
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
@@ -79,7 +80,25 @@ public class NoteController {
          return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
       }
 
-      return new ResponseEntity<>(response, HttpStatus.CREATED);
+      return new ResponseEntity<>(response, HttpStatus.OK);
+   }
+
+   
+   @PostMapping("/restore")
+   @PreAuthorize("hasAuthority('AUTHORIZED')")
+   public ResponseEntity<Boolean> restoreNoteEndpoint(
+         @RequestBody RestoreNoteRequest request) {
+      boolean response;
+      try {
+         response = service.restoreOldNote(request);
+         log.debug("Note restored successfully: {}", response);
+      }
+
+      catch (SecurityException securityException) {
+         return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+      }
+
+      return new ResponseEntity<>(response, HttpStatus.OK);
    }
 
 }

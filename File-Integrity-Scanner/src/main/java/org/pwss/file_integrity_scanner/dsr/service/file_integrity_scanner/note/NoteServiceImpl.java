@@ -1,9 +1,11 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 
 import java.time.OffsetDateTime;
+import java.util.NoSuchElementException;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
-
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.note.RestoreNote;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.RestoreNoteRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.UpdateNoteRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.note.NoteRepository;
@@ -237,6 +239,151 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
             return true;
         else
             return false;
+
+    }
+
+    @Transactional
+    @Override
+    public Boolean restoreOldNote(RestoreNoteRequest request) throws SecurityException {
+
+        if (validateRequest(request)) {
+
+            boolean doesExistsInRepositoryLayer;
+
+            java.util.Optional<Note> oNote = this.repository.findById(request.noteId());
+
+            if (oNote.isPresent()) {
+
+                Note note = oNote.get();
+
+                try {
+                    // Check if the note already exists in the repository layer by verifying its ID
+                    doesExistsInRepositoryLayer = note.getId() > 0;
+                } catch (NullPointerException nullPointerException) {
+                    log.debug(
+                            "Please note: No ID exists for the note that you are trying to initiate a restore process on");
+                    doesExistsInRepositoryLayer = false;
+                }
+
+                if (!doesExistsInRepositoryLayer) {
+                    // Return early if the note doesn't exist
+                    return false;
+
+                }
+
+                final RestoreNote restoreNote = request.restoreNote();
+
+                switch (restoreNote) {
+                    case PREV_NOTE:
+                        return restorePrevNote(note);
+                    case PREV_PREV_NOTE:
+                        return restorePrevPrevNote(note);
+                    default:
+                        throw new IllegalArgumentException("Restore note argument was not valid");
+                }
+            }
+
+            else {
+
+                throw new NoSuchElementException(
+                        "No ID exists for the note that you are trying to initiate a restore process on");
+            }
+
+        }
+
+        else {
+            throw new SecurityException("Validation Failed");
+        }
+
+    }
+
+    /**
+     * Restores the previous version of notes for a given note.
+     *
+     * This method attempts to restore the primary notes from the "previous notes"
+     * field.
+     * It logs debug messages indicating each step, sets the current primary notes
+     * into
+     * the "previous notes" field, and then updates the primary notes with the
+     * content
+     * of the previous notes. Finally, it saves the updated note using the
+     * repository.
+     *
+     * @param note The note to be restored. Must not be null.
+     * @return {@code true} if the restoration was successful; {@code false}
+     *         otherwise.
+     */
+    private final Boolean restorePrevNote(Note note) {
+
+        String noteToRestore = "";
+
+        try {
+
+            noteToRestore = note.getPrevNotes();
+
+            log.debug("Setting current primary notes into prev notes");
+            note.setPrevNotes(note.getNotes());
+
+            log.debug("Setting old previous notes into primary notes");
+            note.setNotes(noteToRestore);
+
+            updateAndSaveTime(note);
+            this.repository.save(note);
+
+            return true;
+
+        }
+
+        catch (NullPointerException nullPointerException) {
+
+            log.debug("1st or 2nd note has null value");
+            return false;
+        }
+
+    }
+
+    /**
+     * Restores the previous-previous version of notes for a given note.
+     *
+     * This method attempts to restore the primary notes from the "previous-previous
+     * notes" field.
+     * It logs debug messages indicating each step, sets the current primary notes
+     * into
+     * the "previous-previous notes" field, and then updates the primary notes with
+     * the content
+     * of the previous-previous notes. Finally, it saves the updated note using the
+     * repository.
+     *
+     * @param note The note to be restored. Must not be null.
+     * @return {@code true} if the restoration was successful; {@code false}
+     *         otherwise.
+     */
+    private final Boolean restorePrevPrevNote(Note note) {
+
+        String noteToRestore = "";
+
+        try {
+
+            noteToRestore = note.getPrevPrevNotes();
+
+            log.debug("Setting current primary notes into prevprev notes");
+            note.setPrevPrevNotes(note.getNotes());
+
+            log.debug("Setting old previous-previous notes into primary notes");
+            note.setNotes(noteToRestore);
+
+            updateAndSaveTime(note);
+            this.repository.save(note);
+
+            return true;
+
+        }
+
+        catch (NullPointerException nullPointerException) {
+
+            log.debug("1st or 3th note has null value");
+            return false;
+        }
 
     }
 
