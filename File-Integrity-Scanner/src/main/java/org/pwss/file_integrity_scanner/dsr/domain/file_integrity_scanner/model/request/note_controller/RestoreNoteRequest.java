@@ -17,5 +17,5 @@ public record RestoreNoteRequest(
          /**
          * A enum reference for the note to restore.
          */
-        @Schema(description = "The type of previous note to restore (PREV_NOTE or PREV_PREV_NOTE)", example = "\"restoreNote\":\"PREV_NOTE\"") RestoreNote restoreNote) {
+        @Schema(description = "The type of previous note to restore (PREV_NOTE or PREV_PREV_NOTE)", example = "PREV_NOTE") RestoreNote restoreNote) {
 }

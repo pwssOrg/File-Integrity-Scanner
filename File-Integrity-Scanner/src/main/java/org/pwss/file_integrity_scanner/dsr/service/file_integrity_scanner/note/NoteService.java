@@ -84,6 +84,5 @@ public interface NoteService {
      *         otherwise.
      * @throws SecurityException If the validation of the restore request fails.
      */
-    Boolean restoreOldNote(RestoreNoteRequest reuqest) throws SecurityException;
-
+    Boolean restoreOldNote(RestoreNoteRequest request) throws SecurityException;
 }

@@ -248,11 +248,20 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         if (validateRequest(request)) {
 
+
+            if(!validateForInjection(request.toString())){
+
+                throw new SecurityException("Potential Java Injection attack stopped!");
+            }
+
             boolean doesExistsInRepositoryLayer;
 
+            log.debug("Will try to fetch note by ID");
             java.util.Optional<Note> oNote = this.repository.findById(request.noteId());
 
             if (oNote.isPresent()) {
+
+                log.debug("Note is present in the repository layer");
 
                 Note note = oNote.get();
 
@@ -313,7 +322,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
      * @return {@code true} if the restoration was successful; {@code false}
      *         otherwise.
      */
-    private final Boolean restorePrevNote(Note note) {
+    private Boolean restorePrevNote(Note note) {
 
         String noteToRestore = "";
 
@@ -358,7 +367,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
      * @return {@code true} if the restoration was successful; {@code false}
      *         otherwise.
      */
-    private final Boolean restorePrevPrevNote(Note note) {
+    private Boolean restorePrevPrevNote(Note note) {
 
         String noteToRestore = "";
 

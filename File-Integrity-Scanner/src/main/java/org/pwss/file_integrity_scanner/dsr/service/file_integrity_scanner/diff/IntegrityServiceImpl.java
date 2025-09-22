@@ -61,6 +61,11 @@ public class IntegrityServiceImpl extends PWSSbaseService<IntegrityRepository, D
 
         if (validateRequest(request)) {
 
+            if (!validateForInjection(request.sortField())) {
+
+                throw new SecurityException("Potential Java Injection attack stopped!");
+            }
+
             Optional<Scan> oScan = scanService.findById(request.scanId());
 
             if (oScan.isPresent()) {
