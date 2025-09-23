@@ -15,7 +15,7 @@ public record RestoreNoteRequest(
         @Schema(description = "The unique ID of the note object", example = "12345") Long noteId,
 
          /**
-         * A enum reference for the note to restore.
+         * An enum reference for the note to restore.
          */
         @Schema(description = "The type of previous note to restore (PREV_NOTE or PREV_PREV_NOTE)", example = "PREV_NOTE") RestoreNote restoreNote) {
 }
