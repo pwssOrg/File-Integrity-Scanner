@@ -193,7 +193,20 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
 
         // Check for primitive types and wrappers
         if (isPrimitiveType(clazz)) {
-            return true;
+
+            if (clazz == String.class) {
+
+                if (!validateStringLength((String) object))
+                    return false;
+
+                if (!validateForInjection((String) object))
+                    return false;
+
+                return true;
+            }
+
+            else
+                return true;
         }
 
         // For other objects, recursively check their fields
@@ -235,6 +248,23 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
     }
 
     /**
+     * Validates if a given string has an acceptable length.
+     *
+     * The string is considered valid if its length does not exceed the maximum
+     * allowed length.
+     *
+     * @param input the string to be validated
+     * @return true if the string's length is within the acceptable range, false
+     *         otherwise
+     */
+    private boolean validateStringLength(String input) {
+
+        final int maxLength = 10000;
+
+        return input.length() > maxLength ? false : true;
+    }
+
+    /**
      * Validates a string input to check for potential injection attack patterns.
      * This method looks for common dangerous patterns that could indicate
      * an attempt at SQL or command injection. Note that this is not foolproof
@@ -245,13 +275,13 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
      * @return true if the input does not contain any dangerous patterns, false
      *         otherwise
      */
-    protected boolean validateForInjection(String input) {
+    private boolean validateForInjection(String input) {
         if (input == null || input.isEmpty()) {
             return true;
         }
 
         // Basic pattern to detect common injection patterns. This is not foolproof.
-        String[] dangerousPatterns = { ";", "--", "/*", "*/", "@@", "@", "\\" };
+        String[] dangerousPatterns = { ";", "--", "/*", "*/", "@@", "@", "\\", "$" };
 
         for (String pattern : dangerousPatterns) {
             if (input.contains(pattern)) {

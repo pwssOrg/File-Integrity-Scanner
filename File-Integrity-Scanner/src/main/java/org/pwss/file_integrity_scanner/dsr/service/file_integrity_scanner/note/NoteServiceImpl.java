@@ -248,12 +248,6 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         if (validateRequest(request)) {
 
-
-            if(!validateForInjection(request.toString())){
-
-                throw new SecurityException("Potential Java Injection attack stopped!");
-            }
-
             boolean doesExistsInRepositoryLayer;
 
             log.debug("Will try to fetch note by ID");

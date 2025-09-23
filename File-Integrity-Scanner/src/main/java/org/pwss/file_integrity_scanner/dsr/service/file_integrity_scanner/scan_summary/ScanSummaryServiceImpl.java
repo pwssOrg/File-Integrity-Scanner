@@ -118,15 +118,6 @@ public class ScanSummaryServiceImpl extends PWSSbaseService<ScanSummaryRepositor
 
         if (validateRequest(request)) {
 
-            if (!validateForInjection(request.searchQuery())) {
-                throw new SecurityException("Potential Java Injection attack stopped! Parameter: searchQuery");
-            }
-
-            if (!validateForInjection(request.sortField())) {
-                throw new SecurityException("Potential Java Injection attack stopped! Parameter: sortField");
-
-            }
-
             List<File> listOfFiles = fileService.findFilesByBasenameLikeIgnoreCase(
                     request.searchQuery(),
                     request.limit(),
