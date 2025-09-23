@@ -103,7 +103,7 @@ public interface UserService extends UserDetailsService {
      *                                  hash
      * @throws InvalidKeySpecException  if the key specification is invalid
      */
-    User CreateUser(org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request)
+    User CreateUser(org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest request)
             throws NoSuchAlgorithmException, InvalidKeySpecException;
 
     /**
@@ -147,6 +147,6 @@ public interface UserService extends UserDetailsService {
      * @return True if validation passes; False otherwise
      */
     boolean ValidateCreateUserRequest(
-            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request);
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest request);
 
 }

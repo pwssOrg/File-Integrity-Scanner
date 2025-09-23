@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Represents a request to update an existing note.")
 public record UpdateNoteRequest(
         /**
-         * The unique identifier of the note to be updated.
+         * The unique identifier of the note object to be updated.
          */
         @Schema(description = "The unique ID of the note", example = "12345") Long noteId,
 

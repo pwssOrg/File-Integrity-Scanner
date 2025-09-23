@@ -1,7 +1,7 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.note.Note;
-
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.RestoreNoteRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.UpdateNoteRequest;
 
 /**
@@ -63,4 +63,25 @@ public interface NoteService {
      */
     Boolean anyNoteContains(Note note, String text);
 
+    /**
+     * Restores a previous version of the given note based on the specified restore
+     * type.
+     *
+     * This method first validates the request. If validation fails, a
+     * {@link SecurityException} is thrown.
+     * It then checks if the note exists in the repository layer.
+     * If the note does not exist or the restore type is invalid, appropriate
+     * exceptions are thrown.
+     * Depending on the specified {@code RestoreNoteRequest}, it restores either
+     * the previous version of the note (PREV_NOTE) or the prior previous version
+     * (PREV_PREV_NOTE).
+     *
+     * @param request The request containing information about which previous
+     *                version to restore, along with a unique
+     *                identifier for the note that the restoration process concerns.
+     * @return {@code true} if the note was successfully restored, {@code false}
+     *         otherwise.
+     * @throws SecurityException If the validation of the restore request fails.
+     */
+    Boolean restoreOldNote(RestoreNoteRequest request) throws SecurityException;
 }

@@ -4,7 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
-import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser;
+import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.LoginRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.response.user_controller.LoginResponse;
 import org.pwss.file_integrity_scanner.dsr.service.user_login.user.UserServiceImpl;
@@ -139,7 +139,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/create")
-    public ResponseEntity<User> CreateUser(@RequestBody CreateUser request)
+    public ResponseEntity<User> CreateUser(@RequestBody CreateUserRequest request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         if (!service.isEmpty()) {

@@ -1,6 +1,6 @@
 package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
-import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
@@ -65,7 +65,7 @@ public class UserServiceImpl
 
     @Override
     public boolean ValidateCreateUserRequest(
-            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request) {
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest request) {
 
         boolean result;
 
@@ -88,7 +88,7 @@ public class UserServiceImpl
     @Override
     @Transactional
     public org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User CreateUser(
-            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUser request)
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         if (ValidateCreateUserRequest(request)) {

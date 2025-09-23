@@ -27,7 +27,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.r
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
-import org.pwss.file_integrity_scanner.dsr.domain.mixed.time.Time;
+import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.scan.ScanRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.checksum.ChecksumService;
@@ -280,7 +280,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
         timeService.save(time);
 
-        final Note note = new Note("Started scan of monitored directory "+dir.getPath() +"at time: "+ OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
+        final Note note = new Note("Started scan of monitored directory "+dir.getPath() +" at time: "+ OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
         noteService.save(note);
 
         final Boolean isBaseLineScan = !dir.getBaselineEstablished();

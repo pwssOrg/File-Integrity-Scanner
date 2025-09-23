@@ -60,6 +60,9 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
      *         rules; False otherwise.
      */
     protected boolean validateRequest(Object object) {
+
+        logForPWSSBaseClass.debug("Validating request object...");
+
         // Handle null case explicitly
         if (object == null) {
             return false;
@@ -73,7 +76,14 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
                 return validateMap((Map<?, ?>) object);
             } else if (object.getClass().isArray()) {
                 return validateArray(object);
-            } else {
+
+            }
+
+            else if (object.getClass().isEnum()) {
+                return validateEnum(object);
+            }
+
+            else {
                 // Handle non-collection objects
                 return validateObject(object);
             }
@@ -102,6 +112,23 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
             }
         }
         return true;
+    }
+
+    /**
+     * Validates whether an object is a valid enum instance.
+     *
+     * This method checks if the provided object is not null and its class is an
+     * enumeration type. Enums in Java are special classes that represent fixed sets
+     * of constants, and this validation ensures that the object belongs to such
+     * a class.
+     *
+     * @param obj the object to validate as an enum instance
+     * @return true if the object is a valid non-null enum instance, false otherwise
+     */
+    private boolean validateEnum(Object obj) {
+
+        return obj != null && obj.getClass().isEnum();
+
     }
 
     /**
@@ -166,7 +193,20 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
 
         // Check for primitive types and wrappers
         if (isPrimitiveType(clazz)) {
-            return true;
+
+            if (clazz == String.class) {
+
+                if (!validateStringLength((String) object))
+                    return false;
+
+                if (!validateForInjection((String) object))
+                    return false;
+
+                return true;
+            }
+
+            else
+                return true;
         }
 
         // For other objects, recursively check their fields
@@ -205,6 +245,51 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
                 Long.class == clazz ||
                 Float.class == clazz ||
                 Double.class == clazz;
+    }
+
+    /**
+     * Validates if a given string has an acceptable length.
+     *
+     * The string is considered valid if its length does not exceed the maximum
+     * allowed length.
+     *
+     * @param input the string to be validated
+     * @return true if the string's length is within the acceptable range, false
+     *         otherwise
+     */
+    private boolean validateStringLength(String input) {
+
+        final int maxLength = 10000;
+
+        return input.length() <= maxLength;
+    }
+
+    /**
+     * Validates a string input to check for potential injection attack patterns.
+     * This method looks for common dangerous patterns that could indicate
+     * an attempt at SQL or command injection. Note that this is not foolproof
+     * and should be used in conjunction with other security measures such as
+     * parameterized queries and proper input sanitization.
+     *
+     * @param input the string to validate for potential injection attacks
+     * @return true if the input does not contain any dangerous patterns, false
+     *         otherwise
+     */
+    private boolean validateForInjection(String input) {
+        if (input == null || input.isEmpty()) {
+            return true;
+        }
+
+        // Basic pattern to detect common injection patterns. This is not foolproof.
+        final String[] dangerousPatterns = { ";", "--", "/*", "*/", "@@", "@", "\\", "$" };
+
+        for (String pattern : dangerousPatterns) {
+            if (input.contains(pattern)) {
+                logForPWSSBaseClass.error("Potential Java Injection attack stopped!");
+                return false;
+            }
+        }
+        return true;
     }
 
 }
