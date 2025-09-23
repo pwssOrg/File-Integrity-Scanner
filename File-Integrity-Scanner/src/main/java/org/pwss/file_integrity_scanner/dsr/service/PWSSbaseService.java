@@ -261,7 +261,7 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
 
         final int maxLength = 10000;
 
-        return input.length() > maxLength ? false : true;
+        return input.length() <= maxLength;
     }
 
     /**
