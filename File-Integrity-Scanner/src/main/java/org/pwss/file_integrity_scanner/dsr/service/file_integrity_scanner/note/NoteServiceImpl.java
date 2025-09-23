@@ -384,7 +384,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         catch (NullPointerException nullPointerException) {
 
-            log.debug("1st or 3th note has null value");
+            log.debug("1st or 3rd note has null value");
             return false;
         }
 
