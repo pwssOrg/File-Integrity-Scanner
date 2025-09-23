@@ -1,5 +1,6 @@
 package org.pwss.file_integrity_scanner.controller.note;
 
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.RestoreNoteRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.note_controller.UpdateNoteRequest;
 
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
@@ -61,7 +62,7 @@ public class NoteController {
     */
    @Operation(summary = "Update Note", description = "Updates a note with the information provided in the request body.")
    @ApiResponses(value = {
-         @ApiResponse(responseCode = "201", description = "Note updated successfully", content = {
+         @ApiResponse(responseCode = "200", description = "Note updated successfully", content = {
                @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class)) }),
          @ApiResponse(responseCode = "422", description = "Security exception occurred")
    })
@@ -79,7 +80,34 @@ public class NoteController {
          return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
       }
 
-      return new ResponseEntity<>(response, HttpStatus.CREATED);
+      return new ResponseEntity<>(response, HttpStatus.OK);
+   }
+
+   /**
+    * Restores a note based on the provided request.
+    */
+   @PostMapping("/restore")
+   @PreAuthorize("hasAuthority('AUTHORIZED')")
+   @Operation(summary = "Restores an old note", description = "Endpoints that restores a deleted note from its previous state.")
+   @ApiResponses(value = {
+         @ApiResponse(responseCode = "200", description = "Note restored successfully"),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+         @ApiResponse(responseCode = "422", description = "Could not restore note due to security restrictions or validation failures")
+   })
+   public ResponseEntity<Boolean> restoreNoteEndpoint(@RequestBody RestoreNoteRequest request) {
+      boolean response;
+
+      try {
+         response = service.restoreOldNote(request);
+         log.debug("Note restored successfully: {}", response);
+      }
+
+      catch (SecurityException securityException) {
+         log.error("Could not restore note from the input request object", securityException);
+         return new ResponseEntity<>(false, HttpStatus.UNPROCESSABLE_ENTITY);
+      }
+
+      return new ResponseEntity<>(response, HttpStatus.OK);
    }
 
 }
