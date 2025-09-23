@@ -69,8 +69,7 @@ public interface NoteService {
      *
      * This method first validates the request. If validation fails, a
      * {@link SecurityException} is thrown.
-     * It then checks if the note exists in the repository layer by verifying its
-     * ID.
+     * It then checks if the note exists in the repository layer.
      * If the note does not exist or the restore type is invalid, appropriate
      * exceptions are thrown.
      * Depending on the specified {@code RestoreNoteRequest}, it restores either

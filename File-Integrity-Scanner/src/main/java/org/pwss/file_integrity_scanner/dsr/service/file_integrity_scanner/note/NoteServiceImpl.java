@@ -248,8 +248,6 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
         if (validateRequest(request)) {
 
-            boolean doesExistsInRepositoryLayer;
-
             log.debug("Will try to fetch note by ID");
             java.util.Optional<Note> oNote = this.repository.findById(request.noteId());
 
@@ -259,7 +257,6 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
                 Note note = oNote.get();
 
-                // Note is present in the repository layer; no need to check ID validity
                 final RestoreNote restoreNote = request.restoreNote();
 
                 switch (restoreNote) {
