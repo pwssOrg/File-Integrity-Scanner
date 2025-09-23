@@ -259,21 +259,7 @@ public class NoteServiceImpl extends PWSSbaseService<NoteRepository, Note, Long>
 
                 Note note = oNote.get();
 
-                try {
-                    // Check if the note already exists in the repository layer by verifying its ID
-                    doesExistsInRepositoryLayer = note.getId() > 0;
-                } catch (NullPointerException nullPointerException) {
-                    log.debug(
-                            "Please note: No ID exists for the note that you are trying to initiate a restore process on");
-                    doesExistsInRepositoryLayer = false;
-                }
-
-                if (!doesExistsInRepositoryLayer) {
-                    // Return early if the note doesn't exist
-                    return false;
-
-                }
-
+                // Note is present in the repository layer; no need to check ID validity
                 final RestoreNote restoreNote = request.restoreNote();
 
                 switch (restoreNote) {
