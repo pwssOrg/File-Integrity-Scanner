@@ -1,5 +1,7 @@
 package org.pwss.file_integrity_scanner.exception.user_login;
 
+import java.io.Serial;
+
 /**
  * <p>
  * Exception thrown to indicate that a provided password is incorrect.
@@ -16,6 +18,9 @@ package org.pwss.file_integrity_scanner.exception.user_login;
  */
 
 public final class WrongPasswordException extends Exception {
+
+    @Serial
+    private static final long serialVersionUID = 2L;
 
     /**
      * Default constructor for WrongPasswordException. No message or cause

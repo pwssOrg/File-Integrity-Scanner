@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_controller.QuarantineFileRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_controller.UnQurantineFileRequest;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.file.QuarantineFailedException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.file.UnquarantineFailedException;
+import org.pwss.quarantineManager_aes.dto.MetaDataResult;
 
 /**
  * Service interface for managing {@link File} entities.
@@ -64,5 +69,32 @@ public interface FileService {
      */
     List<File> findFilesByBasenameLikeIgnoreCase(String searchString, int limit, String sortField,
             boolean ascending);
+
+    /**
+     * Quarantines a file based on the given request.
+     *
+     * @param request The {@link QuarantineFileRequest} containing information about
+     *                the file to be quarantined.
+     * @return A {@link MetaDataResult} containing information about the quarantine
+     *         operation.
+     * @throws SecurityException         if validation of the request fails.
+     * @throws QuarantineFailedException if the quarantine operation fails for any
+     *                                   reason.
+     */
+    MetaDataResult quranantine(QuarantineFileRequest request) throws SecurityException, QuarantineFailedException;
+
+    /**
+     * Unquarantines a file based on the given request.
+     *
+     * @param request The {@link UnQurantineFileRequest} containing information
+     *                about
+     *                the key path of the file to be unquarantined.
+     * @return A {@link MetaDataResult} containing information about the
+     *         unquarantine operation.
+     * @throws SecurityException           if validation of the request fails.
+     * @throws UnquarantineFailedException if the unquarantine operation fails for
+     *                                     any reason.
+     */
+    MetaDataResult unQuarantine(UnQurantineFileRequest request) throws SecurityException, UnquarantineFailedException;
 
 }

@@ -38,5 +38,4 @@ public interface IntegrityService {
    *                           due to security restrictions.
    */
   List<Diff> retrieveDiffListFromScan(ScanIntegrityDiffRequest request) throws SecurityException;
-
 }

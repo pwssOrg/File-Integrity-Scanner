@@ -6,7 +6,9 @@ import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
+
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
+
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.diff.IntegrityRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanService;
@@ -48,7 +50,6 @@ public class IntegrityServiceImpl extends PWSSbaseService<IntegrityRepository, D
     public IntegrityServiceImpl(IntegrityRepository repository) {
         super(repository);
         this.log = org.slf4j.LoggerFactory.getLogger(IntegrityServiceImpl.class);
-
     }
 
     @Override

@@ -17,7 +17,8 @@
     <!-- Configure specific packages from dependencies -->
     <logger name="org.pwss.io_file" level="INFO"/>
     <logger name="lib.pwss.hash.file_hash_handler" level="ERROR"/>
-    <logger name="org.pwss.util" level="INFO"/>
+    <logger name="org.pwss.util.PWSSDirectoryNavUtil" level="INFO"/>
+    <logger name="org.pwss.quarantineManager_aes" level="INFO"/>
     <logger name="org.hibernate" level="INFO"/>
     <logger name="org.postgresql" level="INFO"/>
     <logger name="io.swagger" level="INFO"/>

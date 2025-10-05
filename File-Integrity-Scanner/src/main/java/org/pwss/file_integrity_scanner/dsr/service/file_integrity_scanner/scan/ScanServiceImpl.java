@@ -15,8 +15,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 
-import org.pwss.file_integrity_scanner.component.DirectoryTraverser;
-import org.pwss.file_integrity_scanner.component.FileHashComputer;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
@@ -37,8 +35,8 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monito
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
 import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeService;
-import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
-import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.NoActiveMonitoredDirectoriesException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanAlreadyRunningException;
 import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;

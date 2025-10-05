@@ -1,11 +1,16 @@
-package org.pwss.file_integrity_scanner.exception.file_integrity_scanner;
+package org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan;
+
+import java.io.Serial;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 
 /**
  * Exception thrown when a Scan is already ongoing when starting a new Scan
  */
-public final class ScanAlreadyRunningException extends Exception  {
+public final class ScanAlreadyRunningException extends Exception {
+
+    @Serial
+    private static final long serialVersionUID = 2L;
 
     /**
      * Default constructor for ScanAlreadyRunningException. No message or cause
@@ -16,7 +21,8 @@ public final class ScanAlreadyRunningException extends Exception  {
     }
 
     /**
-     * Constructs a new ScanAlreadyRunningException with the specified detail message.
+     * Constructs a new ScanAlreadyRunningException with the specified detail
+     * message.
      *
      * @param message The detail message (which is saved for later retrieval by the
      *                getMessage method).
@@ -25,8 +31,8 @@ public final class ScanAlreadyRunningException extends Exception  {
         super(message + " \nPWSS @Exception");
     }
 
-    public ScanAlreadyRunningException(String message,Scan scan) {
-        super(message + " \nPWSS @Exception\n"+scan.getScanTime());
+    public ScanAlreadyRunningException(String message, Scan scan) {
+        super(message + " \nPWSS @Exception\n" + scan.getScanTime());
     }
 
     /**
@@ -46,7 +52,8 @@ public final class ScanAlreadyRunningException extends Exception  {
     }
 
     /**
-     * Constructs a new ScanAlreadyRunningException with the specified detail message
+     * Constructs a new ScanAlreadyRunningException with the specified detail
+     * message
      * and cause.
      *
      * @param message The detail message (which is saved for later retrieval by the
@@ -61,6 +68,3 @@ public final class ScanAlreadyRunningException extends Exception  {
     }
 
 }
-
-    
-
