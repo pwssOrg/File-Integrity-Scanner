@@ -7,7 +7,7 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>1.3.1</version>
+    <version>1.4</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
@@ -129,12 +129,20 @@
         </dependency>
 
 
-        <!--https://github.com/pwssOrg/PWSS-DirectoryNav/packages/2588313-->
+        <!-- https://github.com/pwssOrg/PWSS-DirectoryNav/packages/2588313 -->
         <dependency>
             <groupId>lib.pwss</groupId>
             <artifactId>directory_nav</artifactId>
             <version>1.5.1</version>
         </dependency>
+
+        <!-- https://github.com/pwssOrg/PWSS-FileQuarantine/packages/2687320 -->
+        <dependency>
+            <groupId>lib.pwss</groupId>
+            <artifactId>file-quarantine</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
 
 
     </dependencies>

@@ -3,3 +3,6 @@ File-Integrity-Scanner/.idea/
 File-Integrity-Scanner/target/
 
 .vscode
+keys
+quarantine
+quarantine_metadata.properties

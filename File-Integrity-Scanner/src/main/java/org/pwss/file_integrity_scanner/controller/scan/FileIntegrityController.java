@@ -10,12 +10,13 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
+
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
-import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
-import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.NoActiveMonitoredDirectoriesException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanAlreadyRunningException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 

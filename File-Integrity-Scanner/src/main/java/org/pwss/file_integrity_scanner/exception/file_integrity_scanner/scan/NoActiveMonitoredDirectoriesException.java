@@ -1,11 +1,15 @@
-package org.pwss.file_integrity_scanner.exception.file_integrity_scanner;
+package org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan;
 
-
+import java.io.Serial;
 
 /**
  * Exception thrown when there are no active monitored directories.
  */
 public final class NoActiveMonitoredDirectoriesException extends Exception {
+
+    @Serial
+    private static final long serialVersionUID = 2L;
+
     /**
      * Default constructor for NoActiveMonitoredDirectoriesException. No message or
      * cause

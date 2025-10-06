@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.component;
+package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import lib.pwss.hash.file_hash_handler.BigFileHashHandler;
 import lib.pwss.hash.file_hash_handler.FileHashHandler;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * Component responsible for computing hashes for files.
  */
 @Component
-public final class FileHashComputer {
+ final class FileHashComputer {
 
     private final long TEMP_USER_DEFINED_MAX_LIMIT = 10000L * 1024 * 1024; // 10 000 MB
 
@@ -35,7 +35,7 @@ public final class FileHashComputer {
     // Instance of BigFileHashHandler for computing hashes of larger files
     private final FileHash fileHashHandlerB;
 
-    public FileHashComputer() {
+     FileHashComputer() {
         this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
         this.fileHashHandler = new FileHashHandler();
         this.fileHashHandlerB = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
@@ -49,7 +49,7 @@ public final class FileHashComputer {
      * @return An Optional containing {@link HashForFilesOutput} if successful, or
      *         empty if an error occurs
      */
-    public Optional<HashForFilesOutput> computeHashes(File file) {
+     Optional<HashForFilesOutput> computeHashes(File file) {
 
         try {
 
@@ -82,7 +82,7 @@ public final class FileHashComputer {
      * @param second the second checksum object to compare
      * @return true if all hash comparisons match, false otherwise
      */
-    public boolean compareHashes(Checksum first, Checksum second) {
+     boolean compareHashes(Checksum first, Checksum second) {
         return HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumSha256(), second.getChecksumSha256()) &&
                 HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumSha3(), second.getChecksumSha3()) &&
                 HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumBlake2b(), second.getChecksumBlake2b());
