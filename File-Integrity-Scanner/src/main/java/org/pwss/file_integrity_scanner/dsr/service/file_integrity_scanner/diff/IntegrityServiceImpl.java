@@ -88,7 +88,7 @@ public class IntegrityServiceImpl extends PWSSbaseService<IntegrityRepository, D
     }
 
     @Override
-    public boolean fileisPresentInDiffHistory(File file) {
+    public boolean fileIsPresentInDiffHistory(File file) {
         List<Diff> diffList = this.repository.findByIntegrityFail_File(file);
 
         if (diffList.isEmpty())

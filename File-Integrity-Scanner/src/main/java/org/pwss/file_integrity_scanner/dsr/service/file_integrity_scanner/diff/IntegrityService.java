@@ -47,5 +47,5 @@ public interface IntegrityService {
    * @return {@code true} if the file is found in the diff history, {@code false}
    *         otherwise.
    */
-  boolean fileisPresentInDiffHistory(File file);
+  boolean fileIsPresentInDiffHistory(File file);
 }

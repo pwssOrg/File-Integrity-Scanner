@@ -113,7 +113,7 @@ public class FileServiceImpl extends PWSSbaseService<FileRepository, File, Long>
                 log.debug("File to be quarantined is found in the repository layer.\nIt is located at path: {}",
                         file.getPath());
 
-                if (!integrityService.fileisPresentInDiffHistory(file)) {
+                if (!integrityService.fileIsPresentInDiffHistory(file)) {
                     log.error("{} has no diffs and can not be quarantined", file.getBasename());
                     throw new QuarantineFailedException(
                             "File has no diffs and can not be quarantined");
