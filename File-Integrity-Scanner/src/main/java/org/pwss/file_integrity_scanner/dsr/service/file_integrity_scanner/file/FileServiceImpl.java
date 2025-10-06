@@ -1,10 +1,12 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file;
 
+import org.apache.commons.lang3.builder.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_controller.QuarantineFileRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_controller.UnQurantineFileRequest;
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.file.FileRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.file.QuarantineFailedException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.file.UnquarantineFailedException;
 import org.pwss.quarantineManager_aes.dto.MetaDataResult;
@@ -29,19 +31,28 @@ public class FileServiceImpl extends PWSSbaseService<FileRepository, File, Long>
     private final FileIsolationComponent fileIsolationComponent;
 
     /**
+     * Service responsible for managing integrity checks on files.
+     */
+    private final IntegrityService integrityService;
+
+    /**
      * Constructor for the FileServiceImpl class. Initializes the service with
-     * a repository and a file isolation component.
+     * a repository, integrity service and a file isolation component.
      *
      * @param repository             The repository used to access File entities in
      *                               the database.
      * @param fileIsolationComponent The component responsible for file isolation
      *                               operations.
+     * @param integrityService       The service responsible for managing integrity
+     *                               checks on files.
      */
     public FileServiceImpl(FileRepository repository,
-            @Autowired FileIsolationComponent fileIsolationComponent) {
+            @Autowired FileIsolationComponent fileIsolationComponent,
+            @Autowired IntegrityService integrityService) {
         super(repository);
         this.log = org.slf4j.LoggerFactory.getLogger(FileServiceImpl.class);
         this.fileIsolationComponent = fileIsolationComponent;
+        this.integrityService = integrityService;
     }
 
     @Override
@@ -101,6 +112,13 @@ public class FileServiceImpl extends PWSSbaseService<FileRepository, File, Long>
                 file = oFile.get();
                 log.debug("File to be quarantined is found in the repository layer.\nIt is located at path: {}",
                         file.getPath());
+
+                if (!integrityService.fileisPresentInDiffHistory(file)) {
+                    log.error("{} has no diffs and can not be quarantined", file.getBasename());
+                    throw new QuarantineFailedException(
+                            "File has no diffs and can not be quarantined");
+                }
+
             } else
                 throw new QuarantineFailedException(
                         "File is not present in the repository layer and can not be used in quarantine or unquarantine operations");

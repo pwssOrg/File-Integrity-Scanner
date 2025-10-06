@@ -71,7 +71,7 @@ public class FileController {
             return new ResponseEntity<>(new MetaDataResult(false, "ERROR - Input Validation"),
                     HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (QuarantineFailedException quarantineFailedException) {
-            return new ResponseEntity<>(new MetaDataResult(false, "ERROR - Quarantine Operation"),
+            return new ResponseEntity<>(new MetaDataResult(false, "ERROR - "+quarantineFailedException.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<MetaDataResult>(

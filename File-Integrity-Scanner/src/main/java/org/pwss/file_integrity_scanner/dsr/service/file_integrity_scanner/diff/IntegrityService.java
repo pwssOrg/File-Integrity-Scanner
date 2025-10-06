@@ -3,6 +3,7 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff;
 import java.util.List;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 
 /**
@@ -38,4 +39,13 @@ public interface IntegrityService {
    *                           due to security restrictions.
    */
   List<Diff> retrieveDiffListFromScan(ScanIntegrityDiffRequest request) throws SecurityException;
+
+  /**
+   * Checks whether a given file is present in the diff history of the repository.
+   *
+   * @param file The file to check for presence in the diff history.
+   * @return {@code true} if the file is found in the diff history, {@code false}
+   *         otherwise.
+   */
+  boolean fileisPresentInDiffHistory(File file);
 }

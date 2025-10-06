@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
@@ -84,6 +85,16 @@ public class IntegrityServiceImpl extends PWSSbaseService<IntegrityRepository, D
         } else
             throw new SecurityException("Validation failed!");
 
+    }
+
+    @Override
+    public boolean fileisPresentInDiffHistory(File file) {
+        List<Diff> diffList = this.repository.findByIntegrityFail_File(file);
+
+        if (diffList.isEmpty())
+            return false;
+        else
+            return true;
     }
 
 }
