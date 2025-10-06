@@ -98,7 +98,7 @@ public class FileServiceImpl extends PWSSbaseService<FileRepository, File, Long>
     }
 
     @Override
-    public MetaDataResult quranantine(QuarantineFileRequest request)
+    public MetaDataResult quarantine(QuarantineFileRequest request)
             throws SecurityException, QuarantineFailedException {
 
         if (validateRequest(request)) {

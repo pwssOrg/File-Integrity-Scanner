@@ -66,7 +66,7 @@ public class FileController {
             @RequestBody QuarantineFileRequest request) {
         final MetaDataResult response;
         try {
-            response = service.quranantine(request);
+            response = service.quarantine(request);
         } catch (SecurityException securityException) {
             return new ResponseEntity<>(new MetaDataResult(false, "ERROR - Input Validation"),
                     HttpStatus.UNPROCESSABLE_ENTITY);

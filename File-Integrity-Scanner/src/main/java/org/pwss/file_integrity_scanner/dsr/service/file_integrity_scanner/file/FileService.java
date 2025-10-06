@@ -81,7 +81,7 @@ public interface FileService {
      * @throws QuarantineFailedException if the quarantine operation fails for any
      *                                   reason.
      */
-    MetaDataResult quranantine(QuarantineFileRequest request) throws SecurityException, QuarantineFailedException;
+    MetaDataResult quarantine(QuarantineFileRequest request) throws SecurityException, QuarantineFailedException;
 
     /**
      * Unquarantines a file based on the given request.
