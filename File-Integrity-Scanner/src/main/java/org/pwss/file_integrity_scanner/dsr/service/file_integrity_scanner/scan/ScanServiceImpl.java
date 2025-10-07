@@ -15,8 +15,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 
-import org.pwss.file_integrity_scanner.component.DirectoryTraverser;
-import org.pwss.file_integrity_scanner.component.FileHashComputer;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.checksum.Checksum;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
@@ -37,8 +35,8 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monito
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
 import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeService;
-import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.NoActiveMonitoredDirectoriesException;
-import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.ScanAlreadyRunningException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.NoActiveMonitoredDirectoriesException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanAlreadyRunningException;
 import org.pwss.io_file.FileTraverser;
 import org.pwss.io_file.FileTraverserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,14 +114,14 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     private StringBuilder liveFeed;
 
     /**
-     * Text displayed when a file has not changed since the last scan.
+     * Text displayed when a file has not changed since the last baseline scan.
      */
-    private final String FILE_HAS_NOT_CHANGED_TEXT = " has not changed since last scan ✅";
+    private final String FILE_HAS_NOT_CHANGED_TEXT = " has not changed since the baseline scan ✅";
 
     /**
-     * Text displayed when a file has changed since the last scan.
+     * Text displayed when a file has changed since the last baseline scan.
      */
-    private final String FILE_HAS_CHANGED = " has changed since last scan ⚠️";
+    private final String FILE_HAS_CHANGED = " has changed since the baseline scan ⚠️";
 
     /**
      * Flag indicating whether a retrieval of live feed text has been attempted once
@@ -220,7 +218,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
                 timeService.save(time);
 
-                final Note note = new Note("Started scan of all monitored directories at "+  OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
+                final Note note = new Note("Started scan of all monitored directories at "
+                        + OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
                 noteService.save(note);
 
                 final Boolean isBaseLineScan = !dir.getBaselineEstablished();
@@ -280,7 +279,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
         timeService.save(time);
 
-        final Note note = new Note("Started scan of monitored directory "+dir.getPath() +" at time: "+ OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
+        final Note note = new Note("Started scan of monitored directory " + dir.getPath() + " at time: "
+                + OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
         noteService.save(note);
 
         final Boolean isBaseLineScan = !dir.getBaselineEstablished();
@@ -633,7 +633,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 Checksum oldChecksum = baselineScanSummaryFromRepository.getChecksum();
 
                 if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
-                    log.debug("File {} has not changed since last scan ✅", fileEntity.getPath());
+                    log.debug("File {} has not changed since the baseline scan ✅", fileEntity.getPath());
 
                     if (!isFileListToBigForLiveFeed) {
                         this.liveFeed.append(fileEntity.getBasename());
@@ -644,7 +644,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     scanSummaryService.save(currentScanSummary);
 
                 } else {
-                    log.warn("File {} has changed since last scan ⚠️", fileEntity.getPath());
+                    log.warn("File {} has changed since the baseline scan ⚠️", fileEntity.getPath());
 
                     if (!isFileListToBigForLiveFeed) {
                         this.liveFeed.append(fileEntity.getBasename());

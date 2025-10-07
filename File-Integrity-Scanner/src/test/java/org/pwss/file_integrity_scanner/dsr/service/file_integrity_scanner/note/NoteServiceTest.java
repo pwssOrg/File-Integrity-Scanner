@@ -1,6 +1,5 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,18 +35,18 @@ public class NoteServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    //Set the ID using reflection since we have no setter or constructor that can set the ID.
+    // Set the ID using reflection since we have no setter or constructor that can
+    // set the ID.
     private void setId(Note note, Long id) throws NoSuchFieldException, IllegalAccessException {
         Field idField = Note.class.getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(note, id);
     }
 
-    private Time createAssociatedTimeObject(){
+    private Time createAssociatedTimeObject() {
 
-        return new Time(OffsetDateTime.now(),OffsetDateTime.now());
+        return new Time(OffsetDateTime.now(), OffsetDateTime.now());
     }
-
 
     @Test
     public void testUpdateNote_whenNoteDoesNotExist() throws NoSuchFieldException, IllegalAccessException {
@@ -65,7 +64,7 @@ public class NoteServiceTest {
     public void testUpdateNote_whenFirstNoteIsEmpty() throws NoSuchFieldException, IllegalAccessException {
         // Setup a note with an empty first note
         Note note = new Note();
-        setId(note, 1L);  // Set an ID to simulate it exists in the repository
+        setId(note, 1L); // Set an ID to simulate it exists in the repository
         note.setTime(createAssociatedTimeObject());
 
         Boolean result = noteService.updateNote(note, "New note text");
@@ -76,7 +75,7 @@ public class NoteServiceTest {
     @Test
     public void testUpdateNote_whenSecondNoteIsEmpty() throws NoSuchFieldException, IllegalAccessException {
         Note note = new Note();
-        setId(note, 1L);  // Set an ID to simulate it exists in the repository
+        setId(note, 1L); // Set an ID to simulate it exists in the repository
         note.setTime(createAssociatedTimeObject());
         note.setNotes("First note content");
 
@@ -88,7 +87,7 @@ public class NoteServiceTest {
     @Test
     public void testUpdateNote_whenAllNotesHaveContent() throws NoSuchFieldException, IllegalAccessException {
         Note note = new Note();
-        setId(note, 1L);  // Set an ID to simulate it exists in the repository
+        setId(note, 1L); // Set an ID to simulate it exists in the repository
         note.setTime(createAssociatedTimeObject());
         note.setNotes("First note content");
         note.setPrevNotes("Second note content");

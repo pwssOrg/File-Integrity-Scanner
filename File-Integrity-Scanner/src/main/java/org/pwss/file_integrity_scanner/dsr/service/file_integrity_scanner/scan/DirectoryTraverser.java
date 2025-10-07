@@ -1,4 +1,4 @@
-package org.pwss.file_integrity_scanner.component;
+package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import org.pwss.io_file.FileTraverser;
 import org.pwss.util.PWSSDirectoryNavUtil;
@@ -14,11 +14,11 @@ import java.util.concurrent.Future;
  * paths.
  */
 @Component
-public class DirectoryTraverser {
+ class DirectoryTraverser {
 
     private final org.slf4j.Logger log;
 
-    public DirectoryTraverser() {
+    DirectoryTraverser() {
         this.log = org.slf4j.LoggerFactory.getLogger(DirectoryTraverser.class);
     }
 
@@ -37,7 +37,7 @@ public class DirectoryTraverser {
      * @return a Future containing the list of files found in the directory
      */
     @Async
-    public Future<List<File>> collectFilesInDirectory(String directoryPath, FileTraverser fileTraverser) {
+     Future<List<File>> collectFilesInDirectory(String directoryPath, FileTraverser fileTraverser) {
         log.info("Starting asynchronous traversal scan for directory: {}", directoryPath);
         return fileTraverser.traverse(directoryPath);
     }
@@ -57,7 +57,7 @@ public class DirectoryTraverser {
      *         directory
      */
     @Async
-    public CompletableFuture<List<File>> collectTopLevelFiles(File directoryPath) {
+     CompletableFuture<List<File>> collectTopLevelFiles(File directoryPath) {
         log.info("Starting synchronous collection of top-level files from directory: {}", directoryPath);
 
         // Retrieve the files directly within the specified directory, excluding

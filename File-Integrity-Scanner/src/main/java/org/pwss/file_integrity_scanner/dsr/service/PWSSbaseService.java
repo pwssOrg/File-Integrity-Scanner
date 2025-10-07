@@ -281,7 +281,7 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
         }
 
         // Basic pattern to detect common injection patterns. This is not foolproof.
-        final String[] dangerousPatterns = { ";", "--", "/*", "*/", "@@", "@", "\\", "$" };
+        final String[] dangerousPatterns = { ";", "--", "/*", "*/", "@@", "@", "$" };
 
         for (String pattern : dangerousPatterns) {
             if (input.contains(pattern)) {
