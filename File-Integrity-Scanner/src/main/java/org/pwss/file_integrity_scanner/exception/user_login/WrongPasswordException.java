@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner.exception.user_login;
 
 import java.io.Serial;
+import org.pwss.file_integrity_scanner.exception.PWSSbaseException;
 
 /**
  * <p>
@@ -17,7 +18,7 @@ import java.io.Serial;
  * @see UsernameNotFoundException
  */
 
-public final class WrongPasswordException extends Exception {
+public final class WrongPasswordException extends PWSSbaseException {
 
     @Serial
     private static final long serialVersionUID = 3L;
