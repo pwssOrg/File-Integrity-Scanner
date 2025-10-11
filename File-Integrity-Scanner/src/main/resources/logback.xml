@@ -13,7 +13,7 @@
         <appender-ref ref="CONSOLE" />
     </root>
     <!-- File-Integrity-Scanner -->
-    <logger name="org.pwss.file_integrity_scanner" level="INFO"/>
+    <logger name="org.pwss.file_integrity_scanner" level="DEBUG"/>
     <!-- Configure specific packages from dependencies -->
     <logger name="org.pwss.io_file" level="INFO"/>
     <logger name="lib.pwss.hash.file_hash_handler" level="ERROR"/>
@@ -23,5 +23,5 @@
     <logger name="org.postgresql" level="INFO"/>
     <logger name="io.swagger" level="INFO"/>
      <!-- Configure specific packages from Spring -->
-     <logger name="org.springframework" level="INFO"/>
+     <logger name="org.springframework" level="DEBUG"/>
 </configuration>
