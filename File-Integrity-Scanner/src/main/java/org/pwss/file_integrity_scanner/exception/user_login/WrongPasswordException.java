@@ -21,6 +21,6 @@ import org.pwss.file_integrity_scanner.exception.PWSSbaseException;
 public final class WrongPasswordException extends PWSSbaseException {
 
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
 }
