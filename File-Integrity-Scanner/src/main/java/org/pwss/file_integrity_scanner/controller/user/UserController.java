@@ -183,13 +183,14 @@ public class UserController {
      *         user exists or not, with appropriate HTTP status codes:
      *         - {@code 200 OK} if a user exists
      *         - {@code 404 NOT_FOUND} if no user is found
-     *         - {@code 429 NOT_FOUND} if rate limit is exceeded
+     *         - {@code 429 TOO_MANY_REQUESTS} if rate limit is exceeded
      */
     @Operation(summary = "Check if a user exists", description = "Checks if at least one user exists in the system.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User exists"),
             @ApiResponse(responseCode = "404", description = "No user found"),
-            @ApiResponse(responseCode = "429", description = "Rate limit exceeded. Too many requests in a short period.")
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded. Too many requests in a short period."),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/exists")
     public ResponseEntity<Boolean> userExistsCheck() {
