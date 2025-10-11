@@ -1,6 +1,7 @@
 package org.pwss.file_integrity_scanner.exception.user_login;
 
 import java.io.Serial;
+import org.pwss.file_integrity_scanner.exception.PWSSbaseException;
 
 /**
  * <p>
@@ -17,57 +18,9 @@ import java.io.Serial;
  * @see UsernameNotFoundException
  */
 
-public final class WrongPasswordException extends Exception {
+public final class WrongPasswordException extends PWSSbaseException {
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
-    /**
-     * Default constructor for WrongPasswordException. No message or cause
-     * specified.
-     */
-    public WrongPasswordException() {
-        super();
-    }
-
-    /**
-     * Constructs a new WrongPasswordException with the specified detail message.
-     *
-     * @param message The detail message (which is saved for later retrieval by the
-     *                getMessage method).
-     */
-    public WrongPasswordException(String message) {
-        super(message + " \nPWSS @Exception");
-    }
-
-    /**
-     * Constructs a new WrongPasswordException with the specified cause and a
-     * detail message of
-     * <tt>(cause==null ? null : cause.toString())</tt> (which typically contains
-     * the class and detail message
-     * of <tt>cause</tt>).
-     *
-     * @param cause The cause (which is saved for later retrieval by the getCause
-     *              method). A null value is
-     *              permitted,
-     *              and indicates that the cause is nonexistent or unknown.
-     */
-    public WrongPasswordException(Throwable cause) {
-        super(cause);
-    }
-
-    /**
-     * Constructs a new WrongPasswordException with the specified detail message
-     * and cause.
-     *
-     * @param message The detail message (which is saved for later retrieval by the
-     *                getMessage method).
-     * @param cause   The cause (which is saved for later retrieval by the getCause
-     *                method). A null value is
-     *                permitted,
-     *                and indicates that the cause is nonexistent or unknown.
-     */
-    public WrongPasswordException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
