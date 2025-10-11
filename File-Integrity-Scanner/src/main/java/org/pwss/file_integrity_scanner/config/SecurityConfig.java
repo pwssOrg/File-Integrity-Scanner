@@ -18,7 +18,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
-
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -64,7 +63,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/file-integrity").hasRole("AUTHORIZED")
                         .requestMatchers("/api/directory").hasRole("AUTHORIZED")
                         .anyRequest().authenticated())
-                       
 
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
