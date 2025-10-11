@@ -21,7 +21,7 @@ server:
   port: 15400
   servlet:
           context-path: /api
-  connection-timeout: 240000 # milliseconds (4 minute)
+  connection-timeout: 3600000 # milliseconds (1 hour)
   ssl:
     key-store-type: PKCS12
     key-store: classpath:keystore.pkcs8.p12 ## We make as new one for production (Server Certificate)
