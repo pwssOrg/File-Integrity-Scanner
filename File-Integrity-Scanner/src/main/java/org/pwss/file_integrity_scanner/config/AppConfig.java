@@ -26,7 +26,6 @@ public class AppConfig implements AsyncConfigurer {
     private final int queueCapacity = 200;
 
     //Log
-
     private final org.slf4j.Logger log = LoggerFactory.getLogger(AppConfig.class);
 
 
