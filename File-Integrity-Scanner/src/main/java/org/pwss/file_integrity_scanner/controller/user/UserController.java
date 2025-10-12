@@ -42,11 +42,29 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/user")
 public class UserController {
 
+    /**
+     * Manager responsible for performing authentication checks.
+     *
+     * This manager is used to authenticate the user's credentials during login or
+     * other security-sensitive
+     * operations.
+     */
     private final AuthenticationManager authenticationManager;
-    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    /**
+     * Repository for managing security context in an HTTP session.
+     */
+    private final SecurityContextRepository securityContextRepository;
 
+    /**
+     * Logger instance for logging messages related to user operations.
+     */
     private final org.slf4j.Logger log;
 
+    /**
+     * Service implementation for handling user-related business logic.
+     *
+     * @see UserServiceImpl
+     */
     @Autowired
     private final UserServiceImpl service;
 
@@ -60,6 +78,7 @@ public class UserController {
         this.service = userServiceImpl;
         this.log = org.slf4j.LoggerFactory.getLogger(UserController.class);
         this.authenticationManager = authenticationManager;
+        this.securityContextRepository = new HttpSessionSecurityContextRepository();
     }
 
     /**
@@ -76,6 +95,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(schema = @Schema(implementation = LoginResponse.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded. Too many requests in a short period."),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/login")
@@ -135,6 +155,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = User.class))),
             @ApiResponse(responseCode = "409", description = "A user is already present in the repository"),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded. Too many requests in a short period."),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/create")
@@ -162,11 +183,14 @@ public class UserController {
      *         user exists or not, with appropriate HTTP status codes:
      *         - {@code 200 OK} if a user exists
      *         - {@code 404 NOT_FOUND} if no user is found
+     *         - {@code 429 TOO_MANY_REQUESTS} if rate limit is exceeded
      */
     @Operation(summary = "Check if a user exists", description = "Checks if at least one user exists in the system.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User exists"),
             @ApiResponse(responseCode = "404", description = "No user found"),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded. Too many requests in a short period."),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/exists")
     public ResponseEntity<Boolean> userExistsCheck() {
