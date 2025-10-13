@@ -11,9 +11,10 @@ spring:
       jdbc:
         time_zone: UTC
   datasource:
-    url: jdbc:postgresql://localhost:26556/integrity_hash
+    url: jdbc:postgresql://127.0.0.1:26556/integrity_hash?ssl=true&sslmode=verify-ca&sslfactory=org.postgresql.ssl.NonValidatingFactory
     username: ${INTEGRITY_HASH_DB_USER}
     password: ${INTEGRITY_HASH_DB_PASSWORD}
+    ssl: on
   application:
     name: FileIntegrityApp
 
@@ -25,7 +26,7 @@ server:
   ssl:
     key-store-type: PKCS12
     key-store: classpath:keystore.pkcs8.p12 ## We make as new one for production (Server Certificate)
-    key-store-password: ${ssl_file_integrity_scanner} ## Ask me when doing PR and I´ll send you the password from another channel
+    key-store-password: ${ssl_file_integrity_scanner}
 directory:
       endpoint-code: 4350345983458934 # It is possible to use an environment variable if required: ${ENDPOINT_CODE_1}
   
