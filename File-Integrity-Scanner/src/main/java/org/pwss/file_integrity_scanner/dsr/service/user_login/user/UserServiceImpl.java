@@ -3,8 +3,10 @@ package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 import org.pwss.file_integrity_scanner.dsr.domain.mixed.entities.time.Time;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.auth.Auth;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
+import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.LoginRequest;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
-
+import org.pwss.file_integrity_scanner.dsr.service.license.LicenseServiceImpl;
+import org.pwss.file_integrity_scanner.exception.license.LicenseValidationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -42,25 +44,45 @@ public class UserServiceImpl
         PWSSbaseService<org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository, User, Integer>
         implements UserService {
 
+    /**
+     * Service for authentication-related operations.
+     */
     private final org.pwss.file_integrity_scanner.dsr.service.user_login.auth.AuthServiceImpl authService;
 
+    /**
+     * Service for time-related operations.
+     */
     private final org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl timeService;
+
+    /**
+     * Service for license-related operations.
+     */
+    private final LicenseServiceImpl licenseService;
 
     private final org.slf4j.Logger log;
 
     private final String AUTHORITY = "AUTHORIZED";
 
+    /**
+     * Constructor for the UserServiceImpl class.
+     *
+     * @param repository The repository for managing User entities.
+     * @param authService The service responsible for authentication operations.
+     * @param timeService The service responsible for time-related operations.
+     * @param licenseService The service responsible for license management operations.
+     */
     @Autowired
     public UserServiceImpl(org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository repository,
             org.pwss.file_integrity_scanner.dsr.service.user_login.auth.AuthServiceImpl authService,
-            org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl timeService) {
+            org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeServiceImpl timeService,
+            LicenseServiceImpl licenseService) {
 
         super(repository);
 
         this.authService = authService;
         this.timeService = timeService;
+        this.licenseService = licenseService;
         this.log = org.slf4j.LoggerFactory.getLogger(UserServiceImpl.class);
-
     }
 
     @Override
@@ -134,48 +156,64 @@ public class UserServiceImpl
     }
 
     @Override
-    public boolean ValidatePassword(String inputWord, String username)
-            throws org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException {
+    public boolean ValidatePassword(LoginRequest request)
+            throws org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException, SecurityException,
+            LicenseValidationFailedException {
 
-        final String storedPasswordHash = repository.findByUsername(username)
-                .orElseThrow(org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException::new).getAuth().getHash();
+        if (validateRequest(request)) {
 
-        if (CheckIfUsernameExists(username) && storedPasswordHash != null && storedPasswordHash.length() > 60 &&
-                storedPasswordHash.contains(":")) {
-
-            String[] parts = storedPasswordHash.split(":");
-
-            int iterations = Integer.valueOf(parts[0]);
-            byte[] storedSalt = ByteArrayUtil.hexStringToByteArray(parts[1]);
-            byte[] storedHash = ByteArrayUtil.hexStringToByteArray(parts[2]);
-
-            byte[] inputWordPasswordHash;
-            try {
-                inputWordPasswordHash = CreateHash(
-                        inputWord,
-                        storedSalt,
-                        iterations);
-
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
-            } catch (InvalidKeySpecException e) {
-                throw new RuntimeException(e);
+            if (!licenseService.validateLicenseKey(request.licenseKey())) {
+                throw new LicenseValidationFailedException("License");
             }
 
-            int diff = storedHash.length ^ inputWordPasswordHash.length;
-            for (int i = 0; i < storedHash.length
-                    && i < inputWordPasswordHash.length; i++) {
+            final String inputWord = request.getPassword();
+            final String username = request.getUsername();
 
-                diff |= storedHash[i] ^ inputWordPasswordHash[i];
+            final String storedPasswordHash = repository.findByUsername(username)
+                    .orElseThrow(org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException::new)
+                    .getAuth().getHash();
+
+            if (CheckIfUsernameExists(username) && storedPasswordHash != null && storedPasswordHash.length() > 60 &&
+                    storedPasswordHash.contains(":")) {
+
+                String[] parts = storedPasswordHash.split(":");
+
+                int iterations = Integer.valueOf(parts[0]);
+                byte[] storedSalt = ByteArrayUtil.hexStringToByteArray(parts[1]);
+                byte[] storedHash = ByteArrayUtil.hexStringToByteArray(parts[2]);
+
+                byte[] inputWordPasswordHash;
+                try {
+                    inputWordPasswordHash = CreateHash(
+                            inputWord,
+                            storedSalt,
+                            iterations);
+
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e);
+                } catch (InvalidKeySpecException e) {
+                    throw new RuntimeException(e);
+                }
+
+                int diff = storedHash.length ^ inputWordPasswordHash.length;
+                for (int i = 0; i < storedHash.length
+                        && i < inputWordPasswordHash.length; i++) {
+
+                    diff |= storedHash[i] ^ inputWordPasswordHash[i];
+                }
+
+                log.debug("Results of comparison between the login hash and the stored hash ->  {}", (diff == 0));
+
+                return diff == 0;
+
+            } else {
+                return false;
             }
-
-            log.debug("Results of comparison between the login hash and the stored hash ->  {}", (diff == 0));
-
-            return diff == 0;
 
         } else {
-            return false;
+            throw new SecurityException("Validation failed!");
         }
+
     }
 
     @Override

@@ -2,6 +2,8 @@ package org.pwss.file_integrity_scanner.dsr.service.user_login.user;
 
 import org.apache.tomcat.util.buf.HexUtils;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User;
+import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.LoginRequest;
+import org.pwss.file_integrity_scanner.exception.license.LicenseValidationFailedException;
 import org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -103,7 +105,8 @@ public interface UserService extends UserDetailsService {
      *                                  hash
      * @throws InvalidKeySpecException  if the key specification is invalid
      */
-    User CreateUser(org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest request)
+    User CreateUser(
+            org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest request)
             throws NoSuchAlgorithmException, InvalidKeySpecException;
 
     /**
@@ -134,11 +137,16 @@ public interface UserService extends UserDetailsService {
     /**
      * Validates the input word against the stored hash.
      *
-     * @param inputWord Clear text password to be validated
+     * @param request The login request containing credentials and license key
      * @return True if validation passes; False otherwise
-     * @throws UsernameNotFoundException If user with given credentials is not found
+     * @throws UsernameNotFoundException        If user with given credentials is
+     *                                          not found
+     * @throws SecurityException                If there's a security-related error
+     *                                          during validation
+     * @throws LicenseValidationFailedException If the license key validation fails
      */
-    boolean ValidatePassword(final String inputWord, String userName) throws UsernameNotFoundException;
+    boolean ValidatePassword(final LoginRequest request)
+            throws UsernameNotFoundException, SecurityException, LicenseValidationFailedException;
 
     /**
      * Validates the http request data of a client request.

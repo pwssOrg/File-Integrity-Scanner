@@ -8,6 +8,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.LoginRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.response.user_controller.LoginResponse;
 import org.pwss.file_integrity_scanner.dsr.service.user_login.user.UserServiceImpl;
+import org.pwss.file_integrity_scanner.exception.license.LicenseValidationFailedException;
 import org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException;
 import org.pwss.file_integrity_scanner.exception.user_login.WrongPasswordException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +106,16 @@ public class UserController {
 
         try {
 
-            Boolean loginValid = service.ValidatePassword(request.getPassword(), request.getUsername());
+            Boolean loginValid = false;
+            try {
+                loginValid = service.ValidatePassword(request);
+            } catch (SecurityException e) {
+                return new ResponseEntity<LoginResponse>(new LoginResponse(false),
+                        HttpStatus.UNPROCESSABLE_ENTITY);
+            } catch (LicenseValidationFailedException e) {
+                return new ResponseEntity<LoginResponse>(new LoginResponse(false),
+                        HttpStatus.PAYMENT_REQUIRED);
+            }
 
             log.debug("Login is {} ", loginValid);
             if (loginValid) {
