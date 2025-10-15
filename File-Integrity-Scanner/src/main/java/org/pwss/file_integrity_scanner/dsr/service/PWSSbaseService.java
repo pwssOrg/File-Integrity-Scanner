@@ -44,6 +44,29 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
         this.logForPWSSBaseClass = org.slf4j.LoggerFactory.getLogger(PWSSbaseService.class);
     }
 
+    
+    /**
+     * Validates the password to ensure it does not contain certain injection points.
+     * @param password The password to validate
+     * @return true if the password is valid and does not contain injection points; false otherwise
+     */
+    protected boolean validatePasswordForInjectionPoints(String password){
+
+          if (password == null || password.isEmpty()) {
+            return false;
+        }
+
+        final String[] passwordPattern = { "/*", "*/" , "\\" };
+
+        for (String pattern : passwordPattern) {
+            if (password.contains(pattern)) {
+                logForPWSSBaseClass.error("Password can not contain /* , */ or \\");
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Validates a given request object.
      *
@@ -60,8 +83,6 @@ public abstract class PWSSbaseService<Repository extends JpaRepository<T, ID>, T
      *         rules; False otherwise.
      */
     protected boolean validateRequest(Object object) {
-
-        logForPWSSBaseClass.debug("Validating request object...");
 
         // Handle null case explicitly
         if (object == null) {

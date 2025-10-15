@@ -7,6 +7,7 @@ import org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.license.LicenseServiceImpl;
 import org.pwss.file_integrity_scanner.exception.license.LicenseValidationFailedException;
+import org.pwss.file_integrity_scanner.exception.user_login.CreateUserFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -66,10 +67,11 @@ public class UserServiceImpl
     /**
      * Constructor for the UserServiceImpl class.
      *
-     * @param repository The repository for managing User entities.
-     * @param authService The service responsible for authentication operations.
-     * @param timeService The service responsible for time-related operations.
-     * @param licenseService The service responsible for license management operations.
+     * @param repository     The repository for managing User entities.
+     * @param authService    The service responsible for authentication operations.
+     * @param timeService    The service responsible for time-related operations.
+     * @param licenseService The service responsible for license management
+     *                       operations.
      */
     @Autowired
     public UserServiceImpl(org.pwss.file_integrity_scanner.dsr.repository.user_login.user.UserRepository repository,
@@ -111,9 +113,19 @@ public class UserServiceImpl
     @Transactional
     public org.pwss.file_integrity_scanner.dsr.domain.user_login.entities.user.User CreateUser(
             org.pwss.file_integrity_scanner.dsr.domain.user_login.model.request.user_controller.CreateUserRequest request)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
+            throws SecurityException, CreateUserFailedException, LicenseValidationFailedException {
 
-        if (ValidateCreateUserRequest(request)) {
+        if (ValidateCreateUserRequest(request) && validateRequest(request.getUsername())
+                && validateRequest(request.licenseKey())) {
+
+            if (!licenseService.validateLicenseKey(request.licenseKey())) {
+                throw new LicenseValidationFailedException("The license is invalid");
+            }
+
+            if (!validatePasswordForInjectionPoints(request.getPassword())) {
+
+                throw new CreateUserFailedException("Your Password can not contain /* , */ or \\");
+            }
 
             try {
 
@@ -121,7 +133,7 @@ public class UserServiceImpl
                 Auth auth = new Auth();
                 Time time = new Time();
 
-                String hashedPasswordWithSalt = GenerateHashWithSalt(request.password);
+                String hashedPasswordWithSalt = GenerateHashWithSalt(request.getPassword());
 
                 time.setCreated(OffsetDateTime.now());
                 time.setUpdated(OffsetDateTime.now());
@@ -133,11 +145,11 @@ public class UserServiceImpl
                 if (authFromRepository != null)
                     auth.setTime(authFromRepository);
                 else
-                    return null;
+                   throw new CreateUserFailedException("Auth from repository is null");
 
                 authService.save(auth);
 
-                user.setUsername(request.username);
+                user.setUsername(request.getUsername());
                 user.setTime(time);
                 user.setAuth(auth);
 
@@ -146,13 +158,13 @@ public class UserServiceImpl
                 return user;
             } catch (Exception ex) {
                 log.error("Error occurred while creating a user {}", ex.getMessage());
+                log.debug("Error occurred while creating a user {}", ex);
+                throw new CreateUserFailedException("An exception occurred while creating a user");
             }
 
         } else {
-
-            return null;
+            throw new SecurityException("Validation failed");
         }
-        return null;
     }
 
     @Override
@@ -160,10 +172,11 @@ public class UserServiceImpl
             throws org.pwss.file_integrity_scanner.exception.user_login.UsernameNotFoundException, SecurityException,
             LicenseValidationFailedException {
 
-        if (validateRequest(request)) {
+        if (validateRequest(request.getUsername()) && validateRequest(request.licenseKey())
+                && validatePasswordForInjectionPoints(request.getPassword())) {
 
             if (!licenseService.validateLicenseKey(request.licenseKey())) {
-                throw new LicenseValidationFailedException("License");
+                throw new LicenseValidationFailedException("The license is invalid");
             }
 
             final String inputWord = request.getPassword();
