@@ -11,9 +11,10 @@ spring:
       jdbc:
         time_zone: UTC
   datasource:
-    url: jdbc:postgresql://localhost:26556/integrity_hash
+    url: jdbc:postgresql://127.0.0.1:26556/integrity_hash?ssl=true&sslmode=verify-ca&sslfactory=org.postgresql.ssl.NonValidatingFactory
     username: ${INTEGRITY_HASH_DB_USER}
     password: ${INTEGRITY_HASH_DB_PASSWORD}
+    ssl: on
   application:
     name: FileIntegrityApp
 
@@ -21,8 +22,14 @@ server:
   port: 15400
   servlet:
           context-path: /api
-  connection-timeout: 240000 # milliseconds (4 minute)
-
+  connection-timeout: 240000 # milliseconds (4 minutes)
+                      
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:keystore.pkcs8.p12 ## We make as new one for production (Server Certificate)
+    key-store-password: ${ssl_file_integrity_scanner}
+    enabled: true
+    http-port: -1
 directory:
       endpoint-code: 4350345983458934 # It is possible to use an environment variable if required: ${ENDPOINT_CODE_1}
   

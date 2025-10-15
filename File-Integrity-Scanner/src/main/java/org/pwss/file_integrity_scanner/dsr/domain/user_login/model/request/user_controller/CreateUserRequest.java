@@ -6,25 +6,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * A data class representing a request to create a new user.
  */
 @Schema(description = "Represents a request to create a new user.")
-public final class CreateUserRequest {
-
-    /**
+public record CreateUserRequest(/**
      * The username for the new user.
      */
-    @Schema(description = "The username of the new user", example = "john_doe")
-    public String username;
-
-    /**
+    @Schema(description = "The Username for the New User", example = "john_doe")    String username,
+     /**
      * The password for the new user.
      */
-    @Schema(description = "The password of the new user", example = "securePassword123")
-    public String password;
+    @Schema(description = "The Password for the New User", example = "securePassword123")
+    String password,
+    /** licenseKeyString */
+    @Schema(description = "The License Key for the File Integrity Scanner", example = "license key string") String licenseKey) {
 
-    /**
-     * Default constructor for CreateUserRequest.
-     */
-    public CreateUserRequest() {
-    }
 
     /**
      * Returns the password for the new user.
@@ -44,12 +37,15 @@ public final class CreateUserRequest {
         return username;
     }
 
-    /**
-     * Sets the username for the new user.
+     /**
+     * Returns the license key associated with the user.
      *
-     * @param username The username to set
+     * This method is used to retrieve the license key that will be validated during
+     * login.
+     *
+     * @return The license key
      */
-    public final void setUsername(String username) {
-        this.username = username;
+    public final String licenseKey() {
+        return licenseKey;
     }
 }

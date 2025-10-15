@@ -11,12 +11,16 @@ public record LoginRequest(
         /**
          * The username for the user attempting to log in.
          */
-        @Schema(description = "The username of the user", example = "john_doe") String username,
+        @Schema(description = "The Username for the User", example = "john_doe") String username,
 
         /**
          * The password for the user attempting to log in.
          */
-        @Schema(description = "The password of the user", example = "securePassword123") String password) {
+        @Schema(description = "The Password for the User", example = "securePassword123") String password,
+        /** licenseKeyString */
+        @Schema(description = "The License Key for the File Integrity Scanner", example = "license key string") String licenseKey)
+
+{
 
     /**
      * Returns the username for the user attempting to log in.
@@ -35,4 +39,17 @@ public record LoginRequest(
     public final String getPassword() {
         return this.password;
     }
+
+    /**
+     * Returns the license key associated with the user.
+     *
+     * This method is used to retrieve the license key that will be validated during
+     * login.
+     *
+     * @return The license key
+     */
+    public final String licenseKey() {
+        return licenseKey;
+    }
+
 }

@@ -3,6 +3,7 @@ package org.pwss.file_integrity_scanner.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.pwss.file_integrity_scanner.config.filter.RateLimitingFilter;
 import org.pwss.file_integrity_scanner.dsr.service.user_login.user.UserServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,7 @@ import org.springframework.security.config.Customizer;
 
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
-
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -30,13 +30,18 @@ import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private RateLimitingFilter rateLimitingFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -49,8 +54,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET).permitAll()
@@ -64,7 +70,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/file-integrity").hasRole("AUTHORIZED")
                         .requestMatchers("/api/directory").hasRole("AUTHORIZED")
                         .anyRequest().authenticated())
-                       
 
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
