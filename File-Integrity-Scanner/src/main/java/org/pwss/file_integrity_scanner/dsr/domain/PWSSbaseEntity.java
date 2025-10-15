@@ -77,21 +77,33 @@ public abstract class PWSSbaseEntity {
     protected final String MIXED = "Mixed";
 
     /**
+     * Constant representing a section of the application related to license
+     * functionality.
+     *
+     * <p>
+     * When implementing this base class, if your entity table belongs to
+     * functionality
+     * that is specifically related to license management or handling,
+     * you should return this value in the {@link #getDBSection()} method.
+     * </p>
+     */
+    protected final String LICENSE = "License";
+
+    /**
      * Abstract method that must be implemented by any subclass of PWSSBaseEntity.
      * This method returns a string indicating which section of the application
-     * the entity belongs to, either {@link #FIS}, {@link #USER_LOGIN}, or
-     * {@link #MIXED}.
+     * the entity belongs to, either {@link #FIS}, {@link #USER_LOGIN},
+     * {@link #MIXED} or {@link #LICENSE}.
      *
      * <p>
      * This method is used to inform clients (e.g., methods in implementing classes
      * or service invokers) about the functional section that the database table
-     * this entity represents
-     * belongs to.
+     * this entity represents belongs to.
      * </p>
      *
      * @return The section of the application this entity belongs to. Either
-     *         {@link #FIS},
-     *         {@link #USER_LOGIN}, or {@link #MIXED}.
+     *         {@link #FIS}, {@link #USER_LOGIN}, {@link #MIXED}, or
+     *         {@link #LICENSE}.
      */
     protected abstract String getDBSection();
 }
