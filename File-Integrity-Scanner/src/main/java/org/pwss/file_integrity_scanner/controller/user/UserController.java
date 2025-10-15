@@ -133,7 +133,6 @@ public class UserController {
                 // …and persist it to the HTTP session so the user stays logged in
                 securityContextRepository.saveContext(context, httpRequest, httpResponse);
 
-                //service.loadUserByUsername(request.getUsername());
                 return new ResponseEntity<>(new LoginResponse(true), HttpStatus.OK);
 
             } else
