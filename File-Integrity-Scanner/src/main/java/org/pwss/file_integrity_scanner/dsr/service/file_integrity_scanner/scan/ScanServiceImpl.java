@@ -146,7 +146,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     /**
      * Compare String to check if the file size is allowed to extract hashes from // Make this better
      */
-    private final String FILE_SIZE_TO_BIG_MESSAGE = "File Size";
+    private final String FILE_SIZE_TOO_BIG_MESSAGE = "File Size";
 
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
