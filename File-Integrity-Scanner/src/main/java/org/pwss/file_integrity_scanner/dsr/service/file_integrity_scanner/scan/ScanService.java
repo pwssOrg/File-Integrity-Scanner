@@ -1,11 +1,13 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartAllRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanAlreadyRunningException;
@@ -21,13 +23,20 @@ public interface ScanService {
          * This method will start the scanning process for each directory that is being
          * monitored within the system.
          *
+         * @param request A {@link StartAllRequest} containing parameters to
+         *                initiate the scan.
+         *                The maximum file size for hash extraction attempts cannot be
+         *                null.
          * @throws ScanAlreadyRunningException           if there's already an active
-         *                                               scan running
+         *                                               scan running.
          * @throws NoActiveMonitoredDirectoriesException if no directories are currently
-         *                                               being monitored
+         *                                               being monitored.
+         * @throws SecurityException                     If validation of the request
+         *                                               fails or any
+         *                                               security-related issue occurs.
          */
-        void scanAllDirectories()
-                        throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException;
+        void scanAllDirectories(StartAllRequest request)
+                        throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException;
 
         /**
          * Initiates scanning of a single monitored directory.
@@ -36,14 +45,25 @@ public interface ScanService {
          * directory. It ensures that only the provided directory is scanned,
          * rather than all monitored directories.
          *
-         * @param monitoredDirectory the monitored directory to be scanned
+         * @param request A {@link StartScanByIdRequest} containing parameters to
+         *                initiate the scan.
+         *                The maximum file size for hash extraction attempts cannot be
+         *                null and
+         *                must specify the ID of the monitored directory to be scanned.
          * @throws ScanAlreadyRunningException           if there's already an active
-         *                                               scan running
+         *                                               scan running.
          * @throws NoActiveMonitoredDirectoriesException if no directories are currently
-         *                                               being monitored
+         *                                               being monitored.
+         * @throws SecurityException                     If validation of the request
+         *                                               fails or any
+         *                                               security-related issue occurs.
+         * @throws NoSuchElementException                If the specified monitored
+         *                                               directory could not be found in
+         *                                               the repository layer.
          */
-        void scanSingleDirectory(MonitoredDirectory monitoredDirectory)
-                        throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException;
+        void scanSingleDirectory(StartScanByIdRequest request)
+                        throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException,
+                        NoSuchElementException;
 
         /**
          * Stops any ongoing scans.

@@ -8,6 +8,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,6 +23,8 @@ import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entitie
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan_summary.ScanSummary;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartAllRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.ScanTaskState;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.scan.enumeration.ScanStatus;
@@ -34,6 +37,7 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.file.F
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.note.NoteService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan_summary.ScanSummaryService;
+import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.util.ConversionUtils;
 import org.pwss.file_integrity_scanner.dsr.service.mixed.time.TimeService;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanAlreadyRunningException;
@@ -139,6 +143,11 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
      */
     private final int MAX_NUMBER_OF_FILE_FOR_LIVE_FEED = 10000;
 
+    /**
+     * Compare String to check if the file size is allowed to extract hashes from // Make this better
+     */
+    private final String FILE_SIZE_TO_BIG_MESSAGE = "File Size";
+
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
             MonitoredDirectoryService monitoredDirectoryService,
@@ -177,130 +186,183 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
     @Transactional
     @Override
-    public void scanAllDirectories() throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
+    public void scanAllDirectories(StartAllRequest request)
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException {
 
         if (isScanRunning) {
             throw new ScanAlreadyRunningException();
         }
 
-        this.isScanRunning = true;
+        if (validateRequest(request)) {
 
-        stopRequested = false; // Reset stop request at the start of a new scan.
+            fileHashComputer.setUserDefinedMaxLimitInHashComputer(request.maxHashExtractionFileSize());
 
-        List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
+            this.isScanRunning = true;
 
-        if (activeDirs.isEmpty()) {
-            log.warn("No active monitored directories found");
-            isScanRunning = false;
+            stopRequested = false; // Reset stop request at the start of a new scan.
+
+            List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
+
+            if (activeDirs.isEmpty()) {
+                log.warn("No active monitored directories found");
+                isScanRunning = false;
+            }
+
+            if (isScanRunning == false) {
+                throw new NoActiveMonitoredDirectoriesException(
+                        "No active monitored directories found when scanning all directories");
+            }
+            try {
+
+                if (request.maxHashExtractionFileSize().equals(-1l)) {
+                    log.info(
+                            "Starting scan of all monitored directories at {} with max file size for hash extraction set to UNLIMITED",
+                            OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+                } else {
+                    log.info(
+                            "Starting scan of all monitored directories at {} with max file size for hash extraction set to {} MB",
+                            OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+                }
+
+                log.debug("Initializing Stringbuilder");
+                this.liveFeed = new StringBuilder();
+
+                this.hasAttemptedRetrieveLiveFeedAfterScan = false;
+
+                log.debug("Scan is running - {}", isScanRunning);
+                // Iterate over each monitored directory in database
+                for (MonitoredDirectory dir : activeDirs) {
+                    if (stopRequested) {
+                        log.info("Scan stopped  by user request.");
+                        break;
+                    }
+
+                    final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
+                    timeService.save(time);
+
+                    final Note note = new Note("Started scan of all monitored directories at "
+                            + OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
+                    noteService.save(note);
+
+                    final Boolean isBaseLineScan = !dir.getBaselineEstablished();
+                    Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(), dir, note, isBaseLineScan);
+
+                    repository.save(scan);
+
+                    fileTraverser = new FileTraverserImpl();
+                    Future<List<File>> futureFiles;
+
+                    this.startMonitoring();
+                    if (dir.getIncludeSubdirectories()) {
+                        futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
+                    } else {
+                        futureFiles = scanDirectoryAsync(dir.getPath());
+                    }
+
+                    activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
+                }
+            } catch (Exception e) {
+                log.error("Error while scanning all monitored directories {},", e.getMessage());
+            }
+
+        } else {
+            throw new SecurityException("Validation Failed");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void scanSingleDirectory(StartScanByIdRequest request)
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException,NoSuchElementException {
+
+        if (isScanRunning) {
+            throw new ScanAlreadyRunningException();
         }
 
-        if (isScanRunning == false) {
-            throw new NoActiveMonitoredDirectoriesException(
-                    "No active monitored directories found when scanning all directories");
-        }
-        try {
-            log.info("Starting scan of all monitored directories at {}",
-                    OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+        if (validateRequest(request)) {
+
+            final MonitoredDirectory dir;
+
+            final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService.findById(request.id());
+
+            if (oMonitoredDirectory.isPresent()) {
+
+                log.debug("Monitored Directory found with id - {}", oMonitoredDirectory.get().getId());
+
+                dir = oMonitoredDirectory.get();
+
+            }
+
+            else {
+
+                throw new NoSuchElementException(
+                        "The specified monitored directory could not be found in the repository layer");
+
+            }
+
+            if (!dir.getIsActive()) {
+                log.warn("No active monitored directory found");
+                throw new NoActiveMonitoredDirectoriesException("monitored directory id: ", dir.getId());
+            }
+
+            fileHashComputer.setUserDefinedMaxLimitInHashComputer(request.maxHashExtractionFileSize());
+
+            if (request.maxHashExtractionFileSize().equals(-1l)) {
+                log.info(
+                        "Starting scan of monitored directory '{}' at time {} with max file size for hash extraction set to UNLIMITED",
+                        dir.getPath(),
+                        OffsetDateTime.now().format(timeAndDateStringForLogFormat),
+                        ConversionUtils.bytesToMegabytes(request.maxHashExtractionFileSize()));
+            } else {
+                log.info(
+                        "Starting scan of monitored directory {} at time {} with max file size for hash extraction set to {} MB",
+                        dir.getPath(),
+                        OffsetDateTime.now().format(timeAndDateStringForLogFormat),
+                        ConversionUtils.bytesToMegabytes(request.maxHashExtractionFileSize()));
+            }
 
             log.debug("Initializing Stringbuilder");
             this.liveFeed = new StringBuilder();
 
             this.hasAttemptedRetrieveLiveFeedAfterScan = false;
 
+            this.isScanRunning = true;
             log.debug("Scan is running - {}", isScanRunning);
-            // Iterate over each monitored directory in database
-            for (MonitoredDirectory dir : activeDirs) {
-                if (stopRequested) {
-                    log.info("Scan stopped  by user request.");
-                    break;
-                }
 
-                final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
-                timeService.save(time);
+            fileTraverser = new FileTraverserImpl();
 
-                final Note note = new Note("Started scan of all monitored directories at "
-                        + OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
-                noteService.save(note);
+            final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
+            timeService.save(time);
 
-                final Boolean isBaseLineScan = !dir.getBaselineEstablished();
-                Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(), dir, note, isBaseLineScan);
+            final Note note = new Note("Started scan of monitored directory " + dir.getPath() + " at time: "
+                    + OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
+            noteService.save(note);
 
-                repository.save(scan);
+            final Boolean isBaseLineScan = !dir.getBaselineEstablished();
 
-                fileTraverser = new FileTraverserImpl();
-                Future<List<File>> futureFiles;
+            Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(),
+                    dir, note, isBaseLineScan);
 
-                this.startMonitoring();
-                if (dir.getIncludeSubdirectories()) {
-                    futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
-                } else {
-                    futureFiles = scanDirectoryAsync(dir.getPath());
-                }
+            repository.save(scan);
 
-                activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
+            Future<List<File>> futureFiles;
+
+            this.startMonitoring();
+            if (dir.getIncludeSubdirectories()) {
+                futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
+            } else {
+
+                futureFiles = scanDirectoryAsync(dir.getPath());
             }
-        } catch (Exception e) {
-            log.error("Error while scanning all monitored directories {},", e.getMessage());
+
+            activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
+
         }
 
-    }
-
-    @Transactional
-    @Override
-    public void scanSingleDirectory(MonitoredDirectory dir)
-            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException {
-
-        if (isScanRunning) {
-            throw new ScanAlreadyRunningException();
+        else {
+            throw new SecurityException("Validation Failed");
         }
 
-        if (dir == null) {
-            throw new NullPointerException("Monitored directory cannot be null");
-        }
-
-        if (!dir.getIsActive()) {
-            log.warn("No active monitored directory found");
-            throw new NoActiveMonitoredDirectoriesException("monitored directory id: ", dir.getId());
-        }
-
-        log.info("Starting scan of monitored directory - {} at time - {}",
-                dir.getPath(), OffsetDateTime.now().format(timeAndDateStringForLogFormat));
-
-        log.debug("Initializing Stringbuilder");
-        this.liveFeed = new StringBuilder();
-
-        this.hasAttemptedRetrieveLiveFeedAfterScan = false;
-
-        this.isScanRunning = true;
-        log.debug("Scan is running - {}", isScanRunning);
-
-        fileTraverser = new FileTraverserImpl();
-
-        final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
-        timeService.save(time);
-
-        final Note note = new Note("Started scan of monitored directory " + dir.getPath() + " at time: "
-                + OffsetDateTime.now().format(timeAndDateStringForLogFormat), time);
-        noteService.save(note);
-
-        final Boolean isBaseLineScan = !dir.getBaselineEstablished();
-
-        Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(),
-                dir, note, isBaseLineScan);
-
-        repository.save(scan);
-
-        Future<List<File>> futureFiles;
-
-        this.startMonitoring();
-        if (dir.getIncludeSubdirectories()) {
-            futureFiles = scanDirectoryAsync(dir.getPath(), fileTraverser);
-        } else {
-
-            futureFiles = scanDirectoryAsync(dir.getPath());
-        }
-
-        activeScanTasks.put(dir.getPath(), new ScanTaskState(futureFiles, scan));
     }
 
     /**
@@ -355,7 +417,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         if (monitorTaskFuture == null || monitorTaskFuture.isCancelled()) {
             final Duration duration = Duration.ofMillis(SCAN_TASK_MONITOR_DELAY);
             monitorTaskFuture = taskScheduler.scheduleAtFixedRate(this::monitorOngoingScanTasks, duration);
-            log.info("Scan task monitoring started (delay: {} ms).", SCAN_TASK_MONITOR_DELAY);
+            log.debug("Scan task monitoring started (delay: {} ms).", SCAN_TASK_MONITOR_DELAY);
         } else {
             log.debug("Monitoring is already running.");
         }
@@ -369,7 +431,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     private void stopMonitoring() {
         if (monitorTaskFuture != null && !monitorTaskFuture.isCancelled()) {
             monitorTaskFuture.cancel(true);
-            log.info("Scan task monitoring stopped.");
+            log.debug("Scan task monitoring stopped.");
         } else {
             log.debug("Monitoring is not running.");
         }
@@ -406,7 +468,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     log.error("Scan interrupted for directory {}: {}", dirPath, e.getMessage());
                     activeScanTasks.remove(dirPath);
                 } catch (ExecutionException e) {
-                    log.error("Execution exception while completing scan for directory {}: {}", dirPath,
+                    log.error("Execution exception thrown while completing a scan for {} {}", dirPath,
                             e.getMessage());
                     activeScanTasks.remove(dirPath);
                 }
@@ -542,6 +604,13 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         if (computedHashesOpt.isPresent()) {
             computedHashes = computedHashesOpt.get();
+            
+            if (computedHashes.sha256().startsWith(FILE_SIZE_TO_BIG_MESSAGE)) {
+                this.liveFeed.append(String.format("%s with size (%d MB) is bigger than the user defined max limit",
+                        file.getName(), ConversionUtils.bytesToMegabytes(file.getTotalSpace())));
+                log.debug("{} is bigger than the user defined max limit", file.getName());
+                return;
+            }
         } else {
             log.error(
                     "Could not compute hash for file - {}\nProbably due to a file access issue. Try runnning File Integrity Scanner as an administrator and see if it resolves this issue",
@@ -633,7 +702,6 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 Checksum oldChecksum = baselineScanSummaryFromRepository.getChecksum();
 
                 if (fileHashComputer.compareHashes(oldChecksum, checksum)) {
-                    log.debug("File {} has not changed since the baseline scan ✅", fileEntity.getPath());
 
                     if (!isFileListToBigForLiveFeed) {
                         this.liveFeed.append(fileEntity.getBasename());
@@ -644,8 +712,6 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     scanSummaryService.save(currentScanSummary);
 
                 } else {
-                    log.warn("File {} has changed since the baseline scan ⚠️", fileEntity.getPath());
-
                     if (!isFileListToBigForLiveFeed) {
                         this.liveFeed.append(fileEntity.getBasename());
                         this.liveFeed.append(FILE_HAS_CHANGED);

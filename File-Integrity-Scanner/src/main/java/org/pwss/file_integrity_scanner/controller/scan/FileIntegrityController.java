@@ -1,19 +1,20 @@
 package org.pwss.file_integrity_scanner.controller.scan;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
-import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.monitored_directory.MonitoredDirectory;
+
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartAllRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartScanByIdRequest;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.response.file_integrity_controller.LiveFeedResponse;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.IntegrityService;
-import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.monitored_directory.MonitoredDirectoryServiceImpl;
+
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanAlreadyRunningException;
@@ -47,8 +48,6 @@ public class FileIntegrityController {
 
     private final ScanServiceImpl scanService;
 
-    private final MonitoredDirectoryServiceImpl monitoredDirectoryService;
-
     private final IntegrityService integrityService;
 
     private final org.slf4j.Logger log;
@@ -56,15 +55,12 @@ public class FileIntegrityController {
     /**
      * Constructs a new FileIntegrityController with the specified services.
      *
-     * @param scanService               The service to handle file integrity scans
-     * @param monitoredDirectoryService The service to manage monitored directories
+     * @param scanService The service to handle file integrity scans
      */
     @Autowired
     public FileIntegrityController(ScanServiceImpl scanService,
-            MonitoredDirectoryServiceImpl monitoredDirectoryService,
             IntegrityService integrityService) {
         this.scanService = scanService;
-        this.monitoredDirectoryService = monitoredDirectoryService;
         this.integrityService = integrityService;
         this.log = org.slf4j.LoggerFactory.getLogger(FileIntegrityController.class);
     }
@@ -72,6 +68,10 @@ public class FileIntegrityController {
     /**
      * Starts a file integrity scan for all directories, requires AUTHORIZED role.
      *
+     * @param request A {@link StartAllRequest} containing parameters to start
+     *                the scan.
+     *                The maximum file size for hash extraction attempts cannot be
+     *                null.
      * @return A {@link ResponseEntity} With:
      *         - Status 200 (OK) and a success message in the response body if the
      *         scan is successfully started or,
@@ -81,6 +81,8 @@ public class FileIntegrityController {
      *         found using a Response Entity from
      *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
      *         or,
+     *         - Status 422 (UNPROCESSABLE_ENTITY) if security validation fails
+     *         or,
      *         - Status 425 (TOO_EARLY) using a Response Entity from
      *         {@link #scanAlreadyRunningResponseEntity(ScanAlreadyRunningException)}
      *
@@ -89,14 +91,15 @@ public class FileIntegrityController {
             @ApiResponse(responseCode = "200", description = "Success message indicating the scan has started successfully.", content = @Content(schema = @Schema(type = "string"))),
             @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
             @ApiResponse(responseCode = "412", description = "Precondition Failed. No active monitored directories found.", content = @Content(schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "422", description = "Could not start scan due to security restrictions or validation failures."),
             @ApiResponse(responseCode = "425", description = "Too Early. Scan is already running.", content = @Content(schema = @Schema(type = "string")))
     })
-    @GetMapping("/start/all")
+    @PostMapping("/start/all")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
-    public ResponseEntity<String> startFileIntegrityScan() {
+    public ResponseEntity<String> startFileIntegrityScan(@RequestBody StartAllRequest request) {
 
         try {
-            scanService.scanAllDirectories();
+            scanService.scanAllDirectories(request);
         }
 
         catch (NoActiveMonitoredDirectoriesException nMonitoredDirectoriesException) {
@@ -105,6 +108,10 @@ public class FileIntegrityController {
 
         catch (ScanAlreadyRunningException sRunningException) {
             return scanAlreadyRunningResponseEntity(sRunningException);
+        }
+
+        catch (SecurityException securityException) {
+            return new ResponseEntity<>(securityException.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         return new ResponseEntity<>(
@@ -131,6 +138,8 @@ public class FileIntegrityController {
      *         found using a Response Entity from
      *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
      *         or,
+     *         - Status 422 (UNPROCESSABLE_ENTITY) if security validation fails
+     *         or,
      *         - Status 425 (TOO_EARLY) using a Response Entity from
      *         {@link #scanAlreadyRunningResponseEntity(ScanAlreadyRunningException)}
      * 
@@ -140,6 +149,7 @@ public class FileIntegrityController {
             @ApiResponse(responseCode = "401", description = "Unauthorized - user not authorized to perform this action"),
             @ApiResponse(responseCode = "404", description = "No MonitoredDirectory found with the provided ID", content = @Content(schema = @Schema(type = "string"))),
             @ApiResponse(responseCode = "412", description = "Precondition Failed - Monitored directory is not active"),
+            @ApiResponse(responseCode = "422", description = "Could not start scan due to security restrictions or validation failures."),
             @ApiResponse(responseCode = "425", description = "TOO_EARLY", content = @Content(schema = @Schema(type = "string")))
 
     })
@@ -148,26 +158,21 @@ public class FileIntegrityController {
     public ResponseEntity<String> startFileIntegrityScanForMonitoredDirectoryById(
             @RequestBody StartScanByIdRequest request) {
 
-        final Optional<MonitoredDirectory> oMonitoredDirectory = monitoredDirectoryService
-                .findById(request.id());
-
-        if (oMonitoredDirectory.isPresent()) {
-
-            log.debug("Monitored Directory found with id - {}", oMonitoredDirectory.get().getId());
-            try {
-                scanService.scanSingleDirectory(oMonitoredDirectory.get());
-            } catch (ScanAlreadyRunningException sRunningException) {
-                return scanAlreadyRunningResponseEntity(sRunningException);
-            } catch (NoActiveMonitoredDirectoriesException nMonitoredDirectoriesException) {
-                return noActiveMonitoredDirectoriesResponseEntity(nMonitoredDirectoriesException);
-            }
-            return new ResponseEntity<>(
-                    "Successfully started the scan",
-                    HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("No MonitoredDirectory was found at the ID you have provided",
+        try {
+            scanService.scanSingleDirectory(request);
+        } catch (ScanAlreadyRunningException sRunningException) {
+            return scanAlreadyRunningResponseEntity(sRunningException);
+        } catch (NoActiveMonitoredDirectoriesException nMonitoredDirectoriesException) {
+            return noActiveMonitoredDirectoriesResponseEntity(nMonitoredDirectoriesException);
+        } catch (NoSuchElementException noSuchElementException) {
+            return new ResponseEntity<>(noSuchElementException.getMessage(),
                     HttpStatus.NOT_FOUND);
+        } catch (SecurityException securityException) {
+            return new ResponseEntity<>(securityException.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
+        return new ResponseEntity<>(
+                "Successfully started the scan",
+                HttpStatus.OK);
     }
 
     /**

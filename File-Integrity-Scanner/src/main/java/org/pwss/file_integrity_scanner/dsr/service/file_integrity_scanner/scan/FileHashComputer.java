@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
  final class FileHashComputer {
 
-    private final long TEMP_USER_DEFINED_MAX_LIMIT = 10000L * 1024 * 1024; // 10 000 MB
+    private long USER_DEFINED_MAX_LIMIT = 10000L * 1024 * 1024; // 10 000 MB
 
     /**
      * Max size of a byte array in java -2
@@ -33,12 +33,12 @@ import java.util.Optional;
     private final FileHash fileHashHandler;
 
     // Instance of BigFileHashHandler for computing hashes of larger files
-    private final FileHash fileHashHandlerB;
+    private final BigFileHashHandler bigFileHashHandler;
 
      FileHashComputer() {
         this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
         this.fileHashHandler = new FileHashHandler();
-        this.fileHashHandlerB = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
+        this.bigFileHashHandler = new BigFileHashHandler(USER_DEFINED_MAX_LIMIT);
     }
 
     /**
@@ -54,13 +54,13 @@ import java.util.Optional;
         try {
 
             if (file.length() > MAX_SIZE_OF_BYTE_ARRAY)
-                return Optional.of(fileHashHandlerB.GetAllHashes(file));
+                return Optional.of(bigFileHashHandler.GetAllHashes(file));
             else
                 return Optional.of(fileHashHandler.GetAllHashes(file));
 
         } catch (OutOfMemoryError outOfMemoryError) {
             log.debug("OutOfMemoryError occurred, switching to BigFileHashHandler for file: {}", file.getPath());
-            return Optional.of(fileHashHandlerB.GetAllHashes(file));
+            return Optional.of(bigFileHashHandler.GetAllHashes(file));
         }
 
         catch (NullPointerException nullPointerException) {
@@ -87,4 +87,12 @@ import java.util.Optional;
                 HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumSha3(), second.getChecksumSha3()) &&
                 HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumBlake2b(), second.getChecksumBlake2b());
     }
+
+    //TODO: Add Java Docs
+    public final void setUserDefinedMaxLimitInHashComputer(long userDefinedMaxLimit) {
+        USER_DEFINED_MAX_LIMIT = userDefinedMaxLimit;
+        //TODO: Add Setter to Lib for version 1.23 
+    }
+
+    
 }
