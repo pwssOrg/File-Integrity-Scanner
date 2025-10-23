@@ -16,9 +16,7 @@ import java.util.Optional;
  * Component responsible for computing hashes for files.
  */
 @Component
- final class FileHashComputer {
-
-    private final long TEMP_USER_DEFINED_MAX_LIMIT = 10000L * 1024 * 1024; // 10 000 MB
+final class FileHashComputer {
 
     /**
      * Max size of a byte array in java -2
@@ -33,12 +31,12 @@ import java.util.Optional;
     private final FileHash fileHashHandler;
 
     // Instance of BigFileHashHandler for computing hashes of larger files
-    private final FileHash fileHashHandlerB;
+    private final BigFileHashHandler bigFileHashHandler;
 
-     FileHashComputer() {
+    FileHashComputer() {
         this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
         this.fileHashHandler = new FileHashHandler();
-        this.fileHashHandlerB = new BigFileHashHandler(TEMP_USER_DEFINED_MAX_LIMIT);
+        this.bigFileHashHandler = new BigFileHashHandler(-1l);
     }
 
     /**
@@ -49,18 +47,18 @@ import java.util.Optional;
      * @return An Optional containing {@link HashForFilesOutput} if successful, or
      *         empty if an error occurs
      */
-     Optional<HashForFilesOutput> computeHashes(File file) {
+    Optional<HashForFilesOutput> computeHashes(File file) {
 
         try {
 
             if (file.length() > MAX_SIZE_OF_BYTE_ARRAY)
-                return Optional.of(fileHashHandlerB.GetAllHashes(file));
+                return Optional.of(bigFileHashHandler.GetAllHashes(file));
             else
                 return Optional.of(fileHashHandler.GetAllHashes(file));
 
         } catch (OutOfMemoryError outOfMemoryError) {
             log.debug("OutOfMemoryError occurred, switching to BigFileHashHandler for file: {}", file.getPath());
-            return Optional.of(fileHashHandlerB.GetAllHashes(file));
+            return Optional.of(bigFileHashHandler.GetAllHashes(file));
         }
 
         catch (NullPointerException nullPointerException) {
@@ -82,9 +80,26 @@ import java.util.Optional;
      * @param second the second checksum object to compare
      * @return true if all hash comparisons match, false otherwise
      */
-     boolean compareHashes(Checksum first, Checksum second) {
+    boolean compareHashes(Checksum first, Checksum second) {
         return HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumSha256(), second.getChecksumSha256()) &&
                 HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumSha3(), second.getChecksumSha3()) &&
                 HashCompareUtil.compareUsingXorAndJavaEquals(first.getChecksumBlake2b(), second.getChecksumBlake2b());
     }
+
+    /**
+     * Sets a user-defined maximum file size limit in the hash computer.
+     *
+     * This method delegates the setting of the user-defined maximum file size limit
+     * to the {@link BigFileHashHandler} instance. The purpose of this limit is to
+     * determine
+     * whether to attempt extracting a hash from a file or not, based on its size.
+     *
+     * @param userDefinedMaxLimit The maximum file size limit to be set, as
+     *                            specified by the
+     *                            user.
+     */
+    final void setUserDefinedMaxLimitInHashComputer(long userDefinedMaxLimit) {
+        bigFileHashHandler.setUserDefinedMaxLimit(userDefinedMaxLimit);
+    }
+
 }
