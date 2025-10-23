@@ -274,7 +274,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     @Transactional
     @Override
     public void scanSingleDirectory(StartScanByIdRequest request)
-            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException,NoSuchElementException {
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException, NoSuchElementException {
 
         if (isScanRunning) {
             throw new ScanAlreadyRunningException();
