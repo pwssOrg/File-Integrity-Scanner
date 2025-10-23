@@ -221,7 +221,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 } else {
                     log.info(
                             "Starting scan of all monitored directories at {} with max file size for hash extraction set to {} MB",
-                            OffsetDateTime.now().format(timeAndDateStringForLogFormat));
+                            OffsetDateTime.now().format(timeAndDateStringForLogFormat),
+                            ConversionUtils.bytesToMegabytes(request.maxHashExtractionFileSize()));
                 }
 
                 log.debug("Initializing Stringbuilder");
