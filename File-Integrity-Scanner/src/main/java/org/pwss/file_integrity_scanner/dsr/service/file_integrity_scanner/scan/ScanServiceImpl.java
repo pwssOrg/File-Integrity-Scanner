@@ -310,7 +310,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
             if (request.maxHashExtractionFileSize().equals(-1l)) {
                 log.info(
-                        "Starting scan of monitored directory '{}' at time {} with max file size for hash extraction set to UNLIMITED",
+                        "Starting scan of monitored directory {} at time {} with max file size for hash extraction set to UNLIMITED",
                         dir.getPath(),
                         OffsetDateTime.now().format(timeAndDateStringForLogFormat),
                         ConversionUtils.bytesToMegabytes(request.maxHashExtractionFileSize()));
