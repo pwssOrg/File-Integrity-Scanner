@@ -606,7 +606,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         if (computedHashesOpt.isPresent()) {
             computedHashes = computedHashesOpt.get();
             
-            if (computedHashes.sha256().startsWith(FILE_SIZE_TO_BIG_MESSAGE)) {
+            if (computedHashes.sha256().startsWith(FILE_SIZE_TOO_BIG_MESSAGE)) {
                 this.liveFeed.append(String.format("%s with size (%d MB) is bigger than the user defined max limit",
                         file.getName(), ConversionUtils.bytesToMegabytes(file.length())));
                 log.debug("{} is bigger than the user defined max limit", file.getName());
