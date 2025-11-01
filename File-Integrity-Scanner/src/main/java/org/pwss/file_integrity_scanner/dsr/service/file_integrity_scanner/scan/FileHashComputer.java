@@ -19,11 +19,13 @@ import java.util.Optional;
 final class FileHashComputer {
 
     /**
-     * Max size of a byte array in java -2
-     * (2^31-1) - 2
-     * You may get OOM exceptions for less if there is not enough memory free.
+     * The maximum limit in bytes (100 MB) for reading hashes from files using
+     * memory.
+     * Any file that exceeds this size will have its hashes extracted using
+     * a buffer
+     * instead of being fully loaded into memory at once.
      */
-    private final int MAX_SIZE_OF_BYTE_ARRAY = 2147483645;
+    private final int MEMORY_STRATEGY_LIMIT = 100000000;
 
     private final org.slf4j.Logger log;
 
@@ -51,7 +53,7 @@ final class FileHashComputer {
 
         try {
 
-            if (file.length() > MAX_SIZE_OF_BYTE_ARRAY)
+            if (file.length() > MEMORY_STRATEGY_LIMIT)
                 return Optional.of(bigFileHashHandler.GetAllHashes(file));
             else
                 return Optional.of(fileHashHandler.GetAllHashes(file));

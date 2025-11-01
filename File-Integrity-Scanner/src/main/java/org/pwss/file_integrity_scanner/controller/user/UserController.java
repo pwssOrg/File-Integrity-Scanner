@@ -95,6 +95,7 @@ public class UserController {
     @Operation(summary = "User login", description = "Handles user login operations.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "402", description = "Please contact snow_900@outlook.com to purchase a license"),
             @ApiResponse(responseCode = "404", description = "Invalid username or password"),
             @ApiResponse(responseCode = "429", description = "Rate limit exceeded. Too many requests in a short period."),
@@ -112,7 +113,7 @@ public class UserController {
                 loginValid = service.ValidatePassword(request);
             } catch (SecurityException e) {
                 return new ResponseEntity<LoginResponse>(new LoginResponse(false),
-                        HttpStatus.UNPROCESSABLE_ENTITY);
+                        HttpStatus.BAD_REQUEST);
             } catch (LicenseValidationFailedException e) {
                 return new ResponseEntity<LoginResponse>(new LoginResponse(false),
                         HttpStatus.PAYMENT_REQUIRED);
@@ -160,6 +161,7 @@ public class UserController {
     @Operation(summary = "Create a new user", description = "Handles user creation operations.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "402", description = "Please contact snow_900@outlook.com to purchase a license"),
             @ApiResponse(responseCode = "409", description = "A user is already present in the repository"),
             @ApiResponse(responseCode = "429", description = "Rate limit exceeded. Too many requests in a short period."),
@@ -178,7 +180,7 @@ public class UserController {
         try {
             user = service.CreateUser(request);
         } catch (SecurityException e) {
-            return new ResponseEntity<User>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
         } catch (CreateUserFailedException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (LicenseValidationFailedException e) {

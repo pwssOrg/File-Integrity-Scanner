@@ -75,13 +75,12 @@ public class FileIntegrityController {
      * @return A {@link ResponseEntity} With:
      *         - Status 200 (OK) and a success message in the response body if the
      *         scan is successfully started or,
+     *         - Status 400 (UNPROCESSABLE_ENTITY) if security validation fails or,
      *         - Status 401 (Unauthorized) or,
      *         - Status 412 (Precondition Failed) and an error message in the
      *         response body if no monitored directories are
      *         found using a Response Entity from
      *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
-     *         or,
-     *         - Status 422 (UNPROCESSABLE_ENTITY) if security validation fails
      *         or,
      *         - Status 425 (TOO_EARLY) using a Response Entity from
      *         {@link #scanAlreadyRunningResponseEntity(ScanAlreadyRunningException)}
@@ -89,9 +88,9 @@ public class FileIntegrityController {
      */
     @Operation(summary = "Starts a file integrity scan for all directories", description = "Requires AUTHORIZED role.", security = @SecurityRequirement(name = "JSession Token"), responses = {
             @ApiResponse(responseCode = "200", description = "Success message indicating the scan has started successfully.", content = @Content(schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "Could not start scan due to security restrictions or validation failures."),
             @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
             @ApiResponse(responseCode = "412", description = "Precondition Failed. No active monitored directories found.", content = @Content(schema = @Schema(type = "string"))),
-            @ApiResponse(responseCode = "422", description = "Could not start scan due to security restrictions or validation failures."),
             @ApiResponse(responseCode = "425", description = "Too Early. Scan is already running.", content = @Content(schema = @Schema(type = "string")))
     })
     @PostMapping("/start/all")
@@ -111,7 +110,7 @@ public class FileIntegrityController {
         }
 
         catch (SecurityException securityException) {
-            return new ResponseEntity<>(securityException.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(securityException.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(
@@ -129,6 +128,7 @@ public class FileIntegrityController {
      * @return A {@link ResponseEntity} With:
      *         - Status 200 (OK) and a success message in the response body if the
      *         scan is successfully started or,
+     *         - Status 400 (BAD_REQUEST) if security validation fails
      *         - Status 401 (Unauthorized) or,
      *         - Status 404 (Not Found) and an error message in the response body if
      *         no monitored directory is found
@@ -138,18 +138,16 @@ public class FileIntegrityController {
      *         found using a Response Entity from
      *         {@link #noActiveMonitoredDirectoriesResponseEntity(NoActiveMonitoredDirectoriesException)}
      *         or,
-     *         - Status 422 (UNPROCESSABLE_ENTITY) if security validation fails
-     *         or,
      *         - Status 425 (TOO_EARLY) using a Response Entity from
      *         {@link #scanAlreadyRunningResponseEntity(ScanAlreadyRunningException)}
      * 
      */
     @Operation(summary = "Start File Integrity Scan for Monitored Directory by ID", description = "This endpoint allows authorized users to start a file integrity scan for a monitored directory identified by its ID.", responses = {
             @ApiResponse(responseCode = "200", description = "Successfully started the scan", content = @Content(schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "Could not start scan due to security restrictions or validation failures."),
             @ApiResponse(responseCode = "401", description = "Unauthorized - user not authorized to perform this action"),
             @ApiResponse(responseCode = "404", description = "No MonitoredDirectory found with the provided ID", content = @Content(schema = @Schema(type = "string"))),
             @ApiResponse(responseCode = "412", description = "Precondition Failed - Monitored directory is not active"),
-            @ApiResponse(responseCode = "422", description = "Could not start scan due to security restrictions or validation failures."),
             @ApiResponse(responseCode = "425", description = "TOO_EARLY", content = @Content(schema = @Schema(type = "string")))
 
     })
@@ -168,7 +166,7 @@ public class FileIntegrityController {
             return new ResponseEntity<>(noSuchElementException.getMessage(),
                     HttpStatus.NOT_FOUND);
         } catch (SecurityException securityException) {
-            return new ResponseEntity<>(securityException.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(securityException.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(
                 "Successfully started the scan",

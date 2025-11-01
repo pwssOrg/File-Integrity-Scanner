@@ -64,7 +64,7 @@ public class NoteController {
    @ApiResponses(value = {
          @ApiResponse(responseCode = "200", description = "Note updated successfully", content = {
                @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class)) }),
-         @ApiResponse(responseCode = "422", description = "Security exception occurred")
+               @ApiResponse(responseCode = "400", description = "Security exception occurred")
    })
    @PostMapping("/update")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
@@ -77,7 +77,7 @@ public class NoteController {
       }
 
       catch (SecurityException securityException) {
-         return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
 
       return new ResponseEntity<>(response, HttpStatus.OK);
@@ -91,8 +91,8 @@ public class NoteController {
    @Operation(summary = "Restores an old note", description = "Endpoints that restores a deleted note from its previous state.")
    @ApiResponses(value = {
          @ApiResponse(responseCode = "200", description = "Note restored successfully"),
-         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
-         @ApiResponse(responseCode = "422", description = "Could not restore note due to security restrictions or validation failures")
+         @ApiResponse(responseCode = "400", description = "Could not restore note due to security restrictions or validation failures"),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role.")
    })
    public ResponseEntity<Boolean> restoreNoteEndpoint(@RequestBody RestoreNoteRequest request) {
       boolean response;
@@ -104,7 +104,7 @@ public class NoteController {
 
       catch (SecurityException securityException) {
          log.error("Could not restore note from the input request object", securityException);
-         return new ResponseEntity<>(false, HttpStatus.UNPROCESSABLE_ENTITY);
+         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
       }
 
       return new ResponseEntity<>(response, HttpStatus.OK);

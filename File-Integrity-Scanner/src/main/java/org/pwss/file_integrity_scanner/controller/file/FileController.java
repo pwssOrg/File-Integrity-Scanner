@@ -56,8 +56,8 @@ public class FileController {
     @Operation(summary = "Quarantines a specified file", description = "This endpoint attempts to quarantine a specified file based on the given request.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation. Returns metadata result with success status.", content = @Content(schema = @Schema(implementation = MetaDataResult.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized - user not authorized to perform this action", content = @Content),
-            @ApiResponse(responseCode = "422", description = "Unprocessable Entity", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     @PostMapping("/quarantine")
@@ -69,7 +69,7 @@ public class FileController {
             response = service.quarantine(request);
         } catch (SecurityException securityException) {
             return new ResponseEntity<>(new MetaDataResult(false, "ERROR - Input Validation"),
-                    HttpStatus.UNPROCESSABLE_ENTITY);
+                    HttpStatus.BAD_REQUEST);
         } catch (QuarantineFailedException quarantineFailedException) {
             return new ResponseEntity<>(new MetaDataResult(false, "ERROR - "+quarantineFailedException.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
@@ -89,8 +89,8 @@ public class FileController {
     @Operation(summary = "Unquarantines a specified file", description = "This endpoint attempts to unquarantine a specified file based on the given request.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation. Returns metadata result with success status.", content = @Content(schema = @Schema(implementation = MetaDataResult.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized - user not authorized to perform this action", content = @Content),
-            @ApiResponse(responseCode = "422", description = "Unprocessable Entity", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     @PostMapping("/unquarantine")
@@ -102,7 +102,7 @@ public class FileController {
             response = service.unQuarantine(request);
         } catch (SecurityException securityException) {
             return new ResponseEntity<>(new MetaDataResult(false, "ERROR - Input Validation"),
-                    HttpStatus.UNPROCESSABLE_ENTITY);
+                    HttpStatus.BAD_REQUEST);
         } catch (UnquarantineFailedException unquarantineFailedException) {
             return new ResponseEntity<>(new MetaDataResult(false, "ERROR - Unquarantine Operation"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
