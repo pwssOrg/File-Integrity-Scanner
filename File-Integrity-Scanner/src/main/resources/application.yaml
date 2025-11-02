@@ -4,7 +4,6 @@ spring:
     show-banner: false
   jpa:
     open-in-view: false
-    database: postgresql
     hibernate:
       auto_quote_keyword: true
       ddl-auto: validate
