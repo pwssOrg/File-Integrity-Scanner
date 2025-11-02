@@ -22,6 +22,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,11 +36,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 /**
  * REST controller for handling user-related operations.
  */
 @RestController
+@Validated
 @RequestMapping("/user")
 public class UserController {
 
@@ -168,7 +171,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/create")
-    public ResponseEntity<User> CreateUser(@RequestBody CreateUserRequest request)
+    public ResponseEntity<User> CreateUser(@Valid @RequestBody CreateUserRequest request)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         if (!service.isEmpty()) {
