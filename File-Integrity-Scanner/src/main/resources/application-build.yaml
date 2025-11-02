@@ -6,7 +6,6 @@ spring:
       path: /api
   jpa:
     open-in-view: false
-    database: postgresql
     hibernate:
       auto_quote_keyword: true
       ddl-auto: update

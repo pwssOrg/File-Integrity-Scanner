@@ -7,7 +7,7 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>1.6</version>
+    <version>1.7</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
@@ -53,8 +53,8 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <tomcat.embed.core.version>11.0.10</tomcat.embed.core.version>
-        <spring-boot.version>4.0.0-M2</spring-boot.version>
-        <postgresql.JDBC-Driver.version>42.7.7</postgresql.JDBC-Driver.version>
+        <spring-boot.version>4.0.0-RC1</spring-boot.version>
+        <postgresql.JDBC-Driver.version>42.7.8</postgresql.JDBC-Driver.version>
     </properties>
 
 
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.2.36</version>
+            <version>2.2.40</version>
         </dependency>
 
 
@@ -118,8 +118,39 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>3.0.0-M1</version>
+            <exclusions>
+                <!-- Exclude the old Spring Boot modules that cause conflict -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-web-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-validation</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
+
+        <!-- 
+        Added to avoid INFO log 
+        'No Jakarta Validation provider could be found' at startup.
+        Spring tries to initiate Bean Validation even if we have our own validation.
+        -->
+
+        <!-- 
+        Hibernate Validator is the implementation of Jakarta Bean Validation (JSR 380).
+        Spring automatically uses Bean Validation for e.g. @Valid and @Validated.
+        Without this dependency you get the error:
+        "jakarta.validation.NoProviderFoundException: Unable to create a Configuration..."
+        -->
+
+        <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>9.1.0.CR1</version>
+        </dependency> 
 
         <!-- https://github.com/pwssOrg/literate-octo-guacamole/packages/2589330 -->
         <dependency>
@@ -146,6 +177,48 @@
 
 
     </dependencies>
+<!--
+================================================================================
+TODO [TEMP WORKAROUND]
+
+SpringDoc 3.0.0-M1 pulls in Spring Boot 4.0.0-M2, causing classpath conflicts
+towards our project running Spring Boot 4.0.0-RC1.
+
+Workaround:
+ - We exclude spring-boot-web server & spring-boot validation from SpringDoc.
+ - We lock Spring Boot versions to 4.0.0-RC1 via dependencyManagement.
+
+What to do when a newer SpringDoc version (≥ 3.0.0-RC1 or 3.0.0 final) is released:
+ 1. Upgrade SpringDoc to the latest version.
+ 2. Remove exclusions under springdoc-openapi-starter-webmvc-ui.
+ 3. Remove manual overrides in dependencyManagement (keep only spring-boot-dependencies).
+ 4. Test that the application starts without errors.
+================================================================================
+-->
+    <dependencyManagement>
+    <dependencies>
+        <!-- Make sure all Spring Boot components are using the same version -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>4.0.0-RC1</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+
+        <!-- (for clarity) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-web-server</artifactId>
+            <version>4.0.0-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-validation</artifactId>
+            <version>4.0.0-RC1</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 
 
     <build>
@@ -167,7 +240,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.14.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>

@@ -76,9 +76,9 @@ public class ScanHistoryController {
     @Operation(summary = "Get Scan Summaries for File", description = "Retrieves the scan summaries for a specific file.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved scan summaries"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
             @ApiResponse(responseCode = "404", description = "No scan summaries found"),
-            @ApiResponse(responseCode = "422", description = "Unprocessable entity")
     })
     @PostMapping("/file")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
@@ -87,7 +87,7 @@ public class ScanHistoryController {
         try {
             scanSummaries = service.getScanSummaryForFile(request);
         } catch (SecurityException securityException) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         if (scanSummaries.isEmpty()) {
@@ -108,9 +108,9 @@ public class ScanHistoryController {
     @Operation(summary = "Get Scan Summaries for Scan", description = "Retrieves the scan summaries for a specific scan.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved scan summaries"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
             @ApiResponse(responseCode = "404", description = "No scan summaries found"),
-            @ApiResponse(responseCode = "422", description = "Unprocessable entity")
     })
     @PostMapping("/scan")
     @PreAuthorize("hasAuthority('AUTHORIZED')")
@@ -122,7 +122,7 @@ public class ScanHistoryController {
         }
 
         catch (SecurityException securityException) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         if (scanSummaries.isEmpty()) {
@@ -148,6 +148,7 @@ public class ScanHistoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Files found successfully", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = File.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User does not have the required authority"),
             @ApiResponse(responseCode = "422", description = "Unprocessable Entity - Validation or security exception occurred"),
             @ApiResponse(responseCode = "404", description = "Not Found - No files found matching the criteria")
@@ -162,7 +163,7 @@ public class ScanHistoryController {
         }
 
         catch (SecurityException securityException) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         if (listOfFiles.isEmpty()) {

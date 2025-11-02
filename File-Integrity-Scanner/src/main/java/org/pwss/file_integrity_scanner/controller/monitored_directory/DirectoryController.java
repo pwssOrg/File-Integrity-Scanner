@@ -110,14 +110,14 @@ public class DirectoryController {
     * @return a {@code ResponseEntity} with HTTP status and optionally a body:
     *         - {@code HttpStatus.CREATED} if the creation was successful
     * 
-    *         - {@code HttpStatus.UNPROCESSABLE_ENTITY} if the request could not be
+    *         - {@code HttpStatus.BAD_REQUEST} if the request could not be
     *         processed
     */
    @Operation(summary = "Create a new monitored directory", description = "Handles HTTP POST requests to create a new monitored directory.")
    @ApiResponses(value = {
          @ApiResponse(responseCode = "201", description = "Monitored Directory created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateMonitoredDirectoryResponse.class))),
-         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
-         @ApiResponse(responseCode = "422", description = "Request could not be processed", content = @Content(mediaType = "application/json", schema = @Schema(type = "string")))
+         @ApiResponse(responseCode = "400", description = "Request could not be processed", content = @Content(mediaType = "application/json", schema = @Schema(type = "string"))),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role.")
    })
    @PostMapping("/new")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
@@ -128,7 +128,7 @@ public class DirectoryController {
             .createMonitoredDirectoryFromRequest(request);
 
       if (monitoredDirectoryResponse == null)
-         return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       else
          return new ResponseEntity<>(monitoredDirectoryResponse, HttpStatus.CREATED);
    }
@@ -243,14 +243,14 @@ public class DirectoryController {
     * @return A {@link ResponseEntity} containing:
     *         - Status 200 (OK) and a success message if the update is successful,
     *         or
-    *         - Status 422 (Unprocessable Entity) if the update could not be
+    *         - Status 400 (BAD_REQUEST) if the update could not be
     *         processed.
     */
    @Operation(summary = "Update a monitored directory", description = "This operation requires the 'AUTHORIZED' role.", security = @SecurityRequirement(name = "JSession Token"))
    @ApiResponses(value = {
          @ApiResponse(responseCode = "200", description = "Successful Update!", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
-         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
-         @ApiResponse(responseCode = "422", description = "Unprocessable Entity", content = @Content)
+         @ApiResponse(responseCode = "400", description = "Bad request"),
+         @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role.")
    })
    @PutMapping("/update")
    @PreAuthorize("hasAuthority('AUTHORIZED')")
@@ -261,7 +261,7 @@ public class DirectoryController {
       if (updateSuccessful)
          return new ResponseEntity<>("Successful Update!", HttpStatus.OK);
       else
-         return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
    }
 
 }
