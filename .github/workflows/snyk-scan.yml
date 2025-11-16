@@ -9,7 +9,7 @@ on:
  
 jobs:
   security-file-integrity_scanner:
-    uses: pwssOrg/reusable-workflows/.github/workflows/sca_scan_base_postgres.yml@4a6bd2983076c92d9e23c67cf7c18d327e99ec1d
+    uses: pwssOrg/reusable-workflows/.github/workflows/sca_scan_base_postgres.yml@main
     with:
        working-path: File-Integrity-Scanner
        name-of-snyk-step: Check for vulnerabilities in File Integrity Scanner
