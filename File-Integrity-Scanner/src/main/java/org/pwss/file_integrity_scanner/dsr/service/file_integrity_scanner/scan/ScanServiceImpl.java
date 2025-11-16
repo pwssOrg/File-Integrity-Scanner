@@ -195,6 +195,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         if (validateRequest(request)) {
 
+            isFileListToBigForLiveFeed = false;
+
             fileHashComputer.setUserDefinedMaxLimitInHashComputer(request.maxHashExtractionFileSize());
 
             this.isScanRunning = true;
@@ -281,6 +283,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         }
 
         if (validateRequest(request)) {
+
+            isFileListToBigForLiveFeed = false;
 
             final MonitoredDirectory dir;
 
