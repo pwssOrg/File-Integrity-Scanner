@@ -31,4 +31,8 @@ server:
     http-port: -1
 directory:
       endpoint-code: 4350345983458934 # It is possible to use an environment variable if required: ${ENDPOINT_CODE_1}
+# Enable API documentation only in development environment
+springdoc:
+  api-docs:
+    enabled: false
   
