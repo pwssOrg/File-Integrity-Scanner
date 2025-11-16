@@ -72,8 +72,8 @@ public class LicenseServiceImpl extends PWSSbaseService<LicenseRepository, Licen
             return false;
         }
 
-        log.debug("License key validation successful");
-        return true;
+        return false;
+
     }
 
 }
