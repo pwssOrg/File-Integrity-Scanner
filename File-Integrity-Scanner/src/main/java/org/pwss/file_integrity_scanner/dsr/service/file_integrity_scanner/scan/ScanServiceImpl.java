@@ -146,10 +146,12 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     private final int MAX_NUMBER_OF_FILE_FOR_LIVE_FEED = 10000;
 
     /**
- * This constant holds the beginning of the error message used when the file size exceeds 
- * the allowed limit for extracting hashes. It is used in scenarios where the file size 
- * is too large to process further.
- */
+     * This constant holds the beginning of the error message used when the file
+     * size exceeds
+     * the allowed limit for extracting hashes. It is used in scenarios where the
+     * file size
+     * is too large to process further.
+     */
     private final String FILE_SIZE_TOO_BIG_MESSAGE = "File Size";
 
     /**
