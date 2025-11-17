@@ -151,6 +151,14 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
      */
     private final String FILE_SIZE_TOO_BIG_MESSAGE = "File Size";
 
+    /**
+     * A class-level boolean flag indicating whether a file is new.
+     * This global variable helps avoid creating a new Boolean instance for each
+     * file,
+     * thereby improving performance by reducing object creation overhead.
+     */
+    private boolean isNewfile;
+
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
             MonitoredDirectoryService monitoredDirectoryService,
@@ -184,6 +192,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         this.liveFeed = new StringBuilder();
         hasAttemptedRetrieveLiveFeedAfterScan = false;
+
+        isNewfile = false;
 
     }
 
@@ -630,6 +640,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
+        isNewfile = false;
+
         org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File fileEntity;
         if (fileInRepository) {
             // Fetch existing entity and update fields
@@ -644,6 +656,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     file.getPath(),
                     file.getName(), file.getParent(), file.length(),
                     Instant.ofEpochMilli(file.lastModified()).atOffset(ZoneOffset.UTC));
+            isNewfile = true;
         }
 
         else {
@@ -684,6 +697,11 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
             return;
         }
+
+        if (isNewfile)
+            log.debug("Adding new file to the repository layer: {}", fileEntity.getPath());
+        else
+            log.debug("Updating existing file in the repository layer: {}", fileEntity.getPath());
 
         fileService.save(fileEntity);
 
@@ -728,7 +746,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             }
         } else {
 
-            // No existing checksum found for file from prior scans
+            log.debug("No existing checksum found for file from prior scans {}", fileEntity.getPath());
             scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
         }
 

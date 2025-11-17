@@ -7,12 +7,13 @@ import java.util.Optional;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
-
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.DiffCountRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 
 import org.pwss.file_integrity_scanner.dsr.repository.file_integrity_scanner.diff.IntegrityRepository;
 import org.pwss.file_integrity_scanner.dsr.service.PWSSbaseService;
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanService;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
@@ -81,6 +82,35 @@ public class IntegrityServiceImpl extends PWSSbaseService<IntegrityRepository, D
             else {
                 log.debug("The Scan object was not present for ID {}", request.scanId());
                 return new LinkedList<>();
+            }
+        } else
+            throw new SecurityException("Validation failed!");
+
+    }
+
+    @Override
+    public Integer retrieveDiffCountFromScan(DiffCountRequest request) throws SecurityException, ScanNotFoundException {
+
+        if (validateRequest(request)) {
+
+            Optional<Scan> oScan = scanService.findById(request.scanId());
+
+            if (oScan.isPresent()) {
+
+                final Scan scan = oScan.get();
+
+                final Sort.Direction direction = Sort.Direction.ASC;
+                final Sort sort = Sort.by(direction, "baseline");
+
+                final Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE -1, sort);
+
+                return this.repository.findByIntegrityFail_Scan(scan, pageable).size();
+
+            }
+
+            else {
+                log.debug("The Scan object was not present for ID {}", request.scanId());
+                throw new ScanNotFoundException();
             }
         } else
             throw new SecurityException("Validation failed!");

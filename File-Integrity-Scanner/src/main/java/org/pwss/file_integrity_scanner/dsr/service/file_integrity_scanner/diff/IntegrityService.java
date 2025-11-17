@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File;
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.DiffCountRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanNotFoundException;
 
 /**
  * Service interface for managing integrity diff entities.
@@ -48,4 +50,15 @@ public interface IntegrityService {
    *         otherwise.
    */
   boolean fileIsPresentInDiffHistory(File file);
+
+  /**
+   * Retrieves the count of differences from a scan based on the given request.
+   *
+   * @param request The DiffCountRequest object containing the details needed to
+   *                identify the scan.
+   * @return The count of differences as an Integer.
+   * @throws SecurityException     If validation of the request fails.
+   * @throws ScanNotFoundException If the specified scan is not found.
+   */
+  Integer retrieveDiffCountFromScan(DiffCountRequest request) throws SecurityException, ScanNotFoundException;
 }
