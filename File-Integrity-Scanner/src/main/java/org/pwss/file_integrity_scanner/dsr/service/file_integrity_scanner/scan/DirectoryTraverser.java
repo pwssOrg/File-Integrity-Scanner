@@ -12,12 +12,24 @@ import java.util.concurrent.Future;
 /**
  * Component responsible for traversing directories and retrieving all file
  * paths.
+ * <p>
+ * This component uses the SLF4J logger for logging directory traversal events.
+ * It provides methods to explore directories and collect file paths
+ * recursively.
+ * </p>
  */
 @Component
- class DirectoryTraverser {
+class DirectoryTraverser {
 
     private final org.slf4j.Logger log;
 
+    /**
+     * Constructs a new {@link DirectoryTraverser} instance.
+     * <p>
+     * The constructor initializes the SLF4J logger for the class, allowing
+     * it to log messages related to directory traversal and file processing.
+     * </p>
+     */
     DirectoryTraverser() {
         this.log = org.slf4j.LoggerFactory.getLogger(DirectoryTraverser.class);
     }
@@ -37,7 +49,7 @@ import java.util.concurrent.Future;
      * @return a Future containing the list of files found in the directory
      */
     @Async
-     Future<List<File>> collectFilesInDirectory(String directoryPath, FileTraverser fileTraverser) {
+    Future<List<File>> collectFilesInDirectory(String directoryPath, FileTraverser fileTraverser) {
         log.info("Starting asynchronous traversal scan for directory: {}", directoryPath);
         return fileTraverser.traverse(directoryPath);
     }
@@ -57,7 +69,7 @@ import java.util.concurrent.Future;
      *         directory
      */
     @Async
-     CompletableFuture<List<File>> collectTopLevelFiles(File directoryPath) {
+    CompletableFuture<List<File>> collectTopLevelFiles(File directoryPath) {
         log.info("Starting synchronous collection of top-level files from directory: {}", directoryPath);
 
         // Retrieve the files directly within the specified directory, excluding

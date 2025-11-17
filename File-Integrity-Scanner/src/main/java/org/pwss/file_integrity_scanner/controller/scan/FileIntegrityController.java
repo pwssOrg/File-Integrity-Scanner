@@ -380,7 +380,7 @@ public class FileIntegrityController {
         } catch (SecurityException securityException) {
             // Input validation failure
             log.warn("Invalid input detected in request: {}", request.scanId(), securityException);
-            return new ResponseEntity<>(0, HttpStatus.BAD_REQUEST); // Corrected to BAD_REQUEST for validation issues
+            return new ResponseEntity<>(0, HttpStatus.BAD_REQUEST);
         }
     }
 
