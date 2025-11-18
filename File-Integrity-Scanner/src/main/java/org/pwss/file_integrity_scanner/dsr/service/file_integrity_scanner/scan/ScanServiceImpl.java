@@ -1,6 +1,8 @@
 package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -144,9 +146,21 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     private final int MAX_NUMBER_OF_FILE_FOR_LIVE_FEED = 10000;
 
     /**
-     * Compare String to check if the file size is allowed to extract hashes from // Make this better
+     * This constant holds the beginning of the error message used when the file
+     * size exceeds
+     * the allowed limit for extracting hashes. It is used in scenarios where the
+     * file size
+     * is too large to process further.
      */
     private final String FILE_SIZE_TOO_BIG_MESSAGE = "File Size";
+
+    /**
+     * A class-level boolean flag indicating whether a file is new.
+     * This global variable helps avoid creating a new Boolean instance for each
+     * file,
+     * thereby improving performance by reducing object creation overhead.
+     */
+    private boolean isNewfile;
 
     @Autowired
     public ScanServiceImpl(ScanRepository repository,
@@ -182,6 +196,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         this.liveFeed = new StringBuilder();
         hasAttemptedRetrieveLiveFeedAfterScan = false;
 
+        isNewfile = false;
+
     }
 
     @Transactional
@@ -203,7 +219,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
             stopRequested = false; // Reset stop request at the start of a new scan.
 
-            List<MonitoredDirectory> activeDirs = monitoredDirectoryService.findByIsActive(true);
+            List<MonitoredDirectory> activeDirs = filterMonitoredDirectoriesOnConfirmedPath(
+                    monitoredDirectoryService.findByIsActive(true));
 
             if (activeDirs.isEmpty()) {
                 log.warn("No active monitored directories found");
@@ -276,7 +293,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
     @Transactional
     @Override
     public void scanSingleDirectory(StartScanByIdRequest request)
-            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException, NoSuchElementException {
+            throws ScanAlreadyRunningException, NoActiveMonitoredDirectoriesException, SecurityException,
+            NoSuchElementException {
 
         if (isScanRunning) {
             throw new ScanAlreadyRunningException();
@@ -508,8 +526,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         if (files.size() > MAX_NUMBER_OF_FILE_FOR_LIVE_FEED) {
 
             isFileListToBigForLiveFeed = true;
-
-            liveFeed.append("This scan includes more than 10 000 files so no live preview is possible");
+            liveFeed.append(
+                    "--- Message: The scan contains over 10,000 files, so a live preview isn't possible. Only file differences (diffs) will be shown from now on. ---");
         }
 
         try {
@@ -609,7 +627,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         if (computedHashesOpt.isPresent()) {
             computedHashes = computedHashesOpt.get();
-            
+
             if (computedHashes.sha256().startsWith(FILE_SIZE_TOO_BIG_MESSAGE)) {
                 this.liveFeed.append(String.format("%s with size (%d MB) is bigger than the user defined max limit",
                         file.getName(), ConversionUtils.bytesToMegabytes(file.length())));
@@ -625,7 +643,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         MonitoredDirectory mDirectory = scanInstance.getMonitoredDirectory();
 
-        boolean isNewfile = false;
+        isNewfile = false;
 
         org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.file.File fileEntity;
         if (fileInRepository) {
@@ -647,9 +665,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
         else {
             // If file is not in the repository layer and the scan is not a baseline scan
 
-            final String fileNotIncludedInBaseScanText = "There are files in your monitored directory which is not included in the baseline scan\n"
-                    +
-                    "In order to include those scan in the File Integrity Scan you need to reset your baseline";
+            final String fileNotIncludedInBaseScanText = "There are files in your monitored directory which is not included in the baseline scan\nIn order to include those scan in the File Integrity Scan you need to reset your baseline";
 
             try {
 
@@ -689,6 +705,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             log.debug("Adding new file to the repository layer: {}", fileEntity.getPath());
         else
             log.debug("Updating existing file in the repository layer: {}", fileEntity.getPath());
+
         fileService.save(fileEntity);
 
         final Checksum checksum = new Checksum(fileEntity, computedHashes.sha256(), computedHashes.sha3(),
@@ -717,10 +734,9 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     scanSummaryService.save(currentScanSummary);
 
                 } else {
-                    if (!isFileListToBigForLiveFeed) {
-                        this.liveFeed.append(fileEntity.getBasename());
-                        this.liveFeed.append(FILE_HAS_CHANGED);
-                    }
+
+                    this.liveFeed.append(fileEntity.getBasename());
+                    this.liveFeed.append(FILE_HAS_CHANGED);
 
                     final ScanSummary currentScanSummary = new ScanSummary(scanInstance, fileEntity, checksum);
                     scanSummaryService.save(currentScanSummary);
@@ -732,7 +748,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                 }
             }
         } else {
-            log.info("No existing checksum found for file from prior scans {}", fileEntity.getPath());
+
+            log.debug("No existing checksum found for file from prior scans {}", fileEntity.getPath());
             scanSummaryService.save(new ScanSummary(scanInstance, fileEntity, checksum));
         }
 
@@ -821,6 +838,27 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
         return new LiveFeedResponse(isScanRunning, liveFeedText);
 
+    }
+
+    /**
+     * Filters a list of monitored directories based on whether their paths exist in
+     * the filesystem.
+     *
+     * @param inputList The list of monitored directories to be filtered.
+     * @return A new list containing only the directories from the input list that
+     *         have valid, confirmed paths.
+     */
+    private final List<MonitoredDirectory> filterMonitoredDirectoriesOnConfirmedPath(
+            List<MonitoredDirectory> inputList) {
+
+        List<MonitoredDirectory> mDirectories = new LinkedList<>();
+
+        for (MonitoredDirectory m : inputList) {
+            if (Files.exists(Path.of(m.getPath()))) {
+                mDirectories.add(m);
+            }
+        }
+        return mDirectories;
     }
 
 }

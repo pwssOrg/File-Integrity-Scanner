@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.diff.Diff;
 
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.entities.scan.Scan;
-
+import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.DiffCountRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.RetrieveRecentScansRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.ScanIntegrityDiffRequest;
 import org.pwss.file_integrity_scanner.dsr.domain.file_integrity_scanner.model.request.file_integrity_controller.StartAllRequest;
@@ -18,6 +18,7 @@ import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.diff.I
 import org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan.ScanServiceImpl;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.NoActiveMonitoredDirectoriesException;
 import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanAlreadyRunningException;
+import org.pwss.file_integrity_scanner.exception.file_integrity_scanner.scan.ScanNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -338,6 +339,49 @@ public class FileIntegrityController {
         } else
             return new ResponseEntity<>(dList, HttpStatus.OK);
 
+    }
+
+    /**
+     * Endpoint to retrieve a count of file integrity failures from a scan.
+     *
+     * This endpoint retrieves the number of differences (diffs) between expected
+     * and actual
+     * file states based on a provided scan request. It requires the caller to have
+     * 'AUTHORIZED' authority.
+     *
+     * @param request The DiffCountRequest containing details about which scan's
+     *                diff count should be retrieved.
+     * @return A ResponseEntity with:
+     *         - 200 OK: An integer representing the number of file integrity
+     *         failures if found
+     *         - 400 Bad Request: If input validation fails (invalid scanId)
+     *         - 401 Unauthorized: If the user does not have the AUTHORIZED role
+     *         - 404 Not Found: If no diffs are found for the provided scan request
+     */
+    @Operation(summary = "Retrieve a count of file integrity failures from a scan", description = "This endpoint returns the number of differences between expected and actual file states based on a given scan request.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "A count of diffs is returned"),
+            @ApiResponse(responseCode = "400", description = "Bad Request. Input validation failed (invalid scanId)."),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. User doesn't have AUTHORIZED role."),
+            @ApiResponse(responseCode = "404", description = "Scan not found for the provided scan ID.")
+    })
+    @PostMapping("/diff/count")
+    @PreAuthorize("hasAuthority('AUTHORIZED')")
+    public ResponseEntity<Integer> getFileIntegrityFailsCountFromScan(@RequestBody DiffCountRequest request) {
+
+        try {
+            Integer count = integrityService.retrieveDiffCountFromScan(request);
+
+            return new ResponseEntity<>(count, HttpStatus.OK);
+
+        } catch (ScanNotFoundException scanNotFoundException) {
+            log.debug("Scan not found for the provided scan ID: {}", request.scanId());
+            return new ResponseEntity<>(0, HttpStatus.NOT_FOUND);
+        } catch (SecurityException securityException) {
+            // Input validation failure
+            log.warn("Invalid input detected in request: {}", request.scanId(), securityException);
+            return new ResponseEntity<>(0, HttpStatus.BAD_REQUEST);
+        }
     }
 
     /**
