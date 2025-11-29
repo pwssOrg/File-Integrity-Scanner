@@ -39,7 +39,7 @@ or desired, ensuring full control over data integrity for the end-user.
 ### Requirements
 
 - **PostgreSQL**
-- **SSL Password**
+- **SSL password**
 
 
 ### Spring Version
