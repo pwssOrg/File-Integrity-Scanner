@@ -19,11 +19,7 @@ machine.
   - SHA-3 (256-bit)
   - BLAKE_2b (512-bit)
 
-- **Web Interface / GUI:** A Spring application with a user-friendly web interface where you can start and stop
-scans, as well as get live information about the current integrity status of your files.
-
-- **Database Storage:** Uses PostgreSQL to store file hashes along with the date of the scan and other relevant
-file metadata.
+- **Database Storage:** Uses PostgreSQL to store file hashes along with the date of the scan and other relevant file metadata.
 
 - **Local Operation:** The scanner runs exclusively on the user's local machine. No remote services are required
 or desired, ensuring full control over data integrity for the end-user.
@@ -38,17 +34,24 @@ or desired, ensuring full control over data integrity for the end-user.
 
 ### Requirements
 
-- **PostgreSQL 17.5**
-- **Spring 4.0.0-RC2**
+- **PostgreSQL**
+- **SSL password**
+
+
+### Spring Version
+
+**Spring 4.0.0**
 
 ### Steps
 
-1. Ensure you have PostgreSQL and Spring installed on your system.
-2. Access the database script from the dedicated PWSS repository.
-3. Use provided Make scripts to start both the database and Spring application.
+1. Install and configure PostgreSQL on your system.
+2. Get the database scripts from the [PWSS DB repository](https://github.com/pwssOrg/File-Integrity-Database).
+3. Start the database and the Spring application using the provided Make scripts.
 
-**Note:** You need access to the PWSS libraries stored in a private GitHub packages repository, which is
-restricted to board members or team members of the PWSS organization.
+**Note:** You need access to the PWSS libraries, which consist of three separate PWSS repositories hosted in a private GitHub Packages registry. Access is restricted to board members or team members of the PWSS organization.
+For links to all three JavaDoc pages, please refer to the discussion thread:
+**[Java Docs](https://github.com/orgs/pwssOrg/discussions/308)**
+
 
 ## Workflow Badges
 
