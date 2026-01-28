@@ -300,6 +300,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
             throw new ScanAlreadyRunningException();
         }
 
+        stopRequested = false; // Reset stop request at the start of a new scan.
+
         if (validateRequest(request)) {
 
             isFileListToBigForLiveFeed = false;
