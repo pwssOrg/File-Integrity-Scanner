@@ -33,11 +33,11 @@ public class User extends PWSSbaseEntity {
     private String username;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "auth_id")
+    @JoinColumn(name = "auth_id",nullable = false)
     private Auth auth;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_time")
+    @JoinColumn(name = "user_time",nullable = false)
     private Time time;
 
     /**
