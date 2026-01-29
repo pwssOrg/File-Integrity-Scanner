@@ -40,7 +40,7 @@ or desired, ensuring full control over data integrity for the end-user.
 
 ### Spring Version
 
-**Spring 4.0.1**
+**Spring 4.0.2**
 
 ### Steps
 
