@@ -144,7 +144,7 @@
         <dependency>
             <groupId>lib.pwss</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
-            <version>1.2.6</version>
+            <version>1.2.7</version>
         </dependency>
 
 
@@ -152,14 +152,14 @@
         <dependency>
             <groupId>lib.pwss</groupId>
             <artifactId>directory_nav</artifactId>
-            <version>1.5.4</version>
+            <version>1.5.5</version>
         </dependency>
 
         <!-- https://github.com/pwssOrg/PWSS-FileQuarantine/packages/2687320 -->
         <dependency>
             <groupId>lib.pwss</groupId>
             <artifactId>file-quarantine</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
         </dependency>
 
 
