@@ -75,6 +75,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring-boot.version}</version>
             <scope>test</scope>
+	    <exclusions>
+        	<exclusion>
+            		<groupId>org.assertj</groupId>
+            		<artifactId>assertj-core</artifactId>
+        	</exclusion>
+    	    </exclusions>
         </dependency>
 
 
@@ -160,6 +166,14 @@
             <groupId>lib.pwss</groupId>
             <artifactId>file-quarantine</artifactId>
             <version>1.0.6</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core/3.27.7 -->
+        <dependency>
+    	   <groupId>org.assertj</groupId>
+    	   <artifactId>assertj-core</artifactId>
+    	   <version>3.27.7</version>
+    	   <scope>test</scope>
         </dependency>
 
 
