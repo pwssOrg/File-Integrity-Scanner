@@ -2,7 +2,6 @@ package org.pwss.file_integrity_scanner.dsr.service.license;
 
 /**
  * Service interface for managing license operations.
- *
  * This interface defines methods for validating license keys, which will be
  * implemented by a
  * service class.

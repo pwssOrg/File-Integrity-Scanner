@@ -53,9 +53,9 @@ public class LicenseServiceImpl extends PWSSbaseService<LicenseRepository, Licen
 
         // Validate against known license data values
         if (licenseList.get(0).getLicenseData()
-                .equals("331cd7b3ce491feda6e855dcbf5de4dec5d5211e7776c8e7da4a91026ddab7b7")
+                .equals("b289ab93856e4e3411dbbc79f151c727aba2621be5a61c27686d5410eb5ca8ac")
                 && licenseList.get(1).getLicenseData()
-                        .equals("71b16c484b415c32e6139f95d7276ea351228fbef0af5f7dcbd8bff0484b59b5")) {
+                        .equals("31a084dcff2e114d601027eb1f3137faaaa1d07e452960759a73064f72d2292a")) {
 
             String[] repositoryData = licenseList.stream().map(License::getLicenseData).toArray(String[]::new);
 
