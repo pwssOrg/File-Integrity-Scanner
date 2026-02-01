@@ -1,16 +1,18 @@
 # File-Integrity Scanner
-
 ## Overview
 
 The **File-Integrity Scanner** is a powerful tool designed to ensure the integrity of files by using cryptographic
 hash functions. This application provides peace of mind that files have not been tampered with, which is crucial
 for security and data verification purposes.
 
+
+
 ## What is a File Integrity Scanner?
 
 A file integrity scanner is a software utility that computes cryptographic hashes of files and monitors them for
 changes. This process helps in detecting unauthorized modifications or corruption of critical files on a local
 machine.
+
 
 ## Key Features
 
@@ -24,11 +26,12 @@ machine.
 - **Local Operation:** The scanner runs exclusively on the user's local machine. No remote services are required
 or desired, ensuring full control over data integrity for the end-user.
 
-- **No Spyware or Tracking:** The default version contains no spyware or tracking software.
 
 ![File Integrity Scanner Image](https://github.com/pwssOrg/File-Integrity-Scanner/blob/master/.github/assets/images/640x486.jpg?raw=true)
 
 ---
+
+🛡️ **Zero spyware. Zero tracking. Full respect for your privacy.**
 
 ## Basic Setup Instructions
 
@@ -40,7 +43,7 @@ or desired, ensuring full control over data integrity for the end-user.
 
 ### Spring Version
 
-**Spring 4.0.1**
+**Spring 4.0.2**
 
 ### Steps
 
