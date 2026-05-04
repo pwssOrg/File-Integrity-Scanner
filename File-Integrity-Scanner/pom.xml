@@ -12,15 +12,13 @@
     <description>A File Integrity Scanner</description>
     <licenses>
         <license>
-            <name>Proprietary License</name>
+            <name>Apache 2.0 License</name>
             <url>https://github.com/pwssOrg/File-Integrity-Scanner/blob/master/LICENSE.md</url>
             <distribution>repo</distribution>
             <comments>
-                This software and its source code are proprietary to Peter Westin (pwgit-create) and Stefan Smudja
-                (lilstiffy). All rights
-                reserved. This project may not be copied or used for commercial purposes without the explicit permission
-                of the
-                copyright holders.
+                Apache License
+                Version 2.0, January 2004
+                http://www.apache.org/licenses/
             </comments>
         </license>
     </licenses>
