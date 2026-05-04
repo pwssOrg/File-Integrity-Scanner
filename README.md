@@ -51,11 +51,6 @@ or desired, ensuring full control over data integrity for the end-user.
 2. Get the database scripts from the [PWSS DB repository](https://github.com/pwssOrg/File-Integrity-Database).
 3. Start the database and the Spring application using the provided Make scripts.
 
-**Note:** You need access to the PWSS libraries, which consist of three separate PWSS repositories hosted in a private GitHub Packages registry. Access is restricted to board members or team members of the PWSS organization.
-For links to all three JavaDoc pages, please refer to the discussion thread:
-**[Java Docs](https://github.com/orgs/pwssOrg/discussions/308)**
-
-
 ## Workflow Badges
 
 [![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
