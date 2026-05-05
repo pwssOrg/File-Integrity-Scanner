@@ -7,53 +7,43 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>1.8.4</version>
+    <version>1.8.5</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
         <license>
-            <name>Proprietary License</name>
+            <name>Apache 2.0 License</name>
             <url>https://github.com/pwssOrg/File-Integrity-Scanner/blob/master/LICENSE.md</url>
             <distribution>repo</distribution>
             <comments>
-                This software and its source code are proprietary to Peter Westin (pwgit-create) and Stefan Smudja
-                (lilstiffy). All rights
-                reserved. This project may not be copied or used for commercial purposes without the explicit permission
-                of the
-                copyright holders.
+                Apache License
+                Version 2.0, January 2004
+                http://www.apache.org/licenses/
             </comments>
         </license>
     </licenses>
+    
+
     <developers>
         <developer>
             <name>Peter Westin</name>
-            <id>Peter</id>
-            <email>snow_900@outlook.com</email>
-            <roles>
-                <role>Coa supporter</role>
-            </roles>
-            <timezone>Central European Time</timezone>
+            <email>peter.westin@pwss.dev</email>
+            <timezone>Europe/Stockholm</timezone>
         </developer>
-
-        <developer>
+           <developer>
             <name>Stefan Smudja</name>
-            <id>Stefan</id>
-            <email>stefan-201@hotmail.com</email>
-            <roles>
-                <role>Developer King</role>
-            </roles>
-            <timezone>Central European Time</timezone>
+            <email>stefan.smudja@pwss.dev</email>
+            <timezone>Europe/Stockholm</timezone>
         </developer>
     </developers>
-
 
     <properties>
         <java.version>21</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>4.0.2</spring-boot.version>
-        <postgresql.JDBC-Driver.version>42.7.9</postgresql.JDBC-Driver.version>
+        <spring-boot.version>4.0.6</spring-boot.version>
+        <postgresql.JDBC-Driver.version>42.7.11</postgresql.JDBC-Driver.version>
     </properties>
 
 
@@ -93,7 +83,7 @@
         </dependency>
 
 
-        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql/42.7.9 -->
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql/42.7.11 -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -110,19 +100,19 @@
         </dependency>
 
 
-        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations/2.2.42 -->
+        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations/2.2.49 -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.2.42</version>
+            <version>2.2.49</version>
         </dependency>
 
 
-        <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui/3.0.1 -->
+        <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui/3.0.3 -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>3.0.1</version>
+            <version>3.0.3</version>
         </dependency>
 
 
@@ -146,26 +136,26 @@
             <version>9.1.0.Final</version>
         </dependency> 
 
-        <!-- https://github.com/pwssOrg/literate-octo-guacamole/packages/2589330 -->
+        <!-- https://central.sonatype.com/artifact/io.github.pwssorg/file-quarantine -->
         <dependency>
-            <groupId>lib.pwss</groupId>
+            <groupId>io.github.pwssorg</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
-            <version>1.2.7</version>
+            <version>1.2.8</version>
         </dependency>
 
 
-        <!-- https://github.com/pwssOrg/PWSS-DirectoryNav/packages/2588313 -->
+        <!-- https://central.sonatype.com/artifact/io.github.pwssorg/directory_nav -->
         <dependency>
-            <groupId>lib.pwss</groupId>
+            <groupId>io.github.pwssorg</groupId>
             <artifactId>directory_nav</artifactId>
-            <version>1.5.5</version>
+            <version>1.5.6</version>
         </dependency>
 
-        <!-- https://github.com/pwssOrg/PWSS-FileQuarantine/packages/2687320 -->
+        <!-- https://central.sonatype.com/artifact/io.github.pwssorg/file-quarantine -->
         <dependency>
-            <groupId>lib.pwss</groupId>
+            <groupId>io.github.pwssorg</groupId>
             <artifactId>file-quarantine</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.7</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core/3.27.7 -->
