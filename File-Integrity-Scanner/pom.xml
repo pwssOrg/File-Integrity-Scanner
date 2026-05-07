@@ -136,7 +136,7 @@
             <version>9.1.0.Final</version>
         </dependency> 
 
-        <!-- https://central.sonatype.com/artifact/io.github.pwssorg/file-quarantine -->
+        <!-- https://central.sonatype.com/artifact/io.github.pwssorg/algorithm-hash-extraction -->
         <dependency>
             <groupId>io.github.pwssorg</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
