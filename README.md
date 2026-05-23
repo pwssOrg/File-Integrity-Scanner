@@ -1,30 +1,20 @@
-# File-Integrity Scanner
-## Overview
-
-The **File-Integrity Scanner** is a powerful tool designed to ensure the integrity of files by using cryptographic
-hash functions. This application provides peace of mind that files have not been tampered with, which is crucial
-for security and data verification purposes.
-
-
+# File-Integrity Scanner Backend (FIM Engine)
+This repository contains the backend service for the File Integrity Scanner system. It provides file integrity verification using cryptographic hash functions and detects unauthorized modifications and file corruption, ensuring reliable integrity checks for local systems.
 
 ## What is a File Integrity Scanner?
-
-A file integrity scanner is a software utility that computes cryptographic hashes of files and monitors them for
-changes. This process helps in detecting unauthorized modifications or corruption of critical files on a local
-machine.
-
+A file integrity scanner computes cryptographic hashes of files and monitors them for changes over time. It detects tampering, corruption, or unauthorized modifications to critical system and user files.
 
 ## Key Features
+Different hashing algorithms are supported to allow flexibility between performance and cryptographic strength depending on use case requirements.
 
-- **Hashing Algorithms:** Supports three different hashing algorithms:
+- **Hashing Algorithms:**
   - SHA-256
   - SHA-3 (256-bit)
-  - BLAKE_2b (512-bit)
+  - BLAKE2b (512-bit)
 
 - **Database Storage:** Uses PostgreSQL to store file hashes along with the date of the scan and other relevant file metadata.
 
-- **Local Operation:** The scanner runs exclusively on the user's local machine. No remote services are required
-or desired, ensuring full control over data integrity for the end-user.
+- **Local Operation:** The scanner runs exclusively on the user's local machine. No remote services are required, ensuring full local control over data and integrity verification.
 
 
 ![File Integrity Scanner Image](https://github.com/pwssOrg/File-Integrity-Scanner/blob/master/.github/assets/images/640x486.jpg?raw=true)
@@ -33,7 +23,7 @@ or desired, ensuring full control over data integrity for the end-user.
 
 🛡️ **Zero spyware. Zero tracking. Full respect for your privacy.**
 
-## Basic Setup Instructions
+## Basic Setup Instructions (for developers)
 
 ### Requirements
 
@@ -41,9 +31,10 @@ or desired, ensuring full control over data integrity for the end-user.
 - **SSL password**
 
 
-### Spring Version
+### Technology Stack
 
-**Spring 4.0.6**
+- Spring Framework 4.0.6
+- PostgreSQL
 
 ### Steps
 
@@ -58,11 +49,54 @@ or desired, ensuring full control over data integrity for the end-user.
 
 ## Contact Information
 
-For any questions or support, please reach out to:
+For questions, support, or contributions:
 
-	@pwgit-create	Peter pwgit-create
-	@lilstiffy	Stefan lilstiffy
+- **Peter** — [@pwgit-create](https://github.com/pwgit-create)
+- **Stefan** — [@lilstiffy](https://github.com/lilstiffy)
+
 ### Discussion Forum
 
 Please visit our discussion forum for project-related documentation and discussions: [Project Discussion
 Forum](https://github.com/orgs/pwssOrg/discussions/categories/file-integrity-scanner)
+
+---
+
+## Related Repositories
+
+### [PWSS Release Repository](https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner)
+
+User-focused distribution of the Integrity Hash platform for Windows and Linux systems.
+
+Designed for non-developers and system administrators who want a simplified installation and local file integrity monitoring experience without manually configuring backend services.
+<p align="center">
+  <a href="https://youtu.be/DcZYuQVOpCQ">
+    <img src="https://img.youtube.com/vi/DcZYuQVOpCQ/maxresdefault.jpg" alt="Titta på videon" width="100%" max-width="600px">
+  </a>
+</p>
+Features:
+
+* Easy setup
+* Local-only operation
+* PostgreSQL integration
+* Multi-algorithm hashing support
+* Privacy-focused design
+---
+
+## System Architecture
+
+The system is split into backend services, a GUI client, shared PWSS libraries, and an end-user distribution package. This modular architecture enables independent development of core security logic, user interface components, and deployment tooling for both technical and non-technical users. Each component can be developed and deployed independently while maintaining a shared security and hashing standard through the PWSS libraries.
+
+### Components
+
+- **Core Backend (FIM Engine)** – Handles hashing, integrity verification, and monitoring logic  
+- **GUI Application** – User interface for managing scans and viewing results  
+- **PWSS Libraries** – Shared components used across all PWSS projects  
+- **PWSS Release Repository** – End-user distribution for Windows and Linux
+
+### Architecture diagram
+This repository represents the backend layer of the File Integrity Scanner system and implements the core FIM engine.
+```
+GUI → Local Backend → PostgreSQL
+          ↓
+   PWSS Libraries (dependency)
+```
