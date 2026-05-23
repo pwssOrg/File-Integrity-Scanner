@@ -4,7 +4,6 @@ import lib.pwss.hash.file_hash_handler.BigFileHashHandler;
 import lib.pwss.hash.file_hash_handler.FileHashHandler;
 import lib.pwss.hash.file_hash_handler.parallel.ParallelFileHashHandler;
 import lib.pwss.hash.FileHash;
-import lib.pwss.hash.ParallelFileHash;
 import lib.pwss.hash.compare.util.HashCompareUtil;
 import lib.pwss.hash.model.HashForFilesOutput;
 
