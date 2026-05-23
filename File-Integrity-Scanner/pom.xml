@@ -7,7 +7,7 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>1.8.5</version>
+    <version>1.9</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
@@ -140,7 +140,7 @@
         <dependency>
             <groupId>io.github.pwssorg</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.9</version>
         </dependency>
 
 

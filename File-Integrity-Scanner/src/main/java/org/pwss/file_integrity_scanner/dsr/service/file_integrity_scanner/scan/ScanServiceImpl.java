@@ -268,7 +268,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
                     Scan scan = new Scan(time, ScanStatus.IN_PROGRESS.toString(), dir, note, isBaseLineScan);
 
                     repository.save(scan);
-
+                    fileHashComputer.initializeParallelHashing();
                     fileTraverser = new FileTraverserImpl();
                     Future<List<File>> futureFiles;
 
@@ -353,7 +353,7 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
             this.isScanRunning = true;
             log.debug("Scan is running - {}", isScanRunning);
-
+            fileHashComputer.initializeParallelHashing();
             fileTraverser = new FileTraverserImpl();
 
             final Time time = new Time(OffsetDateTime.now(), OffsetDateTime.now());
@@ -594,7 +594,8 @@ public class ScanServiceImpl extends PWSSbaseService<ScanRepository, Scan, Integ
 
                     // Shutdown the file traverser thread pool
                     fileTraverser.shutdownThreadPool();
-
+                    // Shutdown the parallel hash calculation thread pool
+                    fileHashComputer.shutdownParallelHashProcessor();
                     // Set state boolean to false so this method can be ran again
                     this.isScanRunning = false;
                 }

@@ -2,6 +2,7 @@ package org.pwss.file_integrity_scanner.dsr.service.file_integrity_scanner.scan;
 
 import lib.pwss.hash.file_hash_handler.BigFileHashHandler;
 import lib.pwss.hash.file_hash_handler.FileHashHandler;
+import lib.pwss.hash.file_hash_handler.parallel.ParallelFileHashHandler;
 import lib.pwss.hash.FileHash;
 import lib.pwss.hash.compare.util.HashCompareUtil;
 import lib.pwss.hash.model.HashForFilesOutput;
@@ -29,11 +30,20 @@ final class FileHashComputer {
 
     private final org.slf4j.Logger log;
 
-    // Instance of FileHashHandler for computing hashes of smaller files
+    /**
+     * Instance of FileHashHandler for computing hashes of smaller files
+     */
     private final FileHash fileHashHandler;
 
-    // Instance of BigFileHashHandler for computing hashes of larger files
+    /**
+     * Instance of BigFileHashHandler for computing hashes of larger files
+     */
     private final BigFileHashHandler bigFileHashHandler;
+
+    /**
+     * Handles parallel hash computation for files during scans.
+     */
+    private ParallelFileHashHandler parallelFileHashHandler;
 
     FileHashComputer() {
         this.log = org.slf4j.LoggerFactory.getLogger(FileHashComputer.class);
@@ -54,13 +64,13 @@ final class FileHashComputer {
         try {
 
             if (file.length() > MEMORY_STRATEGY_LIMIT)
-                return Optional.of(bigFileHashHandler.GetAllHashes(file));
+                return Optional.of(parallelFileHashHandler.GetAllHashesInParallel(file));
             else
                 return Optional.of(fileHashHandler.GetAllHashes(file));
 
         } catch (OutOfMemoryError outOfMemoryError) {
-            log.debug("OutOfMemoryError occurred, switching to BigFileHashHandler for file: {}", file.getPath());
-            return Optional.of(bigFileHashHandler.GetAllHashes(file));
+            log.debug("OutOfMemoryError occurred, switching to ParallelFileHashHandler for file: {}", file.getPath());
+            return Optional.of(parallelFileHashHandler.GetAllHashesInParallel(file));
         }
 
         catch (NullPointerException nullPointerException) {
@@ -101,7 +111,24 @@ final class FileHashComputer {
      *                            user.
      */
     final void setUserDefinedMaxLimitInHashComputer(long userDefinedMaxLimit) {
-        bigFileHashHandler.setUserDefinedMaxLimit(userDefinedMaxLimit);
+        this.bigFileHashHandler.setUserDefinedMaxLimit(userDefinedMaxLimit);
+    }
+
+    /**
+     * Shuts down resources used for parallel hash computation.
+     */
+    final void shutdownParallelHashProcessor() {
+
+        this.parallelFileHashHandler.shutdownThreadPool();
+    }
+
+    /**
+     * Initializes resources required for parallel hash computation
+     * before starting a scan operation.
+     */
+    final void initializeParallelHashing() {
+
+        this.parallelFileHashHandler = new ParallelFileHashHandler(bigFileHashHandler);
     }
 
 }
