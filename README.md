@@ -4,6 +4,9 @@ This repository contains the backend service for the File Integrity Scanner syst
 ## What is a File Integrity Scanner?
 A file integrity scanner computes cryptographic hashes of files and monitors them for changes over time. It detects tampering, corruption, or unauthorized modifications to critical system and user files.
 
+## What is a Cryptographic Hash?
+A cryptographic hash is a one-way mathematical function that converts data into a fixed-size value known as a hash or digest. Even the smallest change to a file results in a completely different hash value, making hashes useful for integrity verification and tamper detection.
+
 ## Key Features
 Different hashing algorithms are supported to allow flexibility between performance and cryptographic strength depending on use case requirements.
 
