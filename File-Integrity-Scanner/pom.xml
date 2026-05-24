@@ -7,7 +7,7 @@
 
     <groupId>org.pwss</groupId>
     <artifactId>File-Integrity-Scanner</artifactId>
-    <version>1.8.5</version>
+    <version>1.9</version>
     <packaging>jar</packaging>
     <description>A File Integrity Scanner</description>
     <licenses>
@@ -44,6 +44,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>4.0.6</spring-boot.version>
         <postgresql.JDBC-Driver.version>42.7.11</postgresql.JDBC-Driver.version>
+        <tomcat.version>11.0.22</tomcat.version>
     </properties>
 
 
@@ -140,7 +141,7 @@
         <dependency>
             <groupId>io.github.pwssorg</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.9</version>
         </dependency>
 
 
@@ -170,19 +171,39 @@
 
     </dependencies>
 
-    <dependencyManagement>
-    <dependencies>
-        <!-- Make sure all Spring Boot components are using the same version -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-dependencies</artifactId>
-            <version>${spring-boot.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
+<dependencyManagement>
+  <dependencies>
 
+    <!-- Spring Boot BOM -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-dependencies</artifactId>
+      <version>${spring-boot.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+
+    <!-- Force patched Tomcat (fixes Snyk CVEs) -->
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>11.0.22</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-websocket</artifactId>
+      <version>11.0.22</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-el</artifactId>
+      <version>11.0.22</version>
+    </dependency>
+
+  </dependencies>
+</dependencyManagement>
 
     <build>
         <plugins>
