@@ -71,7 +71,6 @@ Forum](https://github.com/orgs/pwssOrg/discussions/categories/file-integrity-sca
 User-focused distribution of the Integrity Hash platform for Windows and Linux systems.
 
 Designed for non-developers and system administrators who want a simplified installation and local file integrity monitoring experience without manually configuring backend services ▶️
-
 <p align="center">
   <a href="https://youtu.be/DcZYuQVOpCQ">
     <img src="https://img.youtube.com/vi/DcZYuQVOpCQ/maxresdefault.jpg" alt="Titta på videon" width="100%" max-width="600px">
