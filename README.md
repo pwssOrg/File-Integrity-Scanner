@@ -91,10 +91,10 @@ The system is split into backend services, a GUI client, shared PWSS libraries, 
 
 ### Components
 
-- **Core Backend (FIM Engine)** – Handles hashing, integrity verification, and monitoring logic  
-- **GUI Application** – User interface for managing scans and viewing results  
+- **[Core Backend (FIM Engine)](https://github.com/pwssOrg/File-Integrity-Scanner#components)** – Handles hashing, integrity verification, and monitoring logic  
+- **[GUI Application](https://github.com/pwssOrg/File-Integrity-GUI#integrity-hash-java-swing-frontend)** – User interface for managing scans and viewing results  
 - **PWSS Libraries** – Shared components used across all PWSS projects  
-- **PWSS Release Repository** – End-user distribution for Windows and Linux
+- **[PWSS Release Repository](https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner#table-of-contents)** – End-user distribution for Windows and Linux
 
 ### Architecture diagram
 This repository represents the backend layer of the File Integrity Scanner system and implements the core FIM engine.
