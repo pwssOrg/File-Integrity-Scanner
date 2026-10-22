@@ -36,7 +36,7 @@ Different hashing algorithms are supported to allow flexibility between performa
 
 ### Technology Stack
 
-- Spring Framework 4.0.6
+- Spring Boot 4.1.1
 - PostgreSQL
 
 ### Steps
