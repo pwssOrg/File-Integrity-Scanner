@@ -55,6 +55,7 @@
         <postgresql.JDBC-Driver.version>42.7.14</postgresql.JDBC-Driver.version>
         <tomcat.version>11.0.27</tomcat.version>
         <jackson.version>2.22.4</jackson.version>
+        <logback.version>1.6.5</logback.version>
     </properties>
 
 
@@ -142,7 +143,7 @@
         </dependency> 
 
         <!-- https://central.sonatype.com/artifact/io.github.pwssorg/algorithm-hash-extraction -->
-        <dependency>
+          <dependency>
             <groupId>io.github.pwssorg</groupId>
             <artifactId>algorithm-hash-extraction</artifactId>
             <version>1.3</version>
@@ -211,6 +212,16 @@
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-core</artifactId>
     <version>${jackson.version}</version>
+</dependency>
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-classic</artifactId>
+    <version>${logback.version}</version>
+</dependency>
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-core</artifactId>
+    <version>${logback.version}</version>
 </dependency>
      
     
