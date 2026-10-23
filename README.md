@@ -45,6 +45,11 @@ Different hashing algorithms are supported to allow flexibility between performa
 2. Get the database scripts from the [PWSS DB repository](https://github.com/pwssOrg/File-Integrity-Database).
 3. Start the database and the Spring application using the provided Make scripts.
 
+## Workflow Badges
+
+[![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
+[![SCA Scan - File Integrity Scanner](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml)
+
 ## Contact Information
 
 For questions, support, or contributions:
@@ -80,9 +85,6 @@ Features:
 * Privacy-focused design
 ---
 
-
-[![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
-[![SCA Scan - File Integrity Scanner](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml)
 
 ## System Architecture
 
