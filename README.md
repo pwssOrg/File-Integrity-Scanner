@@ -1,9 +1,6 @@
 # File-Integrity Scanner Backend (FIM Engine)
 This repository contains the backend service for the File Integrity Scanner system. It provides file integrity verification using cryptographic hash functions and detects unauthorized modifications and file corruption, ensuring reliable integrity checks for local systems.
 
-[![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
-[![SCA Scan - File Integrity Scanner](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml)
-
 ## What is a File Integrity Scanner?
 A file integrity scanner computes cryptographic hashes of files and monitors them for changes over time. It detects tampering, corruption, or unauthorized modifications to critical system and user files.
 
@@ -82,6 +79,10 @@ Features:
 * Multi-algorithm hashing support
 * Privacy-focused design
 ---
+
+
+[![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
+[![SCA Scan - File Integrity Scanner](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml)
 
 ## System Architecture
 
