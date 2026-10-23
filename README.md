@@ -1,6 +1,9 @@
 # File-Integrity Scanner Backend (FIM Engine)
 This repository contains the backend service for the File Integrity Scanner system. It provides file integrity verification using cryptographic hash functions and detects unauthorized modifications and file corruption, ensuring reliable integrity checks for local systems.
 
+[![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
+[![SCA Scan - File Integrity Scanner](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml)
+
 ## What is a File Integrity Scanner?
 A file integrity scanner computes cryptographic hashes of files and monitors them for changes over time. It detects tampering, corruption, or unauthorized modifications to critical system and user files.
 
@@ -36,7 +39,7 @@ Different hashing algorithms are supported to allow flexibility between performa
 
 ### Technology Stack
 
-- Spring Boot 4.1.1
+- Spring Boot 4.1.2
 - PostgreSQL
 
 ### Steps
@@ -44,11 +47,6 @@ Different hashing algorithms are supported to allow flexibility between performa
 1. Install and configure PostgreSQL on your system.
 2. Get the database scripts from the [PWSS DB repository](https://github.com/pwssOrg/File-Integrity-Database).
 3. Start the database and the Spring application using the provided Make scripts.
-
-## Workflow Badges
-
-[![Build Scan](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/build.yml)
-[![SCA Scan - File Integrity Scanner](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml/badge.svg)](https://github.com/pwssOrg/File-Integrity-Scanner/actions/workflows/snyk-scan.yml)
 
 ## Contact Information
 
