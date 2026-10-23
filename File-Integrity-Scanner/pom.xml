@@ -140,6 +140,12 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>9.1.5.Final</version>
+            <exclusions>
+                <exclusion>
+                  <groupId>jakarta.validation</groupId>
+                  <artifactId>jakarta.validation-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency> 
 
         <!-- https://central.sonatype.com/artifact/io.github.pwssorg/algorithm-hash-extraction -->
@@ -222,6 +228,11 @@
     <groupId>ch.qos.logback</groupId>
     <artifactId>logback-core</artifactId>
     <version>${logback.version}</version>
+</dependency>
+<dependency>
+    <groupId>jakarta.validation</groupId>
+    <artifactId>jakarta.validation-api</artifactId>
+    <version>4.0.0-M1</version>
 </dependency>
      
     
