@@ -12,7 +12,6 @@
     <description>A File Integrity Scanner</description>
     <inceptionYear>2025</inceptionYear>
     <licenses>
-        <licenses>
     <license>
         <name>MIT License</name>
         <url>https://opensource.org/license/mit</url>
